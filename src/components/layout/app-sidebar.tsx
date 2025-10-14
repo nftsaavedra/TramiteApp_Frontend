@@ -1,6 +1,6 @@
 // En: src/components/layout/app-sidebar.tsx
-// --- CORRECCIÓN DE ICONOS ---
 import { LayoutDashboard, Files, Lock, Settings } from 'lucide-react'
+import { Logo } from '@/assets/logo'
 import { useAuth } from '@/context/AuthContext'
 import { useLayout } from '@/context/layout-provider'
 import {
@@ -10,19 +10,21 @@ import {
   SidebarHeader,
   SidebarRail,
 } from '@/components/ui/sidebar'
-import { Logo } from '@/assets/logo'
 import { NavGroup } from './nav-group'
 import { NavUser } from './nav-user'
+
+// <- 1. Ruta de importación del Logo corregida
 
 export function AppSidebar() {
   const { collapsible, variant } = useLayout()
   const { user } = useAuth()
 
-  // Define la estructura de navegación dinámica con los iconos correctos
+  // Define la estructura de navegación dinámica
   const navGroups = [
     {
       title: 'Menú',
-      links: [
+      // 2. La propiedad ahora se llama 'items' en lugar de 'links'
+      items: [
         {
           to: '/',
           label: 'Dashboard',
@@ -40,7 +42,8 @@ export function AppSidebar() {
       ? [
           {
             title: 'Administración',
-            links: [
+            items: [
+              // <-- 2. Corregido a 'items'
               {
                 to: '/admin/usuarios',
                 label: 'Usuarios',
@@ -62,7 +65,8 @@ export function AppSidebar() {
       : []),
     {
       title: 'Cuenta',
-      links: [
+      items: [
+        // <-- 2. Corregido a 'items'
         {
           to: '/settings',
           label: 'Configuración',
@@ -82,11 +86,14 @@ export function AppSidebar() {
       </SidebarHeader>
       <SidebarContent>
         {navGroups.map((group) => (
-          <NavGroup key={group.title} title={group.title} links={group.links} />
+          <NavGroup key={group.title} {...group} />
         ))}
       </SidebarContent>
       <SidebarFooter>
-        {user && <NavUser user={{ name: user.name, email: user.email }} />}
+        {/* 3. Añadimos la propiedad 'avatar' requerida con un valor temporal */}
+        {user && (
+          <NavUser user={{ name: user.name, email: user.email, avatar: '' }} />
+        )}
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
