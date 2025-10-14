@@ -13,27 +13,26 @@ import {
 import { NavGroup } from './nav-group'
 import { NavUser } from './nav-user'
 
-// <- 1. Ruta de importación del Logo corregida
+// 1. Ruta de importación del Logo corregida
 
 export function AppSidebar() {
   const { collapsible, variant } = useLayout()
   const { user } = useAuth()
 
-  // Define la estructura de navegación dinámica
+  // Define la estructura de navegación con las propiedades correctas
   const navGroups = [
     {
       title: 'Menú',
-      // 2. La propiedad ahora se llama 'items' en lugar de 'links'
       items: [
         {
-          to: '/',
-          label: 'Dashboard',
-          icon: <LayoutDashboard size={18} />,
+          url: '/',
+          title: 'Dashboard', // <-- 2. CORREGIDO: de 'label' a 'title'
+          icon: LayoutDashboard,
         },
         {
-          to: '/tramites',
-          label: 'Trámites',
-          icon: <Files size={18} />,
+          url: '/tramites',
+          title: 'Trámites', // <-- 2. CORREGIDO: de 'label' a 'title'
+          icon: Files,
         },
       ],
     },
@@ -43,21 +42,20 @@ export function AppSidebar() {
           {
             title: 'Administración',
             items: [
-              // <-- 2. Corregido a 'items'
               {
-                to: '/admin/usuarios',
-                label: 'Usuarios',
-                icon: <Lock size={18} />,
+                url: '/admin/usuarios',
+                title: 'Usuarios', // <-- 2. CORREGIDO: de 'label' a 'title'
+                icon: Lock,
               },
               {
-                to: '/admin/oficinas',
-                label: 'Oficinas',
-                icon: <Lock size={18} />,
+                url: '/admin/oficinas',
+                title: 'Oficinas', // <-- 2. CORREGIDO: de 'label' a 'title'
+                icon: Lock,
               },
               {
-                to: '/admin/tipos-documento',
-                label: 'Tipos de Documento',
-                icon: <Lock size={18} />,
+                url: '/admin/tipos-documento',
+                title: 'Tipos de Documento', // <-- 2. CORREGIDO: de 'label' a 'title'
+                icon: Lock,
               },
             ],
           },
@@ -66,11 +64,10 @@ export function AppSidebar() {
     {
       title: 'Cuenta',
       items: [
-        // <-- 2. Corregido a 'items'
         {
-          to: '/settings',
-          label: 'Configuración',
-          icon: <Settings size={18} />,
+          url: '/settings',
+          title: 'Configuración', // <-- 2. CORREGIDO: de 'label' a 'title'
+          icon: Settings,
         },
       ],
     },
@@ -90,7 +87,7 @@ export function AppSidebar() {
         ))}
       </SidebarContent>
       <SidebarFooter>
-        {/* 3. Añadimos la propiedad 'avatar' requerida con un valor temporal */}
+        {/* 3. Se mantiene la propiedad 'avatar' con un valor temporal */}
         {user && (
           <NavUser user={{ name: user.name, email: user.email, avatar: '' }} />
         )}
