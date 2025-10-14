@@ -1,117 +1,62 @@
-# Shadcn Admin Dashboard
+# Tramiteapp - Frontend
 
-Admin Dashboard UI crafted with Shadcn and Vite. Built with responsiveness and accessibility in mind.
+Frontend de la aplicación Tramiteapp, diseñada para la gestión y seguimiento de trámites documentales. La interfaz está construida para ser moderna, responsiva y eficiente, facilitando la interacción del usuario con el sistema.
 
-![alt text](public/images/shadcn-admin.png)
+![Captura de pantalla de Tramiteapp](ruta/a/la/imagen.png)
 
-I've been creating dashboard UIs at work and for my personal projects. I always wanted to make a reusable collection of dashboard UI for future projects; and here it is now. While I've created a few custom components, some of the code is directly adapted from ShadcnUI examples.
+## Características Principales
 
-> This is not a starter project (template) though. I'll probably make one in the future.
+* **Gestión de Expedientes:** Creación, edición y consulta de expedientes digitales.
+* **Seguimiento de Trámites:** Visualización del estado y el historial de movimientos de cada trámite.
+* **Autenticación y Roles:** Sistema de inicio de sesión seguro con gestión de permisos basada en roles de usuario.
+* **Dashboard Analítico:** Panel de control con métricas y estadísticas clave sobre los trámites.
+* **Notificaciones:** Alertas en tiempo real sobre actualizaciones importantes en los expedientes.
+* **Diseño Responsivo:** Interfaz adaptable a diferentes dispositivos (escritorio, tabletas y móviles).
+* **Modo Claro/Oscuro:** Soporte para temas visuales que mejoran la experiencia de usuario.
 
-## Features
+## Stack Tecnológico
 
-- Light/dark mode
-- Responsive
-- Accessible
-- With built-in Sidebar component
-- Global search command
-- 10+ pages
-- Extra custom components
-- RTL support
+| Componente           | Tecnología                                                                 |
+| :------------------- | :------------------------------------------------------------------------- |
+| **Framework Frontend** | [Angular](https://angular.io/) v20+                                      |
+| **Librería de Componentes UI** | [PrimeNG](https://primeng.org/) v20+                                     |
+| **Enrutamiento** | [Angular Router](https://angular.io/guide/routing-overview)                |
+| **Gestión de Estado** | [Angular Signals](https://angular.io/guide/signals) / [RxJS](https://rxjs.dev/) |
+| **Lenguaje** | [TypeScript](https://www.typescriptlang.org/)                              |
+| **Linter / Formateador** | [ESLint](https://eslint.org/) & [Prettier](https://prettier.io/)           |
+| **Iconografía** | [PrimeIcons](https://primeng.org/icons)                                    |
+| **Build Tool** | [Angular CLI](https://angular.io/cli)                                      |
 
-<details>
-<summary>Customized Components (click to expand)</summary>
+## Instalación y Ejecución Local
 
-This project uses Shadcn UI components, but some have been slightly modified for better RTL (Right-to-Left) support and other improvements. These customized components differ from the original Shadcn UI versions.
+Siga estos pasos para configurar y ejecutar el proyecto en su entorno de desarrollo local.
 
-If you want to update components using the Shadcn CLI (e.g., `npx shadcn@latest add <component>`), it's generally safe for non-customized components. For the listed customized ones, you may need to manually merge changes to preserve the project's modifications and avoid overwriting RTL support or other updates.
+### Requisitos Previos
 
-> If you don't require RTL support, you can safely update the 'RTL Updated Components' via the Shadcn CLI, as these changes are primarily for RTL compatibility. The 'Modified Components' may have other customizations to consider.
+* Node.js (versión 20.x o superior)
+* NPM (versión 10.x o superior)
+* Angular CLI instalado globalmente (`npm install -g @angular/cli`)
 
-### Modified Components
+### Instalación
 
-- scroll-area
-- sonner
-- separator
+1.  Clone el repositorio en su máquina local:
+    ```bash
+    git clone [https://github.com/tu-usuario/tramiteapp-frontend.git](https://github.com/tu-usuario/tramiteapp-frontend.git)
+    ```
 
-### RTL Updated Components
+2.  Navegue al directorio del proyecto:
+    ```bash
+    cd tramiteapp-frontend
+    ```
 
-- alert-dialog
-- calendar
-- command
-- dialog
-- dropdown-menu
-- select
-- table
-- sheet
-- sidebar
-- switch
+3.  Instale las dependencias del proyecto:
+    ```bash
+    npm install
+    ```
 
-**Notes:**
+### Servidor de Desarrollo
 
-- **Modified Components**: These have general updates, potentially including RTL adjustments.
-- **RTL Updated Components**: These have specific changes for RTL language support (e.g., layout, positioning).
-- For implementation details, check the source files in `src/components/ui/`.
-- All other Shadcn UI components in the project are standard and can be safely updated via the CLI.
-
-</details>
-
-## Tech Stack
-
-**UI:** [ShadcnUI](https://ui.shadcn.com) (TailwindCSS + RadixUI)
-
-**Build Tool:** [Vite](https://vitejs.dev/)
-
-**Routing:** [TanStack Router](https://tanstack.com/router/latest)
-
-**Type Checking:** [TypeScript](https://www.typescriptlang.org/)
-
-**Linting/Formatting:** [Eslint](https://eslint.org/) & [Prettier](https://prettier.io/)
-
-**Icons:** [Lucide Icons](https://lucide.dev/icons/), [Tabler Icons](https://tabler.io/icons) (Brand icons only)
-
-**Auth (partial):** [Clerk](https://go.clerk.com/GttUAaK)
-
-## Run Locally
-
-Clone the project
+Ejecute el siguiente comando para iniciar el servidor de desarrollo. La aplicación se recargará automáticamente si realiza cambios en los archivos fuente.
 
 ```bash
-  git clone https://github.com/satnaing/shadcn-admin.git
-```
-
-Go to the project directory
-
-```bash
-  cd shadcn-admin
-```
-
-Install dependencies
-
-```bash
-  pnpm install
-```
-
-Start the server
-
-```bash
-  pnpm run dev
-```
-
-## Sponsoring this project ❤️
-
-If you find this project helpful or use this in your own work, consider [sponsoring me](https://github.com/sponsors/satnaing) to support development and maintenance. You can [buy me a coffee](https://buymeacoffee.com/satnaing) as well. Don’t worry, every penny helps. Thank you! 🙏
-
-For questions or sponsorship inquiries, feel free to reach out at [contact@satnaing.dev](mailto:contact@satnaing.dev).
-
-### Current Sponsor
-
-- [Clerk](https://go.clerk.com/GttUAaK) - for backing the implementation of Clerk in this project
-
-## Author
-
-Crafted with 🤍 by [@satnaing](https://github.com/satnaing)
-
-## License
-
-Licensed under the [MIT License](https://choosealicense.com/licenses/mit/)
+ng serve -o
