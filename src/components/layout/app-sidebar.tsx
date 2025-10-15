@@ -26,7 +26,7 @@ export function AppSidebar() {
       items: [
         {
           url: '/',
-          title: 'Dashboard', // <-- 2. CORREGIDO: de 'label' a 'title'
+          title: 'Inicio', // <-- 2. CORREGIDO: de 'label' a 'title'
           icon: LayoutDashboard,
         },
         {
