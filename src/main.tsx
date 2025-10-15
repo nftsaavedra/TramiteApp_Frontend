@@ -1,3 +1,4 @@
+// En: src/main.tsx
 import { StrictMode } from 'react'
 import ReactDOM from 'react-dom/client'
 import { AxiosError } from 'axios'
@@ -8,7 +9,7 @@ import {
 } from '@tanstack/react-query'
 import { RouterProvider, createRouter } from '@tanstack/react-router'
 import { toast } from 'sonner'
-import { useAuthStore } from '@/stores/auth-store'
+// import { useAuthStore } from '@/stores/auth-store' // 1. ELIMINADO: Ya no usamos Zustand para la autenticación
 import { handleServerError } from '@/lib/handle-server-error'
 import { DirectionProvider } from './context/direction-provider'
 import { FontProvider } from './context/font-provider'
@@ -22,12 +23,9 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: (failureCount, error) => {
-        // eslint-disable-next-line no-console
         if (import.meta.env.DEV) console.log({ failureCount, error })
-
         if (failureCount >= 0 && import.meta.env.DEV) return false
         if (failureCount > 3 && import.meta.env.PROD) return false
-
         return !(
           error instanceof AxiosError &&
           [401, 403].includes(error.response?.status ?? 0)
@@ -39,10 +37,9 @@ const queryClient = new QueryClient({
     mutations: {
       onError: (error) => {
         handleServerError(error)
-
         if (error instanceof AxiosError) {
           if (error.response?.status === 304) {
-            toast.error('Content not modified!')
+            toast.error('El contenido no ha sido modificado.')
           }
         }
       },
@@ -51,18 +48,13 @@ const queryClient = new QueryClient({
   queryCache: new QueryCache({
     onError: (error) => {
       if (error instanceof AxiosError) {
-        if (error.response?.status === 401) {
-          toast.error('Session expired!')
-          useAuthStore.getState().auth.reset()
-          const redirect = `${router.history.location.href}`
-          router.navigate({ to: '/sign-in', search: { redirect } })
-        }
+        // 2. Lógica para 401 eliminada. Es manejada por el interceptor de Axios y el AuthenticatedLayout.
+
+        // 3. Lógica para 500 actualizada para mostrar un toast en lugar de redirigir.
         if (error.response?.status === 500) {
-          toast.error('Internal Server Error!')
-          router.navigate({ to: '/500' })
-        }
-        if (error.response?.status === 403) {
-          // router.navigate("/forbidden", { replace: true });
+          toast.error(
+            'Error interno del servidor. Por favor, intente más tarde.'
+          )
         }
       }
     },
@@ -94,6 +86,7 @@ if (!rootElement.innerHTML) {
         <ThemeProvider>
           <FontProvider>
             <DirectionProvider>
+              {/* El AuthProvider ya está correctamente configurado en __root.tsx */}
               <RouterProvider router={router} />
             </DirectionProvider>
           </FontProvider>
