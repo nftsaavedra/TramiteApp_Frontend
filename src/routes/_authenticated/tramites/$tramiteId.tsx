@@ -1,15 +1,96 @@
- 
+// En: src/routes/_authenticated/tramites/$tramiteId.tsx
+import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
+import api from '@/lib/api'
+import { Main } from '@/components/layout/main'
+import { type TramiteCompleto } from '@/features/tramites/types'
+
+// Placeholder para los componentes que crearemos
+function DetallesPrincipales({ tramite }: { tramite: TramiteCompleto }) {
+  return (
+    <pre className='bg-muted overflow-x-auto rounded-lg p-4'>
+      <code>{JSON.stringify(tramite, null, 2)}</code>
+    </pre>
+  )
+}
+function HistorialMovimientos({ tramite }: { tramite: TramiteCompleto }) {
+  return <div>{/* Próximamente: Historial de Movimientos */}</div>
+}
+function GestionAnotaciones({ tramite }: { tramite: TramiteCompleto }) {
+  return <div>{/* Próximamente: Gestión de Anotaciones */}</div>
+}
+
+// Función para obtener los datos del trámite específico desde la API
+const fetchTramiteById = async (
+  tramiteId: string
+): Promise<TramiteCompleto> => {
+  const { data } = await api.get(`/tramites/${tramiteId}`)
+  return data
+}
 
 export const Route = createFileRoute('/_authenticated/tramites/$tramiteId')({
-  component: TramiteDetalle,
+  component: TramiteDetallePage,
 })
 
-function TramiteDetalle() {
+function TramiteDetallePage() {
   const { tramiteId } = Route.useParams()
+
+  const {
+    data: tramite,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ['tramite', tramiteId],
+    queryFn: () => fetchTramiteById(tramiteId),
+  })
+
+  if (isLoading) {
+    return (
+      <Main>
+        <p>Cargando información del trámite...</p>
+      </Main>
+    )
+  }
+
+  if (error) {
+    return (
+      <Main>
+        <p>Error al cargar el trámite. Es posible que no exista.</p>
+      </Main>
+    )
+  }
+
+  if (!tramite) {
+    return (
+      <Main>
+        <p>No se encontró el trámite.</p>
+      </Main>
+    )
+  }
+
   return (
-    <div className="p-2">
-      <h3>Detalle del Trámite ID: {tramiteId}</h3>
-    </div>
+    <Main>
+      <div className='mb-4'>
+        <h1 className='text-3xl font-bold tracking-tight'>
+          Detalle del Trámite
+        </h1>
+        <p className='text-muted-foreground'>
+          {tramite.numeroDocumentoCompleto}
+        </p>
+      </div>
+
+      <div className='grid grid-cols-1 gap-8 lg:grid-cols-3'>
+        {/* Columna Izquierda: Movimientos y Anotaciones */}
+        <div className='space-y-8 lg:col-span-2'>
+          <DetallesPrincipales tramite={tramite} />
+          <HistorialMovimientos tramite={tramite} />
+        </div>
+
+        {/* Columna Derecha: Anotaciones */}
+        <div className='lg:col-span-1'>
+          <GestionAnotaciones tramite={tramite} />
+        </div>
+      </div>
+    </Main>
   )
 }

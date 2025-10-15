@@ -2,6 +2,7 @@
 
 'use client'
 
+import { Link } from '@tanstack/react-router'
 import { ColumnDef } from '@tanstack/react-table'
 import { MoreHorizontal } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
@@ -17,7 +18,9 @@ import {
 
 // En: src/features/tramites/components/columns.tsx
 
-// 1. Define el tipo de dato para un Trámite, basándonos en tu API
+// Importa Link para la navegación
+
+// 1. El tipo de dato 'Tramite' ya es correcto y espera los objetos anidados.
 export type Tramite = {
   id: string
   numeroDocumentoCompleto: string
@@ -28,9 +31,12 @@ export type Tramite = {
   oficinaRemitente: {
     nombre: string
   }
+  tipoDocumento: {
+    nombre: string
+  }
 }
 
-// 2. Define las columnas para la tabla
+// 2. Definición de columnas actualizada y reordenada
 export const columns: ColumnDef<Tramite>[] = [
   {
     accessorKey: 'numeroDocumentoCompleto',
@@ -39,13 +45,30 @@ export const columns: ColumnDef<Tramite>[] = [
   {
     accessorKey: 'asunto',
     header: 'Asunto',
+    // Permite que esta columna ocupe más espacio si es necesario
+    cell: ({ row }) => (
+      <div className='min-w-[300px]'>{row.getValue('asunto')}</div>
+    ),
   },
+  // --- INICIO: COLUMNAS ACTUALIZADAS Y AÑADIDAS ---
+  {
+    accessorKey: 'tipoDocumento',
+    header: 'Tipo de Documento',
+    // Accedemos al nombre a través del objeto anidado
+    cell: ({ row }) => row.original.tipoDocumento.nombre,
+  },
+  {
+    accessorKey: 'oficinaRemitente',
+    header: 'Oficina Remitente',
+    // Accedemos al nombre a través del objeto anidado
+    cell: ({ row }) => row.original.oficinaRemitente.nombre,
+  },
+  // --- FIN: COLUMNAS ACTUALIZADAS Y AÑADIDAS ---
   {
     accessorKey: 'estado',
     header: 'Estado',
     cell: ({ row }) => {
       const estado = row.getValue('estado') as string
-      // Asigna colores a los badges según el estado
       const variant =
         estado === 'CERRADO' || estado === 'ARCHIVADO'
           ? 'destructive'
@@ -54,14 +77,9 @@ export const columns: ColumnDef<Tramite>[] = [
     },
   },
   {
-    accessorKey: 'oficinaRemitente.nombre',
-    header: 'Oficina Remitente',
-  },
-  {
     accessorKey: 'fechaIngreso',
     header: 'Fecha de Ingreso',
     cell: ({ row }) => {
-      // Formatea la fecha para que sea más legible
       const fecha = new Date(row.getValue('fechaIngreso'))
       return new Intl.DateTimeFormat('es-PE', {
         year: 'numeric',
@@ -86,14 +104,24 @@ export const columns: ColumnDef<Tramite>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align='end'>
             <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(tramite.id)}
-            >
-              Copiar ID del Trámite
+            {/* --- MEJORA: El enlace ahora navega a la página de detalle --- */}
+            <DropdownMenuItem asChild>
+              <Link
+                to='/tramites/$tramiteId'
+                params={{ tramiteId: tramite.id }}
+              >
+                Ver Detalle y Movimientos
+              </Link>
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>Ver Detalle</DropdownMenuItem>
             <DropdownMenuItem>Registrar Movimiento</DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={() =>
+                navigator.clipboard.writeText(tramite.numeroDocumentoCompleto)
+              }
+            >
+              Copiar N° de Documento
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       )
