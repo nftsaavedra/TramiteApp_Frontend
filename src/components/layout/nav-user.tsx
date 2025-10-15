@@ -32,8 +32,6 @@ export function NavUser({ user }: NavUserProps) {
   const { isMobile } = useSidebar()
   const { logout } = useAuth() // 2. Obtenemos la función logout de nuestro contexto
 
-  // Ya no necesitamos 'useDialogState' ni el componente 'SignOutDialog'
-
   return (
     <SidebarMenu>
       <SidebarMenuItem>
