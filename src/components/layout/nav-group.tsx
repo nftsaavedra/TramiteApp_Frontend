@@ -1,3 +1,4 @@
+// En: src/components/layout/nav-group.tsx
 import { type ReactNode } from 'react'
 import { Link, useLocation } from '@tanstack/react-router'
 import { ChevronRight } from 'lucide-react'
@@ -42,15 +43,12 @@ export function NavGroup({ title, items }: NavGroupProps) {
       <SidebarMenu>
         {items.map((item) => {
           const key = `${item.title}-${item.url}`
-
           if (!item.items)
             return <SidebarMenuLink key={key} item={item} href={href} />
-
           if (state === 'collapsed' && !isMobile)
             return (
               <SidebarMenuCollapsedDropdown key={key} item={item} href={href} />
             )
-
           return <SidebarMenuCollapsible key={key} item={item} href={href} />
         })}
       </SidebarMenu>
@@ -72,7 +70,8 @@ function SidebarMenuLink({ item, href }: { item: NavLink; href: string }) {
         tooltip={item.title}
       >
         <Link to={item.url} onClick={() => setOpenMobile(false)}>
-          {item.icon && <item.icon />}
+          {/* --- MEJORA: Añadimos el tamaño del icono --- */}
+          {item.icon && <item.icon size={18} />}
           <span>{item.title}</span>
           {item.badge && <NavBadge>{item.badge}</NavBadge>}
         </Link>
@@ -98,7 +97,8 @@ function SidebarMenuCollapsible({
       <SidebarMenuItem>
         <CollapsibleTrigger asChild>
           <SidebarMenuButton tooltip={item.title}>
-            {item.icon && <item.icon />}
+            {/* --- MEJORA: Añadimos el tamaño del icono --- */}
+            {item.icon && <item.icon size={18} />}
             <span>{item.title}</span>
             {item.badge && <NavBadge>{item.badge}</NavBadge>}
             <ChevronRight className='ms-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90 rtl:rotate-180' />
@@ -113,7 +113,8 @@ function SidebarMenuCollapsible({
                   isActive={checkIsActive(href, subItem)}
                 >
                   <Link to={subItem.url} onClick={() => setOpenMobile(false)}>
-                    {subItem.icon && <subItem.icon />}
+                    {/* --- MEJORA: Añadimos el tamaño del icono --- */}
+                    {subItem.icon && <subItem.icon size={18} />}
                     <span>{subItem.title}</span>
                     {subItem.badge && <NavBadge>{subItem.badge}</NavBadge>}
                   </Link>
@@ -142,7 +143,8 @@ function SidebarMenuCollapsedDropdown({
             tooltip={item.title}
             isActive={checkIsActive(href, item)}
           >
-            {item.icon && <item.icon />}
+            {/* --- MEJORA: Añadimos el tamaño del icono --- */}
+            {item.icon && <item.icon size={18} />}
             <span>{item.title}</span>
             {item.badge && <NavBadge>{item.badge}</NavBadge>}
             <ChevronRight className='ms-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90' />
@@ -159,7 +161,8 @@ function SidebarMenuCollapsedDropdown({
                 to={sub.url}
                 className={`${checkIsActive(href, sub) ? 'bg-secondary' : ''}`}
               >
-                {sub.icon && <sub.icon />}
+                {/* --- MEJORA: Añadimos el tamaño del icono --- */}
+                {sub.icon && <sub.icon size={18} />}
                 <span className='max-w-52 text-wrap'>{sub.title}</span>
                 {sub.badge && (
                   <span className='ms-auto text-xs'>{sub.badge}</span>
@@ -174,12 +177,13 @@ function SidebarMenuCollapsedDropdown({
 }
 
 function checkIsActive(href: string, item: NavItem, mainNav = false) {
+  const itemUrl = item.url ?? '#' // Añadimos un fallback por si url es opcional
   return (
-    href === item.url || // /endpint?search=param
-    href.split('?')[0] === item.url || // endpoint
-    !!item?.items?.filter((i) => i.url === href).length || // if child nav is active
+    href === itemUrl ||
+    href.split('?')[0] === itemUrl ||
+    !!item?.items?.filter((i) => i.url === href).length ||
     (mainNav &&
       href.split('/')[1] !== '' &&
-      href.split('/')[1] === item?.url?.split('/')[1])
+      href.split('/')[1] === itemUrl.split('/')[1])
   )
 }

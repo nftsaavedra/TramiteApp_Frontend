@@ -6,26 +6,17 @@ import { useAuth } from '@/context/AuthContext'
 import { LayoutProvider } from '@/context/layout-provider'
 import { SearchProvider } from '@/context/search-provider'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
-// --- INICIO: Imports movidos desde el Dashboard ---
 import { ConfigDrawer } from '@/components/config-drawer'
 import { AppSidebar } from '@/components/layout/app-sidebar'
 import { Header } from '@/components/layout/header'
-import { TopNav } from '@/components/layout/top-nav'
+// import { TopNav } from '@/components/layout/top-nav' // 1. Importación eliminada
 import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Search } from '@/components/search'
 import { SkipToMain } from '@/components/skip-to-main'
 import { ThemeSwitch } from '@/components/theme-switch'
 
-// --- FIN: Imports movidos ---
-
-// Datos para la navegación superior (podemos adaptarlos más adelante)
-const topNav = [
-  {
-    title: 'General',
-    href: '/',
-    isActive: true,
-  },
-]
+// 2. Constante de datos eliminada
+// const topNav = [...]
 
 export function AuthenticatedLayout() {
   const { isAuthenticated } = useAuth()
@@ -48,9 +39,8 @@ export function AuthenticatedLayout() {
               'peer-data-[variant=inset]:has-[[data-layout=fixed]]:h-[calc(100svh-(var(--spacing)*4))]'
             )}
           >
-            {/* ===== INICIO: Header movido aquí ===== */}
             <Header>
-              <TopNav links={topNav} />
+              {/* 3. Componente TopNav eliminado */}
               <div className='ms-auto flex items-center space-x-4'>
                 <Search />
                 <ThemeSwitch />
@@ -58,9 +48,7 @@ export function AuthenticatedLayout() {
                 <ProfileDropdown />
               </div>
             </Header>
-            {/* ===== FIN: Header movido aquí ===== */}
 
-            {/* El Outlet renderizará la página actual (Dashboard, Trámites, etc.) */}
             <Outlet />
           </SidebarInset>
         </SidebarProvider>
