@@ -1,10 +1,10 @@
 // En: src/features/tramites/types.ts
 
-// Tipos básicos que ya podríamos tener
-type Oficina = { id: string; nombre: string }
+// Tipos básicos actualizados para incluir más detalles cuando sea necesario
+type Oficina = { id: string; nombre: string; siglas: string }
 type UsuarioSimple = { id: string; name: string }
 
-// Tipo para un Destino de Movimiento
+// Tipo para un Destino de Movimiento (sin cambios necesarios)
 export type MovimientoDestino = {
   id: string
   oficinaDestino: Oficina
@@ -12,7 +12,7 @@ export type MovimientoDestino = {
   fechaRecepcion: string | null
 }
 
-// Tipo para un Movimiento individual
+// --- TIPO 'Movimiento' ACTUALIZADO ---
 export type Movimiento = {
   id: string
   tipoAccion: 'DERIVACION' | 'RESPUESTA' | 'ASIGNACION' | 'ARCHIVO' | 'CIERRE'
@@ -21,9 +21,13 @@ export type Movimiento = {
   usuarioCreador: UsuarioSimple
   destinos: MovimientoDestino[]
   observaciones: string | null
+  // --- CAMPOS AÑADIDOS ---
+  numeroDocumento: string | null
+  numeroDocumentoCompleto: string | null
+  notas: string | null
 }
 
-// Tipo para una Anotación
+// Tipo para una Anotación (sin cambios necesarios)
 export type Anotacion = {
   id: string
   contenido: string
@@ -31,7 +35,7 @@ export type Anotacion = {
   autor: UsuarioSimple
 }
 
-// Tipo completo para el Trámite (respuesta de GET /tramites/:id)
+// --- TIPO 'TramiteCompleto' ACTUALIZADO ---
 export type TramiteCompleto = {
   id: string
   numeroDocumentoCompleto: string
@@ -44,6 +48,8 @@ export type TramiteCompleto = {
   notas: string | null
   oficinaRemitente: Oficina
   tipoDocumento: { nombre: string }
+  // --- CAMPO AÑADIDO ---
+  usuarioAsignado: UsuarioSimple | null
   movimientos: Movimiento[]
   anotaciones: Anotacion[]
 }

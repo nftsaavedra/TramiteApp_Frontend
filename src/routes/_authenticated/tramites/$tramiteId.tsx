@@ -3,24 +3,17 @@ import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import api from '@/lib/api'
 import { Main } from '@/components/layout/main'
+import { DetallesPrincipales } from '@/features/tramites/components/DetallesPrincipales'
+import { HistorialMovimientos } from '@/features/tramites/components/HistorialMovimientos'
 import { type TramiteCompleto } from '@/features/tramites/types'
 
-// Placeholder para los componentes que crearemos
-function DetallesPrincipales({ tramite }: { tramite: TramiteCompleto }) {
-  return (
-    <pre className='bg-muted overflow-x-auto rounded-lg p-4'>
-      <code>{JSON.stringify(tramite, null, 2)}</code>
-    </pre>
-  )
-}
-function HistorialMovimientos({ tramite }: { tramite: TramiteCompleto }) {
-  return <div>{/* Próximamente: Historial de Movimientos */}</div>
-}
+// <-- Importa el nuevo componente
+
+// Placeholder
 function GestionAnotaciones({ tramite }: { tramite: TramiteCompleto }) {
   return <div>{/* Próximamente: Gestión de Anotaciones */}</div>
 }
 
-// Función para obtener los datos del trámite específico desde la API
 const fetchTramiteById = async (
   tramiteId: string
 ): Promise<TramiteCompleto> => {
@@ -80,13 +73,12 @@ function TramiteDetallePage() {
       </div>
 
       <div className='grid grid-cols-1 gap-8 lg:grid-cols-3'>
-        {/* Columna Izquierda: Movimientos y Anotaciones */}
         <div className='space-y-8 lg:col-span-2'>
           <DetallesPrincipales tramite={tramite} />
-          <HistorialMovimientos tramite={tramite} />
+          {/* Reemplaza el placeholder con el componente real */}
+          <HistorialMovimientos movimientos={tramite.movimientos} />
         </div>
 
-        {/* Columna Derecha: Anotaciones */}
         <div className='lg:col-span-1'>
           <GestionAnotaciones tramite={tramite} />
         </div>
