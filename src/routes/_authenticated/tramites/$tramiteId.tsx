@@ -3,12 +3,11 @@ import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import api from '@/lib/api'
 import { Main } from '@/components/layout/main'
+import { AccionesTramite } from '@/features/tramites/components/AccionesTramite'
 import { DetallesPrincipales } from '@/features/tramites/components/DetallesPrincipales'
 import { GestionAnotaciones } from '@/features/tramites/components/GestionAnotaciones'
 import { HistorialMovimientos } from '@/features/tramites/components/HistorialMovimientos'
 import { type TramiteCompleto } from '@/features/tramites/types'
-
-// <-- Importa el componente real
 
 const fetchTramiteById = async (
   tramiteId: string
@@ -55,6 +54,14 @@ function TramiteDetallePage() {
     )
   }
 
+  // --- INICIO: LÓGICA PARA DETERMINAR LA OFICINA ACTUAL ---
+  const ultimoMovimiento = tramite.movimientos[tramite.movimientos.length - 1]
+  const oficinaActualNombre =
+    ultimoMovimiento && ultimoMovimiento.destinos.length > 0
+      ? ultimoMovimiento.destinos[0].oficinaDestino.nombre
+      : tramite.oficinaRemitente.nombre
+  // --- FIN DE LA LÓGICA ---
+
   return (
     <Main>
       <div className='mb-4'>
@@ -75,7 +82,11 @@ function TramiteDetallePage() {
 
         {/* Columna Derecha (Acciones y Anotaciones) */}
         <div className='space-y-8 lg:col-span-1'>
-          {/* Aquí podrías añadir el componente de Acciones si lo creas */}
+          {/* Pasa el nombre de la oficina actual al componente de acciones */}
+          <AccionesTramite
+            tramiteId={tramite.id}
+            oficinaActualNombre={oficinaActualNombre}
+          />
           <GestionAnotaciones tramite={tramite} />
         </div>
       </div>
