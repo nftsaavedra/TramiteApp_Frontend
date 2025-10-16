@@ -1,21 +1,34 @@
 // En: src/features/tramites/components/GestionAnotaciones.tsx
-
+import * as z from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import * as z from 'zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import api from '@/lib/api'
-import { type Anotacion, type TramiteCompleto } from '@/features/tramites/types'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from '@/components/ui/card'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from '@/components/ui/form'
 import { Textarea } from '@/components/ui/textarea'
+import { type TramiteCompleto } from '@/features/tramites/types'
 import { AnotacionItem } from './AnotacionItem'
 
 // Esquema de validación para el formulario de nueva anotación
 const anotacionSchema = z.object({
-  contenido: z.string().min(3, { message: 'La anotación debe tener al menos 3 caracteres.' }),
+  contenido: z
+    .string()
+    .min(3, { message: 'La anotación debe tener al menos 3 caracteres.' }),
 })
 
 interface GestionAnotacionesProps {
@@ -54,36 +67,47 @@ export function GestionAnotaciones({ tramite }: GestionAnotacionesProps) {
         <CardTitle>Anotaciones</CardTitle>
         <CardDescription>Notas y comentarios sobre el trámite.</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className='space-y-6'>
         {/* Formulario para añadir una nueva anotación */}
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
+          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-2'>
             <FormField
               control={form.control}
-              name="contenido"
+              name='contenido'
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Textarea placeholder="Escribe una nueva anotación..." {...field} />
+                    <Textarea
+                      placeholder='Escribe una nueva anotación...'
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <Button size="sm" type="submit" disabled={addAnotacionMutation.isPending}>
-              {addAnotacionMutation.isPending ? 'Añadiendo...' : 'Añadir Anotación'}
+            <Button
+              size='sm'
+              type='submit'
+              disabled={addAnotacionMutation.isPending}
+            >
+              {addAnotacionMutation.isPending
+                ? 'Añadiendo...'
+                : 'Añadir Anotación'}
             </Button>
           </form>
         </Form>
 
-        {/* Lista de anotaciones existentes */}
-        <div className="space-y-4">
+        {/* Separador y lista de anotaciones existentes */}
+        <div className='space-y-6 border-t pt-4'>
           {tramite.anotaciones.length > 0 ? (
             tramite.anotaciones.map((anotacion) => (
               <AnotacionItem key={anotacion.id} anotacion={anotacion} />
             ))
           ) : (
-            <p className="text-sm text-muted-foreground">No hay anotaciones registradas.</p>
+            <p className='text-muted-foreground py-4 text-center text-sm'>
+              No hay anotaciones registradas.
+            </p>
           )}
         </div>
       </CardContent>

@@ -4,15 +4,11 @@ import { createFileRoute } from '@tanstack/react-router'
 import api from '@/lib/api'
 import { Main } from '@/components/layout/main'
 import { DetallesPrincipales } from '@/features/tramites/components/DetallesPrincipales'
+import { GestionAnotaciones } from '@/features/tramites/components/GestionAnotaciones'
 import { HistorialMovimientos } from '@/features/tramites/components/HistorialMovimientos'
 import { type TramiteCompleto } from '@/features/tramites/types'
 
-// <-- Importa el nuevo componente
-
-// Placeholder
-function GestionAnotaciones({ tramite }: { tramite: TramiteCompleto }) {
-  return <div>{/* Próximamente: Gestión de Anotaciones */}</div>
-}
+// <-- Importa el componente real
 
 const fetchTramiteById = async (
   tramiteId: string
@@ -44,7 +40,6 @@ function TramiteDetallePage() {
       </Main>
     )
   }
-
   if (error) {
     return (
       <Main>
@@ -52,7 +47,6 @@ function TramiteDetallePage() {
       </Main>
     )
   }
-
   if (!tramite) {
     return (
       <Main>
@@ -73,13 +67,15 @@ function TramiteDetallePage() {
       </div>
 
       <div className='grid grid-cols-1 gap-8 lg:grid-cols-3'>
+        {/* Columna Izquierda (Información e Historial) */}
         <div className='space-y-8 lg:col-span-2'>
           <DetallesPrincipales tramite={tramite} />
-          {/* Reemplaza el placeholder con el componente real */}
           <HistorialMovimientos movimientos={tramite.movimientos} />
         </div>
 
-        <div className='lg:col-span-1'>
+        {/* Columna Derecha (Acciones y Anotaciones) */}
+        <div className='space-y-8 lg:col-span-1'>
+          {/* Aquí podrías añadir el componente de Acciones si lo creas */}
           <GestionAnotaciones tramite={tramite} />
         </div>
       </div>

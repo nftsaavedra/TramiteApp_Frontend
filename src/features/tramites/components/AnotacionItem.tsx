@@ -31,7 +31,9 @@ export function AnotacionItem({ anotacion }: AnotacionItemProps) {
             })}
           </time>
         </div>
-        <p className='text-muted-foreground text-sm'>{anotacion.contenido}</p>
+        <p className='text-muted-foreground text-sm whitespace-pre-wrap'>
+          {anotacion.contenido}
+        </p>
       </div>
     </div>
   )
