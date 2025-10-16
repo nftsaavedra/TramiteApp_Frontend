@@ -1,17 +1,19 @@
 // En: src/features/tramites/components/tramites-table.tsx
 
-"use client"
+'use client'
 
+import * as React from 'react'
+import { useQuery } from '@tanstack/react-query'
 import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
-  getPaginationRowModel,
   useReactTable,
-} from "@tanstack/react-table"
-import { useQuery } from '@tanstack/react-query'
+  ColumnFiltersState,
+  SortingState,
+  PaginationState,
+} from '@tanstack/react-table'
 import api from '@/lib/api'
-
 import {
   Table,
   TableBody,
@@ -19,13 +21,54 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
-import { type Tramite } from "./columns" // Importamos el tipo
+} from '@/components/ui/table'
+import { DataTablePagination } from '@/components/data-table/pagination'
+import { type Tramite } from './columns'
+import { TramitesTableToolbar } from './tramites-table-toolbar'
 
-// Función para obtener los datos desde la API
-const fetchTramites = async (): Promise<Tramite[]> => {
-  const { data } = await api.get('/tramites')
+// En: src/features/tramites/components/tramites-table.tsx
+
+// El tipo de respuesta paginada que esperamos del backend
+type TramitesApiResponse = {
+  data: Tramite[]
+  meta: {
+    total: number
+    page: number
+    limit: number
+    lastPage: number
+  }
+}
+
+// La función de fetching ahora acepta TODOS los estados de la tabla
+const fetchTramites = async (
+  pagination: PaginationState,
+  filters: ColumnFiltersState,
+  sorting: SortingState
+): Promise<TramitesApiResponse> => {
+  const params = new URLSearchParams()
+
+  // Mapear paginación
+  params.append('page', (pagination.pageIndex + 1).toString())
+  params.append('limit', pagination.pageSize.toString())
+
+  // Mapear filtros
+  filters.forEach((filter) => {
+    if (filter.id === 'asunto' && filter.value) {
+      params.append('q', filter.value as string)
+    } else if (filter.value && (filter.value as string[]).length > 0) {
+      params.append(filter.id, (filter.value as string[]).join(','))
+    }
+  })
+
+  // Mapear ordenamiento
+  if (sorting.length > 0) {
+    params.append(
+      'sortBy',
+      `${sorting[0].id}:${sorting[0].desc ? 'desc' : 'asc'}`
+    )
+  }
+
+  const { data } = await api.get('/tramites', { params })
   return data
 }
 
@@ -34,40 +77,81 @@ interface DataTableProps {
 }
 
 export function TramitesDataTable({ columns }: DataTableProps) {
-  const { data: tramites, isLoading, error } = useQuery({
-    queryKey: ['tramites'],
-    queryFn: fetchTramites,
+  // Estados para todos los aspectos de la tabla controlados por el servidor
+  const [sorting, setSorting] = React.useState<SortingState>([
+    { id: 'fechaIngreso', desc: true },
+  ])
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    []
+  )
+  const [pagination, setPagination] = React.useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
   })
+
+  // useQuery ahora depende de todos los estados de la tabla
+  const {
+    data: response,
+    isLoading,
+    isPlaceholderData,
+    error,
+  } = useQuery({
+    queryKey: ['tramites', pagination, columnFilters, sorting],
+    queryFn: () => fetchTramites(pagination, columnFilters, sorting),
+    placeholderData: (previousData) => previousData, // Mantiene datos antiguos visibles mientras se cargan los nuevos
+  })
+
+  // La paginación por defecto si no hay respuesta
+  const defaultPagination: PaginationState = {
+    pageIndex: 0,
+    pageSize: 10,
+  }
 
   const table = useReactTable({
-    data: tramites ?? [], // Usa un array vacío si los datos aún no han llegado
+    data: response?.data ?? [],
     columns,
+    // La tabla no necesita saber cómo filtrar o ordenar, solo mostrar los datos
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    // La paginación es manual y el conteo de páginas viene del servidor
+    manualPagination: true,
+    pageCount: response?.meta.lastPage ?? -1,
+    // Conectamos los estados y sus actualizadores
+    state: {
+      sorting,
+      columnFilters,
+      pagination: response?.meta
+        ? {
+            pageIndex: response.meta.page - 1,
+            pageSize: response.meta.limit,
+          }
+        : defaultPagination,
+    },
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    onPaginationChange: setPagination,
   })
 
-  if (isLoading) return <p>Cargando trámites...</p>
+  if (isLoading && !response) return <p>Cargando trámites...</p>
   if (error) return <p>Error al cargar los trámites.</p>
 
   return (
-    <div>
-      <div className="rounded-md border">
+    <div className='space-y-4'>
+      <TramitesTableToolbar table={table} />
+      <div className='rounded-md border'>
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  )
-                })}
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </TableHead>
+                ))}
               </TableRow>
             ))}
           </TableHeader>
@@ -76,18 +160,24 @@ export function TramitesDataTable({ columns }: DataTableProps) {
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
+                  data-state={row.getIsSelected() && 'selected'}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
                     </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
+                <TableCell
+                  colSpan={columns.length}
+                  className='h-24 text-center'
+                >
                   No se encontraron resultados.
                 </TableCell>
               </TableRow>
@@ -95,24 +185,8 @@ export function TramitesDataTable({ columns }: DataTableProps) {
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
-          Anterior
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-        >
-          Siguiente
-        </Button>
-      </div>
+      {/* Delegamos la paginación al componente genérico */}
+      <DataTablePagination table={table} />
     </div>
   )
 }

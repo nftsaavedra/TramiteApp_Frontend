@@ -18,61 +18,107 @@ import {
 
 // En: src/features/tramites/components/columns.tsx
 
-// Importa Link para la navegación
-
-// 1. El tipo de dato 'Tramite' ya es correcto y espera los objetos anidados.
+/**
+ * Define la estructura de datos para un Trámite, incluyendo la propiedad `fechaIngreso`
+ * y las relaciones anidadas necesarias para la visualización en la tabla.
+ */
 export type Tramite = {
   id: string
   numeroDocumentoCompleto: string
   asunto: string
   estado: 'ABIERTO' | 'CERRADO' | 'ARCHIVADO'
-  prioridad: 'BAJA' | 'NORMAL' | 'ALTA' | 'URGENTE'
-  fechaIngreso: string
+  fechaIngreso: string // <-- CORRECCIÓN: Propiedad añadida nuevamente
   oficinaRemitente: {
-    nombre: string
+    siglas: string
   }
   tipoDocumento: {
     nombre: string
   }
+  movimientos: {
+    destinos: {
+      oficinaDestino: {
+        siglas: string
+      }
+    }[]
+  }[]
+  plazo: {
+    diasTranscurridos: number | null
+    estado: 'VENCIDO' | 'POR_VENCER' | 'A_TIEMPO' | 'NO_APLICA'
+  }
 }
 
-// 2. Definición de columnas actualizada y reordenada
+/**
+ * Define las columnas para la tabla de trámites.
+ */
 export const columns: ColumnDef<Tramite>[] = [
   {
     accessorKey: 'numeroDocumentoCompleto',
     header: 'N° Documento',
+    cell: ({ row }) => (
+      <div className='font-medium'>
+        {row.getValue('numeroDocumentoCompleto')}
+      </div>
+    ),
   },
   {
     accessorKey: 'asunto',
     header: 'Asunto',
-    // Permite que esta columna ocupe más espacio si es necesario
     cell: ({ row }) => (
       <div className='min-w-[300px]'>{row.getValue('asunto')}</div>
     ),
   },
-  // --- INICIO: COLUMNAS ACTUALIZADAS Y AÑADIDAS ---
   {
-    accessorKey: 'tipoDocumento',
+    id: 'ubicacionActual',
+    header: 'Ubicación Actual',
+    accessorFn: (row) =>
+      row.movimientos?.[0]?.destinos?.[0]?.oficinaDestino.siglas ??
+      row.oficinaRemitente.siglas,
+    cell: ({ getValue }) => (
+      <div className='font-semibold'>{getValue<string>()}</div>
+    ),
+  },
+  {
+    accessorKey: 'tipoDocumento.nombre',
     header: 'Tipo de Documento',
-    // Accedemos al nombre a través del objeto anidado
-    cell: ({ row }) => row.original.tipoDocumento.nombre,
   },
   {
-    accessorKey: 'oficinaRemitente',
-    header: 'Oficina Remitente',
-    // Accedemos al nombre a través del objeto anidado
-    cell: ({ row }) => row.original.oficinaRemitente.nombre,
+    accessorKey: 'plazo',
+    header: 'Estado del Plazo',
+    cell: ({ row }) => {
+      const plazo = row.original.plazo
+
+      if (plazo.estado === 'NO_APLICA') {
+        return <span className='text-muted-foreground text-xs'>N/A</span>
+      }
+
+      let texto: string
+      let color: 'destructive' | 'secondary' | 'default'
+
+      switch (plazo.estado) {
+        case 'VENCIDO':
+          texto = `Vencido (${plazo.diasTranscurridos} días)`
+          color = 'destructive'
+          break
+        case 'POR_VENCER':
+          texto = `Por vencer (${plazo.diasTranscurridos} días)`
+          color = 'secondary'
+          break
+        default:
+          texto = `A tiempo (${plazo.diasTranscurridos} días)`
+          color = 'default'
+          break
+      }
+
+      return <Badge variant={color}>{texto}</Badge>
+    },
   },
-  // --- FIN: COLUMNAS ACTUALIZADAS Y AÑADIDAS ---
   {
     accessorKey: 'estado',
-    header: 'Estado',
+    header: 'Estado Trámite',
     cell: ({ row }) => {
       const estado = row.getValue('estado') as string
       const variant =
-        estado === 'CERRADO' || estado === 'ARCHIVADO'
-          ? 'destructive'
-          : 'default'
+        estado === 'CERRADO' || estado === 'ARCHIVADO' ? 'outline' : 'default'
       return <Badge variant={variant}>{estado}</Badge>
     },
   },
@@ -80,13 +126,11 @@ export const columns: ColumnDef<Tramite>[] = [
     accessorKey: 'fechaIngreso',
     header: 'Fecha de Ingreso',
     cell: ({ row }) => {
-      const fecha = new Date(row.getValue('fechaIngreso'))
+      const fecha = new Date(row.original.fechaIngreso)
       return new Intl.DateTimeFormat('es-PE', {
-        year: 'numeric',
-        month: '2-digit',
         day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
       }).format(fecha)
     },
   },
@@ -104,7 +148,6 @@ export const columns: ColumnDef<Tramite>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align='end'>
             <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-            {/* --- MEJORA: El enlace ahora navega a la página de detalle --- */}
             <DropdownMenuItem asChild>
               <Link
                 to='/tramites/$tramiteId'
@@ -113,7 +156,6 @@ export const columns: ColumnDef<Tramite>[] = [
                 Ver Detalle y Movimientos
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem>Registrar Movimiento</DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() =>
