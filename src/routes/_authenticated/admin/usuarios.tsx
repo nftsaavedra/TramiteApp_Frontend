@@ -19,7 +19,7 @@ const usersSearchSchema = z.object({
     .optional()
     .catch([]),
   role: z
-    .array(z.enum(roles.map((r) => r.value as (typeof roles)[number]['value'])))
+    .array(z.enum(roles as unknown as [typeof roles[number], ...typeof roles[number][]]))
     .optional()
     .catch([]),
   // Per-column text filter (example for username)
