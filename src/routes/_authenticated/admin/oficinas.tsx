@@ -144,7 +144,11 @@ function AdminOficinas() {
       <OficinasDataTable
         columns={columns}
         data={data || []}
-        {...({ onEdit: openForm, onDelete: openDeleteDialog, onCreate: () => openForm(null) } as any)}
+        {...({
+          onEdit: openForm,
+          onDelete: openDeleteDialog,
+          onCreate: () => openForm(null),
+        } as any)}
       />
 
       {/* --- DIÁLOGO PARA CREAR/EDITAR --- */}
@@ -157,16 +161,8 @@ function AdminOficinas() {
           </DialogHeader>
           <OficinaForm
             onSubmit={handleFormSubmit}
-            defaultValues={
-              selectedOficina
-                ? {
-                    nombre: selectedOficina.nombre,
-                    siglas: selectedOficina.siglas,
-                    tipo: selectedOficina.tipo as OficinaFormValues['tipo'],
-                    parentId: (selectedOficina as any)?.parentId ?? undefined,
-                  }
-                : undefined
-            }
+            defaultValues={selectedOficina || undefined}
+            oficinasList={data || []} // Pasamos la lista completa de oficinas
           />
         </DialogContent>
       </Dialog>

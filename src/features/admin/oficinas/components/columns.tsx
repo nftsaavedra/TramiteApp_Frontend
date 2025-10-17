@@ -9,12 +9,17 @@ import { DataTableRowActions } from './oficinas-row-actions'
 
 // En: src/features/admin/oficinas/components/columns.tsx
 
+// 1. Tipo actualizado para incluir la relación `parent` opcional
 export type Oficina = {
   id: string
   nombre: string
   siglas: string
   tipo: string
   isActive: boolean
+  parentId: string | null
+  parent: {
+    siglas: string
+  } | null
 }
 
 export const columns: ColumnDef<Oficina>[] = [
@@ -47,20 +52,30 @@ export const columns: ColumnDef<Oficina>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Nombre' />
     ),
-    cell: ({ row }) => {
-      return (
-        <div className='flex space-x-2'>
-          <span className='max-w-[500px] truncate font-medium'>
-            {row.getValue('nombre')}
-          </span>
-        </div>
-      )
-    },
+    cell: ({ row }) => (
+      <div className='max-w-[500px] truncate font-medium'>
+        {row.getValue('nombre')}
+      </div>
+    ),
   },
   {
     accessorKey: 'siglas',
     header: 'Siglas',
   },
+  // --- INICIO: NUEVA COLUMNA PARA JERARQUÍA ---
+  {
+    accessorKey: 'parent',
+    header: 'Depende de',
+    cell: ({ row }) => {
+      const parent = row.original.parent
+      return parent ? (
+        <span className='font-medium'>{parent.siglas}</span>
+      ) : (
+        <span className='text-muted-foreground text-xs'>—</span>
+      )
+    },
+  },
+  // --- FIN: NUEVA COLUMNA PARA JERARQUÍA ---
   {
     accessorKey: 'tipo',
     header: ({ column }) => (
@@ -75,12 +90,10 @@ export const columns: ColumnDef<Oficina>[] = [
   {
     id: 'actions',
     cell: ({ row, table }) => {
-      // Se extraen las funciones de la metadata de la tabla
       const { onEdit, onDelete } = table.options.meta as {
         onEdit: (oficina: Oficina) => void
         onDelete: (oficina: Oficina) => void
       }
-      // Se pasan las funciones al componente de acciones
       return (
         <DataTableRowActions row={row} onEdit={onEdit} onDelete={onDelete} />
       )

@@ -23,28 +23,40 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { oficinaSchema, tiposOficina } from '../data/schema'
+import { Oficina } from './columns'
 
 // En: src/features/admin/oficinas/components/oficina-form.tsx
+// Importamos el tipo Oficina
 
 type OficinaFormProps = {
   onSubmit: (values: z.infer<typeof oficinaSchema>) => void
-  defaultValues?: z.infer<typeof oficinaSchema>
+  defaultValues?: Partial<Oficina> // Usamos Partial para flexibilidad
+  oficinasList: Oficina[] // 1. Recibimos la lista de todas las oficinas
 }
 
-export function OficinaForm({ onSubmit, defaultValues }: OficinaFormProps) {
+export function OficinaForm({
+  onSubmit,
+  defaultValues,
+  oficinasList,
+}: OficinaFormProps) {
   const form = useForm<z.infer<typeof oficinaSchema>>({
     resolver: zodResolver(oficinaSchema),
-    defaultValues: defaultValues || {
-      nombre: '',
-      siglas: '',
-      tipo: undefined,
-      parentId: null,
+    defaultValues: {
+      nombre: defaultValues?.nombre ?? '',
+      siglas: defaultValues?.siglas ?? '',
+      tipo: defaultValues?.tipo as any,
+      parentId: defaultValues?.parentId ?? null,
     },
   })
 
+  // 2. Filtramos la lista para que una oficina no pueda ser su propio padre
+  const oficinasPadreDisponibles = oficinasList.filter(
+    (o) => o.id !== defaultValues?.id
+  )
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
+      <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
         <FormField
           control={form.control}
           name='nombre'
@@ -86,7 +98,7 @@ export function OficinaForm({ onSubmit, defaultValues }: OficinaFormProps) {
                 <SelectContent>
                   {tiposOficina.map((tipo) => (
                     <SelectItem key={tipo} value={tipo}>
-                      {tipo.replace(/_/g, ' ').toLocaleLowerCase()}
+                      {tipo.replace(/_/g, ' ').toLowerCase()}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -95,8 +107,41 @@ export function OficinaForm({ onSubmit, defaultValues }: OficinaFormProps) {
             </FormItem>
           )}
         />
-        {/* Aquí podríamos añadir un selector de oficina padre si fuera necesario */}
-        <Button type='submit'>Guardar</Button>
+        {/* --- INICIO: CAMPO PARA OFICINA SUPERIOR --- */}
+        <FormField
+          control={form.control}
+          name='parentId'
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Oficina Superior (Opcional)</FormLabel>
+              <Select
+                onValueChange={(value) =>
+                  field.onChange(value === 'null' ? null : value)
+                }
+                defaultValue={field.value ?? 'null'}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder='Seleccione una oficina superior' />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value='null'>
+                    Ninguna (Nivel Principal)
+                  </SelectItem>
+                  {oficinasPadreDisponibles.map((oficina) => (
+                    <SelectItem key={oficina.id} value={oficina.id}>
+                      {oficina.nombre} ({oficina.siglas})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        {/* --- FIN: CAMPO PARA OFICINA SUPERIOR --- */}
+        <Button type='submit'>Guardar Cambios</Button>
       </form>
     </Form>
   )
