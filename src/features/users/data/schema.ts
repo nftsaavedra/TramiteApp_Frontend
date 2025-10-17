@@ -1,32 +1,29 @@
+// En: src/features/admin/usuarios/data/schema.ts
 import { z } from 'zod'
+import { roles } from './data'
 
-const userStatusSchema = z.union([
-  z.literal('active'),
-  z.literal('inactive'),
-  z.literal('invited'),
-  z.literal('suspended'),
-])
-export type UserStatus = z.infer<typeof userStatusSchema>
+export const userSchema = z
+  .object({
+    name: z.string().min(1, { message: 'El nombre es obligatorio' }),
+    email: z
+      .string()
+      .min(1, { message: 'El correo electrónico es obligatorio' })
+      .email({ message: 'Debe ser un correo electrónico válido' }),
+    role: z.enum(roles, {
+      message: 'Debe seleccionar un rol válido',
+    }),
+    oficinaId: z.string().nullable().optional(),
+    // La contraseña es opcional al editar, pero requerida al crear
+    password: z
+      .string()
+      .min(8, { message: 'La contraseña debe tener al menos 8 caracteres' })
+      .optional()
+      .or(z.literal('')),
+    confirmPassword: z.string().optional().or(z.literal('')),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'Las contraseñas no coinciden',
+    path: ['confirmPassword'], // Error se mostrará en el campo de confirmación
+  })
 
-const userRoleSchema = z.union([
-  z.literal('superadmin'),
-  z.literal('admin'),
-  z.literal('cashier'),
-  z.literal('manager'),
-])
-
-const userSchema = z.object({
-  id: z.string(),
-  firstName: z.string(),
-  lastName: z.string(),
-  username: z.string(),
-  email: z.string(),
-  phoneNumber: z.string(),
-  status: userStatusSchema,
-  role: userRoleSchema,
-  createdAt: z.coerce.date(),
-  updatedAt: z.coerce.date(),
-})
-export type User = z.infer<typeof userSchema>
-
-export const userListSchema = z.array(userSchema)
+export type UserFormValues = z.infer<typeof userSchema>

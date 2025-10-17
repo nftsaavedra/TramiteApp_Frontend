@@ -1,81 +1,62 @@
+// En: src/features/users/components/users-delete-dialog.tsx
+
 'use client'
 
-import { useState } from 'react'
-import { AlertTriangle } from 'lucide-react'
-import { showSubmittedData } from '@/lib/show-submitted-data'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { ConfirmDialog } from '@/components/confirm-dialog'
-import { type User } from '../data/schema'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
+import { useUsers } from './users-provider'
 
-type UserDeleteDialogProps = {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  currentRow: User
-}
+// En: src/features/users/components/users-delete-dialog.tsx
 
-export function UsersDeleteDialog({
-  open,
-  onOpenChange,
-  currentRow,
-}: UserDeleteDialogProps) {
-  const [value, setValue] = useState('')
+export function UsersDeleteDialog() {
+  const { openDialog, setOpenDialog, selectedUser, deleteMutation } = useUsers()
+
+  const isOpen = openDialog === 'delete'
 
   const handleDelete = () => {
-    if (value.trim() !== currentRow.username) return
+    if (selectedUser) {
+      deleteMutation.mutate(selectedUser.id)
+    }
+  }
 
-    onOpenChange(false)
-    showSubmittedData(currentRow, 'The following user has been deleted:')
+  if (!isOpen) {
+    return null
   }
 
   return (
-    <ConfirmDialog
-      open={open}
-      onOpenChange={onOpenChange}
-      handleConfirm={handleDelete}
-      disabled={value.trim() !== currentRow.username}
-      title={
-        <span className='text-destructive'>
-          <AlertTriangle
-            className='stroke-destructive me-1 inline-block'
-            size={18}
-          />{' '}
-          Delete User
-        </span>
-      }
-      desc={
-        <div className='space-y-4'>
-          <p className='mb-2'>
-            Are you sure you want to delete{' '}
-            <span className='font-bold'>{currentRow.username}</span>?
-            <br />
-            This action will permanently remove the user with the role of{' '}
-            <span className='font-bold'>
-              {currentRow.role.toUpperCase()}
-            </span>{' '}
-            from the system. This cannot be undone.
-          </p>
-
-          <Label className='my-2'>
-            Username:
-            <Input
-              value={value}
-              onChange={(e) => setValue(e.target.value)}
-              placeholder='Enter username to confirm deletion.'
-            />
-          </Label>
-
-          <Alert variant='destructive'>
-            <AlertTitle>Warning!</AlertTitle>
-            <AlertDescription>
-              Please be careful, this operation can not be rolled back.
-            </AlertDescription>
-          </Alert>
-        </div>
-      }
-      confirmText='Delete'
-      destructive
-    />
+    <AlertDialog open={isOpen} onOpenChange={() => setOpenDialog(null)}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>¿Está absolutamente seguro?</AlertDialogTitle>
+          <AlertDialogDescription>
+            Esta acción no se puede deshacer. Se eliminará permanentemente al
+            usuario
+            <strong className='mx-1'>{selectedUser?.name}</strong>
+            del sistema.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={deleteMutation.isPending}>
+            Cancelar
+          </AlertDialogCancel>
+          <AlertDialogAction
+            onClick={handleDelete}
+            disabled={deleteMutation.isPending}
+          >
+            {deleteMutation.isPending
+              ? 'Eliminando...'
+              : 'Confirmar y Eliminar'}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   )
 }
