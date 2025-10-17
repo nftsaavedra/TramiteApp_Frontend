@@ -2,6 +2,7 @@
 import * as React from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
+import { ColumnFiltersState } from '@tanstack/react-table'
 import { toast } from 'sonner'
 import api from '@/lib/api'
 import {
@@ -30,10 +31,21 @@ export const Route = createFileRoute('/_authenticated/admin/oficinas')({
 })
 
 // --- FUNCIONES DE API ---
-const fetchOficinas = async (): Promise<Oficina[]> => {
-  const { data } = await api.get('/oficinas')
+// La función de fetching ahora acepta los filtros para enviarlos al backend
+const fetchOficinas = async (
+  filters: ColumnFiltersState
+): Promise<Oficina[]> => {
+  const params = new URLSearchParams()
+  filters.forEach((filter) => {
+    // Solo se envían filtros que tienen un valor asignado
+    if (filter.value && String(filter.value).length > 0) {
+      params.append(filter.id, filter.value as string)
+    }
+  })
+  const { data } = await api.get('/oficinas', { params })
   return Array.isArray(data) ? data : []
 }
+
 const createOficina = (newData: OficinaFormValues) =>
   api.post('/oficinas', newData)
 const updateOficina = ({
@@ -46,21 +58,26 @@ const deleteOficina = (id: string) => api.delete(`/oficinas/${id}`)
 function AdminOficinas() {
   const queryClient = useQueryClient()
 
-  // --- ESTADO PARA GESTIONAR DIÁLOGOS Y DATOS SELECCIONADOS ---
+  // --- ESTADO PARA GESTIONAR DIÁLOGOS, FILTROS Y DATOS SELECCIONADOS ---
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    []
+  )
   const [isFormOpen, setIsFormOpen] = React.useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false)
   const [selectedOficina, setSelectedOficina] = React.useState<Oficina | null>(
     null
   )
 
+  // --- useQuery ahora depende de 'columnFilters' para volver a cargar los datos ---
   const { data, isLoading, error } = useQuery({
-    queryKey: ['oficinas'],
-    queryFn: fetchOficinas,
+    queryKey: ['oficinas', columnFilters],
+    queryFn: () => fetchOficinas(columnFilters),
   })
 
   // --- MUTACIONES (CREATE, UPDATE, DELETE) ---
   const handleMutation = {
     onSuccess: () => {
+      // Invalida la caché para forzar la recarga de datos frescos
       queryClient.invalidateQueries({ queryKey: ['oficinas'] })
       closeDialogs()
     },
@@ -123,10 +140,12 @@ function AdminOficinas() {
     }
   }
 
-  if (isLoading) return <div className='p-6'>Cargando oficinas...</div>
+  if (isLoading && !data) return <div className='p-6'>Cargando oficinas...</div>
   if (error)
     return (
-      <div className='text-destructive p-6'>Error al cargar los datos.</div>
+      <div className='text-destructive p-6'>
+        Error al cargar los datos. Por favor, intente de nuevo más tarde.
+      </div>
     )
 
   return (
@@ -136,22 +155,21 @@ function AdminOficinas() {
           Gestión de Oficinas
         </h2>
         <p className='text-muted-foreground'>
-          Cree, edite y administre las oficinas del sistema.
+          Cree, edite y administre las oficinas del sistema, incluyendo sus
+          filtros y jerarquías.
         </p>
       </div>
 
-      {/* Pasamos los manejadores de acciones a la tabla */}
       <OficinasDataTable
         columns={columns}
         data={data || []}
-        {...({
-          onEdit: openForm,
-          onDelete: openDeleteDialog,
-          onCreate: () => openForm(null),
-        } as any)}
+        onCreate={() => openForm(null)}
+        onEdit={openForm}
+        onDelete={openDeleteDialog}
+        columnFilters={columnFilters}
+        setColumnFilters={setColumnFilters}
       />
 
-      {/* --- DIÁLOGO PARA CREAR/EDITAR --- */}
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
         <DialogContent className='sm:max-w-[425px]'>
           <DialogHeader>
@@ -162,12 +180,11 @@ function AdminOficinas() {
           <OficinaForm
             onSubmit={handleFormSubmit}
             defaultValues={selectedOficina || undefined}
-            oficinasList={data || []} // Pasamos la lista completa de oficinas
+            oficinasList={data || []}
           />
         </DialogContent>
       </Dialog>
 
-      {/* --- DIÁLOGO DE CONFIRMACIÓN PARA ELIMINAR --- */}
       <AlertDialog
         open={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}

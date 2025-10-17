@@ -1,22 +1,23 @@
-// En: src/features/admin/oficinas/components/oficinas-table.tsx
+// En: src/features/admin/tipos-documento/components/tipos-documento-table.tsx
 
 'use client'
 
 import * as React from 'react'
+import { PlusCircledIcon } from '@radix-ui/react-icons'
 import {
   ColumnDef,
   ColumnFiltersState,
   SortingState,
-  VisibilityState,
   flexRender,
   getCoreRowModel,
-  getFacetedRowModel,
-  getFacetedUniqueValues,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
+import { TipoDocumento } from '@/routes/_authenticated/admin/tipos-documento'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import {
   Table,
   TableBody,
@@ -26,78 +27,64 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { DataTablePagination } from '@/components/data-table/pagination'
-import { Oficina } from './columns'
-import { DataTableToolbar } from './oficinas-table-toolbar'
 
-// En: src/features/admin/oficinas/components/oficinas-table.tsx
+// En: src/features/admin/tipos-documento/components/tipos-documento-table.tsx
 
-// 1. Actualizamos la interfaz de props para recibir el estado de los filtros
 interface DataTableProps {
-  columns: ColumnDef<Oficina>[]
-  data: Oficina[]
+  columns: ColumnDef<TipoDocumento>[]
+  data: TipoDocumento[]
   onCreate: () => void
-  onEdit: (oficina: Oficina) => void
-  onDelete: (oficina: Oficina) => void
-  columnFilters: ColumnFiltersState
-  setColumnFilters: React.Dispatch<React.SetStateAction<ColumnFiltersState>>
 }
 
-export function OficinasDataTable({
+export function TiposDocumentoDataTable({
   columns,
   data,
   onCreate,
-  onEdit,
-  onDelete,
-  columnFilters, // Se reciben los props
-  setColumnFilters, // Se reciben los props
 }: DataTableProps) {
-  const [rowSelection, setRowSelection] = React.useState({})
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({})
   const [sorting, setSorting] = React.useState<SortingState>([])
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    []
+  )
 
   const table = useReactTable({
     data,
     columns,
-    state: {
-      sorting,
-      columnVisibility,
-      rowSelection,
-      columnFilters, // 2. Se conecta el estado del filtro recibido
-    },
-    enableRowSelection: true,
-    onRowSelectionChange: setRowSelection,
+    state: { sorting, columnFilters },
     onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters, // 3. Se conecta la función de actualización
-    onColumnVisibilityChange: setColumnVisibility,
+    onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFacetedRowModel: getFacetedRowModel(),
-    getFacetedUniqueValues: getFacetedUniqueValues(),
-    meta: {
-      onEdit,
-      onDelete,
-    },
   })
 
   return (
     <div className='space-y-4'>
-      <DataTableToolbar table={table} onCreate={onCreate} />
+      <div className='flex items-center justify-between'>
+        <Input
+          placeholder='Filtrar por nombre...'
+          value={(table.getColumn('nombre')?.getFilterValue() as string) ?? ''}
+          onChange={(e) =>
+            table.getColumn('nombre')?.setFilterValue(e.target.value)
+          }
+          className='h-8 max-w-sm'
+        />
+        <Button onClick={onCreate} size='sm' className='h-8'>
+          <PlusCircledIcon className='mr-2 h-4 w-4' />
+          Añadir Tipo
+        </Button>
+      </div>
       <div className='rounded-md border'>
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id} colSpan={header.colSpan}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
+                  <TableHead key={header.id}>
+                    {flexRender(
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
                   </TableHead>
                 ))}
               </TableRow>
@@ -106,10 +93,7 @@ export function OficinasDataTable({
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && 'selected'}
-                >
+                <TableRow key={row.id}>
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
                       {flexRender(
