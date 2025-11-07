@@ -34,28 +34,65 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+// --- IMPORTACIONES AÑADIDAS ---
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { useAuth } from '@/context/AuthContext' // Asumiendo la ruta del AuthContext
 
 type Oficina = { id: string; nombre: string }
 type TipoDocumento = { id: string; nombre: string }
+const tiposRegistro = ['RECEPCION', 'ENVIO'] as const
 
-// --- CORRECCIÓN DEFINITIVA EN EL ESQUEMA DE ZOD (SINTAXIS MODERNA Y CORRECTA) ---
-const formSchema = z.object({
-  oficinaRemitenteId: z
-    .string()
-    .min(1, { message: 'Seleccione una oficina remitente.' }),
-  tipoDocumentoId: z
-    .string()
-    .min(1, { message: 'Seleccione un tipo de documento.' }),
-  numeroDocumento: z.string().min(1, { message: 'El número es requerido.' }),
-  fechaDocumento: z.date({
-    error: 'La fecha de recepción es requerida.',
-  }),
-  asunto: z
-    .string()
-    .min(5, { message: 'El asunto debe tener al menos 5 caracteres.' }),
-  notas: z.string().optional(),
-  observaciones: z.string().optional(),
-})
+// --- CORRECCIÓN Y AMPLIACIÓN DEL ESQUEMA DE ZOD ---
+const formSchema = z
+  .object({
+    // 1. Nuevo campo para controlar el flujo
+    tipoRegistro: z.enum(tiposRegistro, {
+      error: 'Seleccione el tipo de registro.',
+    }),
+
+    // 2. Campos condicionales
+    oficinaRemitenteId: z.string().optional(),
+    oficinaDestinoId: z.string().optional(), // Nuevo campo para envío
+
+    // 3. Campos existentes
+    tipoDocumentoId: z
+      .string()
+      .min(1, { message: 'Seleccione un tipo de documento.' }),
+    numeroDocumento: z.string().min(1, { message: 'El número es requerido.' }),
+    fechaDocumento: z.date({
+      error: 'La fecha de recepción es requerida.',
+    }),
+    asunto: z
+      .string()
+      .min(5, { message: 'El asunto debe tener al menos 5 caracteres.' }),
+    notas: z.string().optional(),
+    observaciones: z.string().optional(),
+  })
+  // 4. Validación condicional refinada
+  .refine(
+    (data) => {
+      if (data.tipoRegistro === 'RECEPCION') {
+        return !!data.oficinaRemitenteId
+      }
+      return true
+    },
+    {
+      message: 'Seleccione una oficina remitente.',
+      path: ['oficinaRemitenteId'],
+    }
+  )
+  .refine(
+    (data) => {
+      if (data.tipoRegistro === 'ENVIO') {
+        return !!data.oficinaDestinoId
+      }
+      return true
+    },
+    {
+      message: 'Seleccione una oficina de destino.',
+      path: ['oficinaDestinoId'],
+    }
+  )
 // --- FIN DE LA CORRECCIÓN ---
 
 const fetchTiposDocumento = async (): Promise<TipoDocumento[]> => {
@@ -71,12 +108,14 @@ const fetchOficinas = async (): Promise<Oficina[]> => {
 export function TramiteForm() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const { user } = useAuth() // Hook para obtener datos del usuario (ej. su oficina)
 
   const { data: tiposDocumento, isLoading: isLoadingTipos } = useQuery({
     queryKey: ['tiposDocumento'],
     queryFn: fetchTiposDocumento,
   })
 
+  // Se reutiliza la misma consulta de oficinas para ambos selects
   const { data: oficinas, isLoading: isLoadingOficinas } = useQuery({
     queryKey: ['oficinas'],
     queryFn: fetchOficinas,
@@ -86,12 +125,16 @@ export function TramiteForm() {
     resolver: zodResolver(formSchema),
     mode: 'onChange',
     defaultValues: {
+      tipoRegistro: 'RECEPCION', // Por defecto en Recepción
       numeroDocumento: '',
       asunto: '',
       notas: '',
       observaciones: '',
     },
   })
+
+  // Hook 'watch' para observar el valor de 'tipoRegistro'
+  const tipoRegistro = form.watch('tipoRegistro')
 
   const createTramiteMutation = useMutation({
     mutationFn: (newTramite: z.infer<typeof formSchema>) =>
@@ -108,7 +151,17 @@ export function TramiteForm() {
   })
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    createTramiteMutation.mutate(values)
+    let dataToSend = { ...values }
+
+    if (dataToSend.tipoRegistro === 'ENVIO') {
+      // Si es Envío, la oficina remitente es la del usuario ("VPIN")
+      // y la oficinaDestinoId ya está en 'values'
+      dataToSend.oficinaRemitenteId = user?.oficinaId ?? undefined // Asignar la oficina del usuario
+    }
+    // Si es 'RECEPCION', oficinaRemitenteId y oficinaDestinoId (que será undefined)
+    // ya están correctos en 'values'.
+
+    createTramiteMutation.mutate(dataToSend)
   }
 
   return (
@@ -119,48 +172,128 @@ export function TramiteForm() {
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
-            <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
-              {/* 1. Oficina Remitente */}
-              <FormField
-                control={form.control}
-                name='oficinaRemitenteId'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>1. Oficina Remitente</FormLabel>
-                    <Select
+            {/* --- 1. TIPO DE REGISTRO (NUEVO) --- */}
+            <FormField
+              control={form.control}
+              name='tipoRegistro'
+              render={({ field }) => (
+                <FormItem className='space-y-3'>
+                  <FormLabel>1. Tipo de Registro</FormLabel>
+                  <FormControl>
+                    <RadioGroup
                       onValueChange={field.onChange}
                       defaultValue={field.value}
-                      disabled={isLoadingOficinas}
+                      className='flex items-center gap-6'
                     >
-                      <FormControl>
-                        <SelectTrigger>
-                          {isLoadingOficinas ? (
-                            'Cargando...'
-                          ) : (
-                            <SelectValue placeholder='Seleccione una oficina' />
-                          )}
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {oficinas?.map((oficina) => (
-                          <SelectItem key={oficina.id} value={oficina.id}>
-                            {oficina.nombre}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      <FormItem className='flex items-center space-x-3 space-y-0'>
+                        <FormControl>
+                          <RadioGroupItem value='RECEPCION' />
+                        </FormControl>
+                        <FormLabel className='font-normal'>
+                          Recepción (Documento Externo)
+                        </FormLabel>
+                      </FormItem>
+                      <FormItem className='flex items-center space-x-3 space-y-0'>
+                        <FormControl>
+                          <RadioGroupItem value='ENVIO' />
+                        </FormControl>
+                        <FormLabel className='font-normal'>
+                          Envío (Documento Interno)
+                        </FormLabel>
+                      </FormItem>
+                    </RadioGroup>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-              {/* 2. Tipo de Documento */}
+            <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+              {/* --- 2A. Oficina Remitente (Condicional) --- */}
+              {tipoRegistro === 'RECEPCION' && (
+                <FormField
+                  control={form.control}
+                  name='oficinaRemitenteId'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>2. Oficina Remitente</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        disabled={isLoadingOficinas}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            {isLoadingOficinas ? (
+                              'Cargando...'
+                            ) : (
+                              <SelectValue placeholder='Seleccione una oficina' />
+                            )}
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {oficinas?.map((oficina) => (
+                            <SelectItem key={oficina.id} value={oficina.id}>
+                              {oficina.nombre}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+
+              {/* --- 2B. Oficina Destino (Condicional) (NUEVO) --- */}
+              {tipoRegistro === 'ENVIO' && (
+                <FormField
+                  control={form.control}
+                  name='oficinaDestinoId'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>2. Oficina Destino</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        disabled={isLoadingOficinas}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            {isLoadingOficinas ? (
+                              'Cargando...'
+                            ) : (
+                              <SelectValue placeholder='Seleccione un destino' />
+                            )}
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {/* Opcional: filtrar la propia oficina del usuario (user.oficinaId) */}
+                          {oficinas
+                            ?.filter((o) => o.id !== user?.oficinaId)
+                            .map((oficina) => (
+                              <SelectItem key={oficina.id} value={oficina.id}>
+                                {oficina.nombre}
+                              </SelectItem>
+                            ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+
+              {/* --- 3. Tipo de Documento --- */}
               <FormField
                 control={form.control}
                 name='tipoDocumentoId'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>2. Tipo de Documento</FormLabel>
+                    <FormLabel>
+                      {tipoRegistro === 'RECEPCION' ? '3.' : '3.'} Tipo de
+                      Documento
+                    </FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
@@ -188,13 +321,13 @@ export function TramiteForm() {
                 )}
               />
 
-              {/* 3. Número de Documento */}
+              {/* --- 4. Número de Documento --- */}
               <FormField
                 control={form.control}
                 name='numeroDocumento'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>3. N° de Documento (ej. 001-2025)</FormLabel>
+                    <FormLabel>4. N° de Documento (ej. 001-2025)</FormLabel>
                     <FormControl>
                       <Input placeholder='001-2025' {...field} />
                     </FormControl>
@@ -203,13 +336,15 @@ export function TramiteForm() {
                 )}
               />
 
-              {/* 4. Fecha de Recepción */}
+              {/* --- 5. Fecha de Recepción --- */}
               <FormField
                 control={form.control}
                 name='fechaDocumento'
                 render={({ field }) => (
                   <FormItem className='flex flex-col'>
-                    <FormLabel>4. Fecha de Recepción</FormLabel>
+                    <FormLabel>
+                      5. Fecha del {tipoRegistro === 'RECEPCION' ? 'Documento' : 'Envío'}
+                    </FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl>
@@ -246,13 +381,13 @@ export function TramiteForm() {
                 )}
               />
 
-              {/* 5. Asunto */}
+              {/* --- 6. Asunto --- */}
               <FormField
                 control={form.control}
                 name='asunto'
                 render={({ field }) => (
                   <FormItem className='md:col-span-2'>
-                    <FormLabel>5. Asunto</FormLabel>
+                    <FormLabel>6. Asunto</FormLabel>
                     <FormControl>
                       <Textarea
                         placeholder='Asunto detallado del trámite...'
@@ -264,13 +399,13 @@ export function TramiteForm() {
                 )}
               />
 
-              {/* 6. Notas (Opcional) */}
+              {/* --- 7. Notas (Opcional) --- */}
               <FormField
                 control={form.control}
                 name='notas'
                 render={({ field }) => (
                   <FormItem className='md:col-span-2'>
-                    <FormLabel>6. Notas (Opcional)</FormLabel>
+                    <FormLabel>7. Notas (Opcional)</FormLabel>
                     <FormControl>
                       <Textarea
                         placeholder='Información adicional o complementaria...'
@@ -282,13 +417,13 @@ export function TramiteForm() {
                 )}
               />
 
-              {/* 7. Observaciones (Opcional) */}
+              {/* --- 8. Observaciones (Opcional) --- */}
               <FormField
                 control={form.control}
                 name='observaciones'
                 render={({ field }) => (
                   <FormItem className='md:col-span-2'>
-                    <FormLabel>7. Observaciones (Opcional)</FormLabel>
+                    <FormLabel>8. Observaciones (Opcional)</FormLabel>
                     <FormControl>
                       <Textarea
                         placeholder='Observaciones sobre el estado o contenido del documento...'
