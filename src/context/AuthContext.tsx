@@ -5,73 +5,92 @@ import {
   useEffect,
   ReactNode,
 } from 'react'
-import { jwtDecode } from 'jwt-decode'
+// Eliminamos jwt-decode de la lógica principal de rehidratación
+// para confiar en la respuesta real del servidor, aunque puedes mantenerlo si necesitas leer datos antes.
+import api from '@/lib/api'
 
-// 1. Define la estructura del payload de tu token JWT (basado en tu backend)
-interface DecodedToken {
+// 1. Definición de tipos
+// Unificamos la interfaz para que coincida con lo que devuelve tu endpoint /profile
+export interface UserProfile {
   id: string
   email: string
   name: string
-  role: 'ADMIN' | 'RECEPCIONISTA' | 'ANALISTA' | 'ASESORIA' // Asegúrate que coincida con tu Enum `Role`
+  role: 'ADMIN' | 'RECEPCIONISTA' | 'ANALISTA' | 'ASESORIA'
   oficinaId: string | null
-  iat: number
-  exp: number
 }
 
-// 2. Define la estructura del contexto
 interface AuthContextType {
-  user: DecodedToken | null
-  login: (token: string) => void
+  user: UserProfile | null
+  login: (token: string) => Promise<void>
   logout: () => void
   isAuthenticated: boolean
+  isLoading: boolean // <--- CRUCIAL: Nuevo estado para manejar el F5
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-// 3. Crea el componente Provider
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<DecodedToken | null>(null)
+  const [user, setUser] = useState<UserProfile | null>(null)
+  // Inicializamos cargando en TRUE. La app nace "pensando"
+  const [isLoading, setIsLoading] = useState(true)
 
+  // Efecto de Rehidratación
   useEffect(() => {
-    const token = localStorage.getItem('accessToken')
-    if (token) {
+    const rehydrateSession = async () => {
+      const token = localStorage.getItem('accessToken')
+
+      if (!token) {
+        setIsLoading(false)
+        return
+      }
+
       try {
-        const decoded = jwtDecode<DecodedToken>(token)
-        // Comprobar si el token ha expirado
-        if (decoded.exp * 1000 > Date.now()) {
-          setUser(decoded)
-        } else {
-          localStorage.removeItem('accessToken')
-        }
+        // Llamamos al backend para verificar si el token sigue vivo y obtener datos frescos
+        const { data } = await api.get<UserProfile>('/auth/profile')
+        setUser(data)
       } catch (error) {
-        console.error('Token inválido:', error)
-        localStorage.removeItem('accessToken')
+        console.error('Error al rehidratar sesión:', error)
+        // Si el backend rechaza el token (401), limpiamos todo
+        logout()
+      } finally {
+        // Pase lo que pase, terminamos de cargar
+        setIsLoading(false)
       }
     }
+
+    rehydrateSession()
   }, [])
 
-  const login = (token: string) => {
+  const login = async (token: string) => {
     localStorage.setItem('accessToken', token)
-    const decoded = jwtDecode<DecodedToken>(token)
-    setUser(decoded)
+    try {
+      // Al hacer login, también pedimos los datos completos al perfil
+      // para asegurar consistencia inmediata
+      const { data } = await api.get<UserProfile>('/auth/profile')
+      setUser(data)
+    } catch (error) {
+      console.error('Error obteniendo perfil tras login', error)
+    }
   }
 
   const logout = () => {
     localStorage.removeItem('accessToken')
     setUser(null)
-    window.location.href = '/login' // Redirige al login
+    // Opcional: Si usas TanStack Router, usa navigate aquí en lugar de window.location
+    // window.location.href = '/login'
   }
 
   const isAuthenticated = !!user
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isAuthenticated }}>
+    <AuthContext.Provider
+      value={{ user, login, logout, isAuthenticated, isLoading }}
+    >
       {children}
     </AuthContext.Provider>
   )
 }
 
-// 4. Crea un hook personalizado para usar el contexto fácilmente
 export const useAuth = () => {
   const context = useContext(AuthContext)
   if (context === undefined) {
