@@ -1,3 +1,4 @@
+// En: src/hooks/use-table-url-state.ts
 import { useMemo, useState } from 'react'
 import type {
   ColumnFiltersState,
@@ -7,13 +8,11 @@ import type {
 
 type SearchRecord = Record<string, unknown>
 
-export type NavigateFn = (opts: {
-  search:
-    | true
-    | SearchRecord
-    | ((prev: SearchRecord) => Partial<SearchRecord> | SearchRecord)
-  replace?: boolean
-}) => void
+// --- CORRECCIÓN: Relajamos el tipo 'search' a 'any' ---
+// Esto soluciona el conflicto de tipos con TanStack Router cuando
+// una ruta tiene parámetros de búsqueda obligatorios (como page/pageSize).
+export type NavigateFn = (opts: { search: any; replace?: boolean }) => void
+// ------------------------------------------------------
 
 type UseTableUrlStateParams = {
   search: SearchRecord
@@ -124,8 +123,8 @@ export function useTableUrlState(
     const nextPage = next.pageIndex + 1
     const nextPageSize = next.pageSize
     navigate({
-      search: (prev) => ({
-        ...(prev as SearchRecord),
+      search: (prev: SearchRecord) => ({
+        ...prev,
         [pageKey]: nextPage <= defaultPage ? undefined : nextPage,
         [pageSizeKey]:
           nextPageSize === defaultPageSize ? undefined : nextPageSize,
@@ -149,8 +148,8 @@ export function useTableUrlState(
           const value = trimGlobal ? next.trim() : next
           setGlobalFilter(value)
           navigate({
-            search: (prev) => ({
-              ...(prev as SearchRecord),
+            search: (prev: SearchRecord) => ({
+              ...prev,
               [pageKey]: undefined,
               [globalFilterKey]: value ? value : undefined,
             }),
@@ -182,8 +181,8 @@ export function useTableUrlState(
     }
 
     navigate({
-      search: (prev) => ({
-        ...(prev as SearchRecord),
+      search: (prev: SearchRecord) => ({
+        ...prev,
         [pageKey]: undefined,
         ...patch,
       }),
@@ -199,8 +198,8 @@ export function useTableUrlState(
     if (pageCount > 0 && pageNum > pageCount) {
       navigate({
         replace: true,
-        search: (prev) => ({
-          ...(prev as SearchRecord),
+        search: (prev: SearchRecord) => ({
+          ...prev,
           [pageKey]: opts.resetTo === 'last' ? pageCount : undefined,
         }),
       })
