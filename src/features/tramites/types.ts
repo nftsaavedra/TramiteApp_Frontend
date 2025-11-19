@@ -1,10 +1,26 @@
-// En: src/features/tramites/types.ts
+// --- TIPOS COMPARTIDOS Y ENUMS ---
+export type TramiteEstado = 'ABIERTO' | 'CERRADO' | 'ARCHIVADO'
+export type TramitePrioridad = 'BAJA' | 'NORMAL' | 'ALTA' | 'URGENTE'
 
-// Tipos básicos actualizados para incluir más detalles cuando sea necesario
-type Oficina = { id: string; nombre: string; siglas: string }
-type UsuarioSimple = { id: string; name: string }
+// --- TIPOS BÁSICOS (Preservados) ---
+export type Oficina = {
+  id: string
+  nombre: string
+  siglas: string
+}
 
-// Tipo para un Destino de Movimiento (sin cambios necesarios)
+export type UsuarioSimple = {
+  id: string
+  name: string
+}
+
+// --- NUEVO: Tipo para la información de plazos (Backend Calculated) ---
+export type PlazoInfo = {
+  diasTranscurridos: number | null
+  estado: 'VENCIDO' | 'POR_VENCER' | 'A_TIEMPO' | 'NO_APLICA'
+}
+
+// --- SUB-TIPOS DE MOVIMIENTO (Preservados) ---
 export type MovimientoDestino = {
   id: string
   oficinaDestino: Oficina
@@ -12,7 +28,6 @@ export type MovimientoDestino = {
   fechaRecepcion: string | null
 }
 
-// --- TIPO 'Movimiento' ACTUALIZADO ---
 export type Movimiento = {
   id: string
   tipoAccion: 'DERIVACION' | 'RESPUESTA' | 'ASIGNACION' | 'ARCHIVO' | 'CIERRE'
@@ -21,13 +36,12 @@ export type Movimiento = {
   usuarioCreador: UsuarioSimple
   destinos: MovimientoDestino[]
   observaciones: string | null
-  // --- CAMPOS AÑADIDOS ---
+  // Campos añadidos previamente
   numeroDocumento: string | null
   numeroDocumentoCompleto: string | null
   notas: string | null
 }
 
-// Tipo para una Anotación (sin cambios necesarios)
 export type Anotacion = {
   id: string
   contenido: string
@@ -35,21 +49,46 @@ export type Anotacion = {
   autor: UsuarioSimple
 }
 
-// --- TIPO 'TramiteCompleto' ACTUALIZADO ---
+// --- INTERFAZ PARA LA TABLA (Nueva) ---
+// Esta interfaz es ligera y contiene solo lo necesario para las columnas y filtros
+export interface Tramite {
+  id: string
+  numeroDocumentoCompleto: string
+  asunto: string
+  estado: TramiteEstado
+  prioridad: TramitePrioridad
+  fechaIngreso: string // ISO Date
+  fechaDocumento: string // ISO Date
+
+  // Relaciones
+  oficinaRemitente: Oficina
+  tipoDocumento: { nombre: string }
+
+  // Datos Calculados o Anidados
+  plazo: PlazoInfo
+  movimientos: Movimiento[] // Necesario para calcular "Ubicación Actual"
+}
+
+// --- TIPO COMPLETO PARA DETALLES (Preservado y Enriquecido) ---
+// Se mantiene compatible con tu código anterior, añadiendo 'plazo' que viene del backend
 export type TramiteCompleto = {
   id: string
   numeroDocumentoCompleto: string
   asunto: string
-  estado: 'ABIERTO' | 'CERRADO' | 'ARCHIVADO'
-  prioridad: 'BAJA' | 'NORMAL' | 'ALTA' | 'URGENTE'
+  estado: TramiteEstado
+  prioridad: TramitePrioridad
   fechaIngreso: string
   fechaDocumento: string
   observaciones: string | null
   notas: string | null
+
   oficinaRemitente: Oficina
   tipoDocumento: { nombre: string }
-  // --- CAMPO AÑADIDO ---
   usuarioAsignado: UsuarioSimple | null
+
   movimientos: Movimiento[]
   anotaciones: Anotacion[]
+
+  // Agregamos esto porque el endpoint findOne del backend también lo devuelve
+  plazo: PlazoInfo
 }
