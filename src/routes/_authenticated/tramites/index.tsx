@@ -252,7 +252,7 @@ function TramitesPage() {
       <div className='flex items-center justify-between'>
         <div>
           <h2 className='text-2xl font-bold tracking-tight'>
-            Gestión de Trámites
+            Registro de Trámites
           </h2>
           <p className='text-muted-foreground'>
             Administración centralizada de documentos y movimientos.

@@ -1,5 +1,3 @@
-// En: src/features/users/components/data-table-row-actions.tsx
-
 'use client'
 
 import { DotsHorizontalIcon } from '@radix-ui/react-icons'
@@ -12,11 +10,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+// Aseguramos que la ruta al tipo User sea correcta
 import { type User } from './users-provider'
 
-// En: src/features/users/components/data-table-row-actions.tsx
-
-// La interfaz ahora define que el componente recibe las funciones como props
 interface DataTableRowActionsProps {
   row: Row<User>
   onEdit: (user: User) => void

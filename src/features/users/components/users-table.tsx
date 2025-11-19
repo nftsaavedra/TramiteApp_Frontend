@@ -1,19 +1,6 @@
-// En: src/features/users/components/users-table.tsx
-
 'use client'
 
-import * as React from 'react'
-import {
-  ColumnDef,
-  SortingState,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from '@tanstack/react-table'
-import { Input } from '@/components/ui/input'
+import { flexRender, type Table as TableInstance } from '@tanstack/react-table'
 import {
   Table,
   TableBody,
@@ -23,59 +10,32 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { DataTablePagination } from '@/components/data-table/pagination'
-import { type User } from './users-provider'
 
-// En: src/features/users/components/users-table.tsx
-
-interface UsersDataTableProps {
-  columns: ColumnDef<User>[]
-  data: User[]
+// Definimos que este componente espera recibir la instancia de la tabla ya construida
+interface UsersTableProps<TData> {
+  table: TableInstance<TData>
 }
 
-export function UsersTable({ columns, data }: UsersDataTableProps) {
-  const [sorting, setSorting] = React.useState<SortingState>([])
-  const [globalFilter, setGlobalFilter] = React.useState('')
-
-  const table = useReactTable({
-    data,
-    columns,
-    state: {
-      sorting,
-      globalFilter,
-    },
-    onSortingChange: setSorting,
-    onGlobalFilterChange: setGlobalFilter,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-  })
-
+export function UsersTable<TData>({ table }: UsersTableProps<TData>) {
   return (
     <div className='space-y-4'>
-      <div className='flex items-center'>
-        <Input
-          placeholder='Filtrar por nombre, email, rol...'
-          value={globalFilter}
-          onChange={(event) => setGlobalFilter(event.target.value)}
-          className='h-9 max-w-sm'
-        />
-      </div>
       <div className='rounded-md border'>
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </TableHead>
-                ))}
+                {headerGroup.headers.map((header) => {
+                  return (
+                    <TableHead key={header.id} colSpan={header.colSpan}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableHead>
+                  )
+                })}
               </TableRow>
             ))}
           </TableHeader>
@@ -99,7 +59,7 @@ export function UsersTable({ columns, data }: UsersDataTableProps) {
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length}
+                  colSpan={table.getAllColumns().length}
                   className='h-24 text-center'
                 >
                   No se encontraron resultados.
