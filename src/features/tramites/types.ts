@@ -1,5 +1,5 @@
 // --- TIPOS COMPARTIDOS Y ENUMS ---
-export type TramiteEstado = 'ABIERTO' | 'CERRADO' | 'ARCHIVADO'
+export type TramiteEstado = 'EN_PROCESO' | 'FINALIZADO' | 'ARCHIVADO'
 export type TramitePrioridad = 'BAJA' | 'NORMAL' | 'ALTA' | 'URGENTE'
 
 // --- TIPOS BÁSICOS (Preservados) ---
