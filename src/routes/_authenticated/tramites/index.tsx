@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
+// 1. Agregado Link
 import {
   getCoreRowModel,
   useReactTable,
@@ -13,19 +14,21 @@ import {
 } from '@tanstack/react-table'
 import { DateRange } from 'react-day-picker'
 import api from '@/lib/api'
+import { Button } from '@/components/ui/button'
+// 2. Agregado Button
 import { columns } from '@/features/tramites/components/columns'
 import { TramitesDataTable } from '@/features/tramites/components/tramites-table'
 import { TramitesTableToolbar } from '@/features/tramites/components/tramites-table-toolbar'
 import {
   useTramitesSearch,
   tramitesFilterSchema,
-  type TramitesSearchParams, // Importamos el tipo explícito
+  type TramitesSearchParams,
 } from '@/features/tramites/hooks/use-tramites-search'
 
 // --- Definición de la Ruta ---
 export const Route = createFileRoute('/_authenticated/tramites/')({
   component: TramitesPage,
-  validateSearch: tramitesFilterSchema, // Validación automática con Zod
+  validateSearch: tramitesFilterSchema,
 })
 
 // --- Servicios de Fetching ---
@@ -67,10 +70,10 @@ const fetchTramites = async (params: TramitesSearchParams) => {
 }
 
 function TramitesPage() {
-  // 1. Navegación Tipada (Seguridad de Tipos)
+  // 1. Navegación Tipada
   const navigate = Route.useNavigate()
 
-  // 2. Estado URL (Single Source of Truth)
+  // 2. Estado URL
   const searchParams = useTramitesSearch()
 
   // 3. Carga de Datos Auxiliares
@@ -150,7 +153,6 @@ function TramitesPage() {
         ? updaterOrValue(columnFilters)
         : updaterOrValue
 
-    // Reconstrucción segura de params
     const newParams: any = { ...searchParams, page: 1 }
 
     delete newParams.estado
@@ -257,6 +259,12 @@ function TramitesPage() {
           <p className='text-muted-foreground'>
             Administración centralizada de documentos y movimientos.
           </p>
+        </div>
+        {/* 3. Botón Restaurado */}
+        <div className='flex items-center space-x-2'>
+          <Button asChild>
+            <Link to='/tramites/nuevo'>Nuevo Trámite</Link>
+          </Button>
         </div>
       </div>
 

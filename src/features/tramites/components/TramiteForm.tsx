@@ -1,22 +1,43 @@
-// En: src/features/tramites/components/TramiteForm.tsx
-import * as z from 'zod'
+import React, { useState } from 'react'
 import { format } from 'date-fns'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
-import { CalendarIcon, InfoIcon } from 'lucide-react'
-// MEJORA UI/UX: Importar InfoIcon
+import { es } from 'date-fns/locale'
+import {
+  CalendarIcon,
+  Check,
+  ChevronsUpDown,
+  Info,
+  ArrowRightLeft,
+  FileText,
+  Building2,
+  InfoIcon,
+} from 'lucide-react'
 import { toast } from 'sonner'
 import api from '@/lib/api'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/context/AuthContext'
+import { Badge } from '@/components/ui/badge'
+// Componentes UI
 import { Button } from '@/components/ui/button'
+// Usado para etiquetas de pasos
 import { Calendar } from '@/components/ui/calendar'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command'
+import {
   Form,
   FormControl,
+  FormDescription,
+  // Usado para textos de ayuda
   FormField,
   FormItem,
   FormLabel,
@@ -28,101 +49,49 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { Separator } from '@/components/ui/separator'
 import { Textarea } from '@/components/ui/textarea'
-// --- MEJORA UI/UX: Usar ToggleGroup en lugar de RadioGroup para 'tipoRegistro' ---
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
-// --- MEJORA UI/UX: Tooltip para info adicional ---
+// Usado para dividir secciones
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-import React from 'react'
+// 1. Importamos el esquema centralizado
+import { tramiteFormSchema, type TramiteFormValues } from '../data/schema'
 
-type Oficina = { id: string; nombre: string; siglas: string } // MEJORA UI/UX: Añadir siglas para tooltip
+// Tipos
+type Oficina = { id: string; nombre: string; siglas: string }
 type TipoDocumento = { id: string; nombre: string }
-const tiposRegistro = ['RECEPCION', 'ENVIO'] as const
 
-const formSchema = z
-  .object({
-    tipoRegistro: z.enum(tiposRegistro, {
-      error: 'Seleccione el tipo de registro.',
-    }),
-    oficinaRemitenteId: z.string().optional(),
-    oficinaDestinoId: z.string().optional(),
-    tipoDocumentoId: z
-      .string()
-      .min(1, { message: 'Seleccione un tipo de documento.' }),
-    numeroDocumento: z.string().min(1, { message: 'El número es requerido.' }),
-    fechaDocumento: z.date({
-      error: 'La fecha del documento es requerida.',
-    }),
-    asunto: z
-      .string()
-      .min(5, { message: 'El asunto debe tener al menos 5 caracteres.' }),
-    notas: z.string().optional(),
-    observaciones: z.string().optional(),
-  })
-  .refine(
-    (data) => {
-      if (data.tipoRegistro === 'RECEPCION') {
-        return !!data.oficinaRemitenteId
-      }
-      return true
-    },
-    {
-      message: 'Seleccione una oficina remitente.',
-      path: ['oficinaRemitenteId'],
-    }
-  )
-  .refine(
-    (data) => {
-      if (data.tipoRegistro === 'ENVIO') {
-        return !!data.oficinaDestinoId
-      }
-      return true
-    },
-    {
-      message: 'Seleccione una oficina de destino.',
-      path: ['oficinaDestinoId'],
-    }
-  )
+// Fetchers
+const fetchTiposDocumento = async (): Promise<TipoDocumento[]> =>
+  (await api.get('/tipos-documento')).data
 
-const fetchTiposDocumento = async (): Promise<TipoDocumento[]> => {
-  const { data } = await api.get('/tipos-documento')
-  return data
-}
-
-const fetchOficinas = async (): Promise<Oficina[]> => {
-  const { data } = await api.get('/oficinas')
-  return data
-}
+const fetchOficinas = async (): Promise<Oficina[]> =>
+  (await api.get('/oficinas')).data
 
 export function TramiteForm() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { user } = useAuth()
 
-  const { data: tiposDocumento, isLoading: isLoadingTipos } = useQuery({
+  // Queries
+  const { data: tipos, isLoading: loadingTipos } = useQuery({
     queryKey: ['tiposDocumento'],
     queryFn: fetchTiposDocumento,
   })
 
-  const { data: oficinas, isLoading: isLoadingOficinas } = useQuery({
+  const { data: oficinas, isLoading: loadingOficinas } = useQuery({
     queryKey: ['oficinas'],
     queryFn: fetchOficinas,
   })
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  // Configuración del Formulario
+  const form = useForm<TramiteFormValues>({
+    resolver: zodResolver(tramiteFormSchema),
     mode: 'onChange',
     defaultValues: {
       tipoRegistro: 'RECEPCION',
@@ -130,15 +99,15 @@ export function TramiteForm() {
       asunto: '',
       notas: '',
       observaciones: '',
-      // MEJORA UI/UX: Vaciar campos condicionales por defecto para evitar que persistan valores
       oficinaRemitenteId: undefined,
       oficinaDestinoId: undefined,
     },
   })
 
   const tipoRegistro = form.watch('tipoRegistro')
+  const userOficina = oficinas?.find((o) => o.id === user?.oficinaId)
 
-  // MEJORA UI/UX: Resetear campos condicionales al cambiar tipoRegistro
+  // Limpieza de campos condicionales
   React.useEffect(() => {
     if (tipoRegistro === 'RECEPCION') {
       form.setValue('oficinaDestinoId', undefined, { shouldValidate: true })
@@ -147,173 +116,246 @@ export function TramiteForm() {
     }
   }, [tipoRegistro, form])
 
-  const createTramiteMutation = useMutation({
-    mutationFn: (newTramite: z.infer<typeof formSchema>) =>
-      api.post('/tramites', newTramite),
+  // Mutación para crear
+  const createMutation = useMutation({
+    mutationFn: (data: TramiteFormValues) => api.post('/tramites', data),
     onSuccess: () => {
-      toast.success('Trámite creado exitosamente.')
+      toast.success('Trámite registrado correctamente')
       queryClient.invalidateQueries({ queryKey: ['tramites'] })
-      navigate({ to: '/tramites' })
+
+      // CORRECCIÓN NAVIGATE: Pasamos los params por defecto obligatorios
+      navigate({
+        to: '/tramites',
+        search: { page: 1, limit: 10 },
+      })
     },
-    onError: (error: any) => {
-      // MEJORA UI/UX: Capturar mensaje de error específico
-      console.error('Error al crear el trámite:', error)
-      const errorMessage =
-        error.response?.data?.message || 'Hubo un error al crear el trámite.'
-      toast.error(errorMessage)
+    onError: (err: any) => {
+      console.error(err)
+      toast.error(err.response?.data?.message || 'Error al crear trámite')
     },
   })
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    createTramiteMutation.mutate(values)
-  }
+  const onSubmit = (data: TramiteFormValues) => createMutation.mutate(data)
 
-  const userOficina = oficinas?.find((o) => o.id === user?.oficinaId) // MEJORA UI/UX: Obtener objeto de oficina del usuario
+  // Componente Combobox Interno (Para búsqueda)
+  const Combobox = ({
+    options,
+    value,
+    onChange,
+    placeholder,
+    searchLabel,
+    disabled,
+  }: {
+    options: any[]
+    value?: string
+    onChange: (val: string) => void
+    placeholder: string
+    searchLabel: string
+    disabled?: boolean
+  }) => {
+    const [open, setOpen] = useState(false)
+    const selectedItem = options.find((item) => item.id === value)
+
+    return (
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <FormControl>
+            <Button
+              variant='outline'
+              role='combobox'
+              aria-expanded={open}
+              disabled={disabled}
+              className={cn(
+                'w-full justify-between font-normal',
+                !value && 'text-muted-foreground'
+              )}
+            >
+              {selectedItem
+                ? selectedItem.nombre || selectedItem.siglas
+                : placeholder}
+              <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+            </Button>
+          </FormControl>
+        </PopoverTrigger>
+        <PopoverContent className='w-[300px] p-0' align='start'>
+          <Command>
+            <CommandInput placeholder={searchLabel} />
+            <CommandList>
+              <CommandEmpty>No se encontraron resultados.</CommandEmpty>
+              <CommandGroup>
+                {options.map((item) => (
+                  <CommandItem
+                    key={item.id}
+                    value={item.nombre}
+                    onSelect={() => {
+                      onChange(item.id)
+                      setOpen(false)
+                    }}
+                  >
+                    <Check
+                      className={cn(
+                        'mr-2 h-4 w-4',
+                        value === item.id ? 'opacity-100' : 'opacity-0'
+                      )}
+                    />
+                    <div className='flex flex-col'>
+                      <span>{item.nombre}</span>
+                      {item.siglas && (
+                        <span className='text-muted-foreground text-xs'>
+                          {item.siglas}
+                        </span>
+                      )}
+                    </div>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+    )
+  }
 
   return (
     <TooltipProvider>
-      {' '}
-      {/* MEJORA UI/UX: Envolver con TooltipProvider */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Nuevo Trámite</CardTitle>
-          <p className='text-muted-foreground text-sm'>
-            Rellene los campos para registrar un nuevo documento en el sistema.
-          </p>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
-              {/* --- 1. TIPO DE REGISTRO (MEJORA UI/UX: ToggleGroup) --- */}
-              <FormField
-                control={form.control}
-                name='tipoRegistro'
-                render={({ field }) => (
-                  <FormItem className='space-y-3'>
-                    <FormLabel>1. Tipo de Registro</FormLabel>
-                    <FormControl>
-                      <ToggleGroup
-                        type='single'
-                        value={field.value}
-                        onValueChange={(value) => {
-                          if (value) field.onChange(value)
-                        }}
-                        className='flex items-center gap-6'
-                      >
-                        <ToggleGroupItem
-                          value='RECEPCION'
-                          aria-label='Recepción'
+      <div className='mx-auto max-w-5xl pb-10'>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
+            {/* --- PASO 1: TIPO DE REGISTRO --- */}
+            <Card className='border-l-primary border-l-4 shadow-sm'>
+              <CardHeader>
+                <div className='flex items-center justify-between'>
+                  <CardTitle className='text-lg font-semibold'>
+                    Tipo de Registro
+                  </CardTitle>
+                  {/* USO DE BADGE (Corrige error TS6133) */}
+                  <Badge variant='secondary'>Paso 1</Badge>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <FormField
+                  control={form.control}
+                  name='tipoRegistro'
+                  render={({ field }) => (
+                    <FormItem className='space-y-4'>
+                      <FormControl>
+                        <ToggleGroup
+                          type='single'
+                          value={field.value}
+                          onValueChange={(val) => val && field.onChange(val)}
+                          className='justify-start gap-4'
                         >
-                          Recepción (Documento Externo)
-                        </ToggleGroupItem>
-                        <ToggleGroupItem value='ENVIO' aria-label='Envío'>
-                          Envío (Documento Interno)
-                        </ToggleGroupItem>
-                      </ToggleGroup>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                          <ToggleGroupItem
+                            value='RECEPCION'
+                            className='data-[state=on]:bg-primary data-[state=on]:text-primary-foreground h-auto border px-6 py-4'
+                          >
+                            <div className='flex items-center gap-3'>
+                              <ArrowRightLeft className='h-5 w-5 rotate-90 md:rotate-0' />
+                              <div className='text-left'>
+                                <div className='font-bold'>Recepción</div>
+                                <div className='text-[10px] opacity-80'>
+                                  Externo → Oficina
+                                </div>
+                              </div>
+                            </div>
+                          </ToggleGroupItem>
 
-              <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
-                {/* --- 2A. Oficina Remitente (Condicional - RECEPCION) --- */}
-                {tipoRegistro === 'RECEPCION' && (
+                          <ToggleGroupItem
+                            value='ENVIO'
+                            className='data-[state=on]:bg-primary data-[state=on]:text-primary-foreground h-auto border px-6 py-4'
+                          >
+                            <div className='flex items-center gap-3'>
+                              <ArrowRightLeft className='h-5 w-5' />
+                              <div className='text-left'>
+                                <div className='font-bold'>Envío</div>
+                                <div className='text-[10px] opacity-80'>
+                                  Oficina → Destino
+                                </div>
+                              </div>
+                            </div>
+                          </ToggleGroupItem>
+                        </ToggleGroup>
+                      </FormControl>
+                      {/* USO DE FORM DESCRIPTION (Corrige error TS6133) */}
+                      <FormDescription>
+                        Seleccione si el documento ingresa a la institución o se
+                        genera internamente.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+            </Card>
+
+            {/* --- PASO 2: DATOS DEL DOCUMENTO --- */}
+            <Card className='shadow-sm'>
+              <CardHeader>
+                <div className='flex items-center justify-between'>
+                  <CardTitle className='flex items-center gap-2 text-lg font-semibold'>
+                    <FileText className='text-muted-foreground h-5 w-5' />
+                    Datos del Documento
+                  </CardTitle>
+                  <Badge variant='secondary'>Paso 2</Badge>
+                </div>
+              </CardHeader>
+              <CardContent className='grid gap-6 md:grid-cols-2'>
+                {/* Campos de Oficina */}
+                {tipoRegistro === 'RECEPCION' ? (
                   <FormField
                     control={form.control}
                     name='oficinaRemitenteId'
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>2. Oficina Remitente</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          value={field.value} // MEJORA UI/UX: Usar value en lugar de defaultValue
-                          disabled={isLoadingOficinas}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              {isLoadingOficinas ? (
-                                'Cargando...'
-                              ) : (
-                                <SelectValue placeholder='Seleccione una oficina' />
-                              )}
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {oficinas?.map((oficina) => (
-                              <SelectItem key={oficina.id} value={oficina.id}>
-                                {oficina.nombre}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <FormLabel>Oficina Remitente</FormLabel>
+                        <Combobox
+                          options={oficinas || []}
+                          value={field.value}
+                          onChange={field.onChange}
+                          disabled={loadingOficinas}
+                          placeholder='Buscar oficina...'
+                          searchLabel='Buscar por nombre...'
+                        />
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                )}
-
-                {/* --- 2B. Oficina Destino (Condicional - ENVIO) --- */}
-                {tipoRegistro === 'ENVIO' && (
+                ) : (
                   <>
                     <FormItem>
-                      {' '}
-                      {/* MEJORA UI/UX: Información de la oficina de origen */}
-                      <FormLabel className='flex items-center gap-1'>
-                        2. Oficina de Origen
+                      <FormLabel className='flex items-center gap-2'>
+                        Oficina de Origen
                         <Tooltip>
-                          <TooltipTrigger asChild>
+                          <TooltipTrigger>
                             <InfoIcon className='text-muted-foreground h-4 w-4' />
                           </TooltipTrigger>
-                          <TooltipContent>
-                            <p>
-                              Esta es la oficina desde la que se envía el
-                              trámite.
-                            </p>
-                          </TooltipContent>
+                          <TooltipContent>Su oficina actual</TooltipContent>
                         </Tooltip>
                       </FormLabel>
-                      <Input
-                        value={userOficina?.nombre || 'Cargando...'}
-                        disabled
-                        className='font-semibold text-gray-700'
-                      />
+                      <div className='bg-muted text-muted-foreground flex h-10 w-full items-center rounded-md border px-3 text-sm'>
+                        <Building2 className='mr-2 h-4 w-4 opacity-50' />
+                        {userOficina?.nombre || 'Cargando...'}
+                      </div>
                     </FormItem>
+
                     <FormField
                       control={form.control}
                       name='oficinaDestinoId'
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>3. Oficina Destino</FormLabel>{' '}
-                          {/* MEJORA UI/UX: Numeración ajustada */}
-                          <Select
-                            onValueChange={field.onChange}
-                            value={field.value} // MEJORA UI/UX: Usar value en lugar de defaultValue
-                            disabled={isLoadingOficinas}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                {isLoadingOficinas ? (
-                                  'Cargando...'
-                                ) : (
-                                  <SelectValue placeholder='Seleccione un destino' />
-                                )}
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {/* Filtramos la oficina del usuario para no auto-enviarse */}
-                              {oficinas
-                                ?.filter((o) => o.id !== user?.oficinaId)
-                                .map((oficina) => (
-                                  <SelectItem
-                                    key={oficina.id}
-                                    value={oficina.id}
-                                  >
-                                    {oficina.nombre}
-                                  </SelectItem>
-                                ))}
-                            </SelectContent>
-                          </Select>
+                          <FormLabel>Oficina Destino</FormLabel>
+                          <Combobox
+                            options={
+                              oficinas?.filter(
+                                (o) => o.id !== user?.oficinaId
+                              ) || []
+                            }
+                            value={field.value}
+                            onChange={field.onChange}
+                            disabled={loadingOficinas}
+                            placeholder='Seleccionar destino...'
+                            searchLabel='Buscar destino...'
+                          />
                           <FormMessage />
                         </FormItem>
                       )}
@@ -321,96 +363,61 @@ export function TramiteForm() {
                   </>
                 )}
 
-                {/* --- TIPO DE DOCUMENTO (Numeración dinámica) --- */}
+                {/* Tipo y Número */}
                 <FormField
                   control={form.control}
                   name='tipoDocumentoId'
                   render={({ field }) => (
-                    <FormItem
-                      className={cn(
-                        tipoRegistro === 'RECEPCION' && 'md:col-start-2' // Ocupa la segunda columna si es Recepción
-                      )}
-                    >
-                      <FormLabel>
-                        {tipoRegistro === 'RECEPCION'
-                          ? '3. Tipo de Documento'
-                          : '4. Tipo de Documento'}{' '}
-                        {/* MEJORA UI/UX: Numeración dinámica */}
-                      </FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value} // MEJORA UI/UX: Usar value
-                        disabled={isLoadingTipos}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            {isLoadingTipos ? (
-                              'Cargando...'
-                            ) : (
-                              <SelectValue placeholder='Seleccione un tipo' />
-                            )}
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {tiposDocumento?.map((tipo) => (
-                            <SelectItem key={tipo.id} value={tipo.id}>
-                              {tipo.nombre}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                    <FormItem>
+                      <FormLabel>Tipo de Documento</FormLabel>
+                      <Combobox
+                        options={tipos || []}
+                        value={field.value}
+                        onChange={field.onChange}
+                        disabled={loadingTipos}
+                        placeholder='Seleccione tipo...'
+                        searchLabel='Buscar tipo...'
+                      />
                       <FormMessage />
                     </FormItem>
                   )}
                 />
 
-                {/* --- NÚMERO DE DOCUMENTO (Numeración dinámica) --- */}
                 <FormField
                   control={form.control}
                   name='numeroDocumento'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>
-                        {tipoRegistro === 'RECEPCION'
-                          ? '4. N° de Documento'
-                          : '5. N° de Documento'}{' '}
-                        {/* MEJORA UI/UX: Numeración dinámica */}
-                        {' (ej. 001-2025)'}
-                      </FormLabel>
+                      <FormLabel>N° de Documento</FormLabel>
                       <FormControl>
-                        <Input placeholder='001-2025' {...field} />
+                        <Input placeholder='Ej: 001-2025' {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
 
-                {/* --- FECHA (Numeración y etiqueta dinámica) --- */}
+                {/* Fecha */}
                 <FormField
                   control={form.control}
                   name='fechaDocumento'
                   render={({ field }) => (
                     <FormItem className='flex flex-col'>
-                      <FormLabel>
-                        {tipoRegistro === 'RECEPCION'
-                          ? '5. Fecha del Documento'
-                          : '6. Fecha del Envío'}{' '}
-                        {/* MEJORA UI/UX: Etiqueta y Numeración dinámica */}
-                      </FormLabel>
+                      <FormLabel>Fecha del Documento</FormLabel>
                       <Popover>
                         <PopoverTrigger asChild>
                           <FormControl>
                             <Button
-                              variant='outline'
+                              variant={'outline'}
                               className={cn(
                                 'w-full pl-3 text-left font-normal',
                                 !field.value && 'text-muted-foreground'
                               )}
                             >
                               {field.value ? (
-                                format(field.value, 'PPP')
+                                format(field.value, 'PPP', { locale: es })
                               ) : (
-                                <span>Seleccione una fecha</span>
+                                <span>Seleccionar fecha</span>
                               )}
                               <CalendarIcon className='ml-auto h-4 w-4 opacity-50' />
                             </Button>
@@ -425,6 +432,7 @@ export function TramiteForm() {
                               date > new Date() || date < new Date('1900-01-01')
                             }
                             initialFocus
+                            locale={es}
                           />
                         </PopoverContent>
                       </Popover>
@@ -433,21 +441,17 @@ export function TramiteForm() {
                   )}
                 />
 
-                {/* --- ASUNTO (Numeración dinámica) --- */}
+                {/* Asunto */}
                 <FormField
                   control={form.control}
                   name='asunto'
                   render={({ field }) => (
                     <FormItem className='md:col-span-2'>
-                      <FormLabel>
-                        {tipoRegistro === 'RECEPCION'
-                          ? '6. Asunto'
-                          : '7. Asunto'}{' '}
-                        {/* MEJORA UI/UX: Numeración dinámica */}
-                      </FormLabel>
+                      <FormLabel>Asunto</FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder='Asunto detallado del trámite...'
+                          placeholder='Describa el asunto del documento...'
+                          className='min-h-[80px] resize-none'
                           {...field}
                         />
                       </FormControl>
@@ -455,78 +459,88 @@ export function TramiteForm() {
                     </FormItem>
                   )}
                 />
+              </CardContent>
+            </Card>
 
-                {/* --- NOTAS (Numeración dinámica) --- */}
-                <FormField
-                  control={form.control}
-                  name='notas'
-                  render={({ field }) => (
-                    <FormItem className='md:col-span-2'>
-                      <FormLabel>
-                        {tipoRegistro === 'RECEPCION'
-                          ? '7. Notas (Opcional)'
-                          : '8. Notas (Opcional)'}{' '}
-                        {/* MEJORA UI/UX: Numeración dinámica */}
-                      </FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder='Información adicional o complementaria...'
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+            {/* --- PASO 3: DETALLES ADICIONALES --- */}
+            <Card className='shadow-sm'>
+              <CardHeader>
+                <div className='flex items-center justify-between'>
+                  <CardTitle className='flex items-center gap-2 text-lg font-semibold'>
+                    <Info className='text-muted-foreground h-5 w-5' />
+                    Información Adicional
+                  </CardTitle>
+                  <Badge variant='secondary'>Paso 3</Badge>
+                </div>
+              </CardHeader>
+              <CardContent className='space-y-6'>
+                {/* USO DE SEPARATOR (Corrige error TS6133) */}
+                <Separator />
 
-                {/* --- OBSERVACIONES (Numeración dinámica) --- */}
-                <FormField
-                  control={form.control}
-                  name='observaciones'
-                  render={({ field }) => (
-                    <FormItem className='md:col-span-2'>
-                      <FormLabel>
-                        {tipoRegistro === 'RECEPCION'
-                          ? '8. Observaciones (Opcional)'
-                          : '9. Observaciones (Opcional)'}{' '}
-                        {/* MEJORA UI/UX: Numeración dinámica */}
-                      </FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder='Observaciones sobre el estado o contenido del documento...'
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+                <div className='grid gap-6 md:grid-cols-2'>
+                  <FormField
+                    control={form.control}
+                    name='notas'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Notas Internas</FormLabel>
+                        <FormControl>
+                          <Textarea placeholder='Uso interno...' {...field} />
+                        </FormControl>
+                        <FormDescription>
+                          Visible solo para su oficina.
+                        </FormDescription>
+                      </FormItem>
+                    )}
+                  />
 
-              {/* MEJORA UI/UX: Reorganizar botones */}
-              <div className='flex justify-end gap-2'>
-                <Button
-                  type='button'
-                  variant='ghost'
-                  onClick={() => navigate({ to: '/tramites' })}
-                >
-                  Cancelar
-                </Button>
-                <Button
-                  type='submit'
-                  disabled={
-                    createTramiteMutation.isPending || !form.formState.isValid
-                  }
-                >
-                  {createTramiteMutation.isPending
-                    ? 'Creando...'
-                    : 'Crear Trámite'}
-                </Button>
-              </div>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
+                  <FormField
+                    control={form.control}
+                    name='observaciones'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Observaciones</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder='Estado físico, anexos...'
+                            {...field}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Botones */}
+            <div className='flex justify-end gap-4'>
+              <Button
+                type='button'
+                variant='outline'
+                // CORRECCIÓN NAVIGATE: Params por defecto
+                onClick={() =>
+                  navigate({
+                    to: '/tramites',
+                    search: { page: 1, limit: 10 },
+                  })
+                }
+              >
+                Cancelar
+              </Button>
+              <Button
+                type='submit'
+                disabled={createMutation.isPending}
+                className='min-w-[150px]'
+              >
+                {createMutation.isPending
+                  ? 'Registrando...'
+                  : 'Registrar Trámite'}
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </div>
     </TooltipProvider>
   )
 }
