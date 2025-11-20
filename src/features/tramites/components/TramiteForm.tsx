@@ -9,22 +9,27 @@ import {
   CalendarIcon,
   Check,
   ChevronsUpDown,
-  Info,
   ArrowRightLeft,
   FileText,
   Building2,
-  InfoIcon,
+  Info,
+  Send,
+  Inbox,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import api from '@/lib/api'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/context/AuthContext'
-import { Badge } from '@/components/ui/badge'
 // Componentes UI
 import { Button } from '@/components/ui/button'
-// Usado para etiquetas de pasos
 import { Calendar } from '@/components/ui/calendar'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from '@/components/ui/card'
 import {
   Command,
   CommandEmpty,
@@ -37,7 +42,6 @@ import {
   Form,
   FormControl,
   FormDescription,
-  // Usado para textos de ayuda
   FormField,
   FormItem,
   FormLabel,
@@ -52,14 +56,6 @@ import {
 import { Separator } from '@/components/ui/separator'
 import { Textarea } from '@/components/ui/textarea'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
-// Usado para dividir secciones
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip'
-// 1. Importamos el esquema centralizado
 import { tramiteFormSchema, type TramiteFormValues } from '../data/schema'
 
 // Tipos
@@ -89,7 +85,6 @@ export function TramiteForm() {
     queryFn: fetchOficinas,
   })
 
-  // Configuración del Formulario
   const form = useForm<TramiteFormValues>({
     resolver: zodResolver(tramiteFormSchema),
     mode: 'onChange',
@@ -107,7 +102,7 @@ export function TramiteForm() {
   const tipoRegistro = form.watch('tipoRegistro')
   const userOficina = oficinas?.find((o) => o.id === user?.oficinaId)
 
-  // Limpieza de campos condicionales
+  // Efecto de limpieza
   React.useEffect(() => {
     if (tipoRegistro === 'RECEPCION') {
       form.setValue('oficinaDestinoId', undefined, { shouldValidate: true })
@@ -116,14 +111,11 @@ export function TramiteForm() {
     }
   }, [tipoRegistro, form])
 
-  // Mutación para crear
   const createMutation = useMutation({
     mutationFn: (data: TramiteFormValues) => api.post('/tramites', data),
     onSuccess: () => {
       toast.success('Trámite registrado correctamente')
       queryClient.invalidateQueries({ queryKey: ['tramites'] })
-
-      // CORRECCIÓN NAVIGATE: Pasamos los params por defecto obligatorios
       navigate({
         to: '/tramites',
         search: { page: 1, limit: 10 },
@@ -137,7 +129,7 @@ export function TramiteForm() {
 
   const onSubmit = (data: TramiteFormValues) => createMutation.mutate(data)
 
-  // Componente Combobox Interno (Para búsqueda)
+  // Componente Combobox
   const Combobox = ({
     options,
     value,
@@ -170,9 +162,11 @@ export function TramiteForm() {
                 !value && 'text-muted-foreground'
               )}
             >
-              {selectedItem
-                ? selectedItem.nombre || selectedItem.siglas
-                : placeholder}
+              <span className='truncate'>
+                {selectedItem
+                  ? selectedItem.nombre || selectedItem.siglas
+                  : placeholder}
+              </span>
               <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
             </Button>
           </FormControl>
@@ -217,330 +211,327 @@ export function TramiteForm() {
   }
 
   return (
-    <TooltipProvider>
-      <div className='mx-auto max-w-5xl pb-10'>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
-            {/* --- PASO 1: TIPO DE REGISTRO --- */}
-            <Card className='border-l-primary border-l-4 shadow-sm'>
-              <CardHeader>
-                <div className='flex items-center justify-between'>
-                  <CardTitle className='text-lg font-semibold'>
-                    Tipo de Registro
-                  </CardTitle>
-                  {/* USO DE BADGE (Corrige error TS6133) */}
-                  <Badge variant='secondary'>Paso 1</Badge>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <FormField
-                  control={form.control}
-                  name='tipoRegistro'
-                  render={({ field }) => (
-                    <FormItem className='space-y-4'>
-                      <FormControl>
-                        <ToggleGroup
-                          type='single'
-                          value={field.value}
-                          onValueChange={(val) => val && field.onChange(val)}
-                          className='justify-start gap-4'
-                        >
-                          <ToggleGroupItem
-                            value='RECEPCION'
-                            className='data-[state=on]:bg-primary data-[state=on]:text-primary-foreground h-auto border px-6 py-4'
-                          >
-                            <div className='flex items-center gap-3'>
-                              <ArrowRightLeft className='h-5 w-5 rotate-90 md:rotate-0' />
-                              <div className='text-left'>
-                                <div className='font-bold'>Recepción</div>
-                                <div className='text-[10px] opacity-80'>
-                                  Externo → Oficina
-                                </div>
-                              </div>
-                            </div>
-                          </ToggleGroupItem>
-
-                          <ToggleGroupItem
-                            value='ENVIO'
-                            className='data-[state=on]:bg-primary data-[state=on]:text-primary-foreground h-auto border px-6 py-4'
-                          >
-                            <div className='flex items-center gap-3'>
-                              <ArrowRightLeft className='h-5 w-5' />
-                              <div className='text-left'>
-                                <div className='font-bold'>Envío</div>
-                                <div className='text-[10px] opacity-80'>
-                                  Oficina → Destino
-                                </div>
-                              </div>
-                            </div>
-                          </ToggleGroupItem>
-                        </ToggleGroup>
-                      </FormControl>
-                      {/* USO DE FORM DESCRIPTION (Corrige error TS6133) */}
-                      <FormDescription>
-                        Seleccione si el documento ingresa a la institución o se
-                        genera internamente.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </CardContent>
-            </Card>
-
-            {/* --- PASO 2: DATOS DEL DOCUMENTO --- */}
-            <Card className='shadow-sm'>
-              <CardHeader>
-                <div className='flex items-center justify-between'>
-                  <CardTitle className='flex items-center gap-2 text-lg font-semibold'>
-                    <FileText className='text-muted-foreground h-5 w-5' />
-                    Datos del Documento
-                  </CardTitle>
-                  <Badge variant='secondary'>Paso 2</Badge>
-                </div>
-              </CardHeader>
-              <CardContent className='grid gap-6 md:grid-cols-2'>
-                {/* Campos de Oficina */}
-                {tipoRegistro === 'RECEPCION' ? (
+    <div className='mx-auto w-full pb-10'>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          {/* LAYOUT PRINCIPAL: GRID 12 Columnas */}
+          <div className='grid items-start gap-6 lg:grid-cols-12'>
+            {/* --- COLUMNA IZQUIERDA (4/12): CONFIGURACIÓN Y FLUJO --- */}
+            <div className='space-y-6 lg:col-span-4'>
+              {/* 1. Tipo de Trámite */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className='text-lg'>Configuración</CardTitle>
+                  <CardDescription>
+                    Defina el flujo del documento
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className='space-y-6'>
                   <FormField
                     control={form.control}
-                    name='oficinaRemitenteId'
+                    name='tipoRegistro'
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Oficina Remitente</FormLabel>
-                        <Combobox
-                          options={oficinas || []}
-                          value={field.value}
-                          onChange={field.onChange}
-                          disabled={loadingOficinas}
-                          placeholder='Buscar oficina...'
-                          searchLabel='Buscar por nombre...'
-                        />
+                        <FormLabel>Tipo de Movimiento</FormLabel>
+                        <FormControl>
+                          <ToggleGroup
+                            type='single'
+                            value={field.value}
+                            onValueChange={(val) => val && field.onChange(val)}
+                            className='w-full flex-col items-stretch gap-2'
+                          >
+                            <ToggleGroupItem
+                              value='RECEPCION'
+                              className='data-[state=on]:bg-primary/5 data-[state=on]:border-primary data-[state=on]:text-primary h-auto justify-start gap-3 border px-4 py-3'
+                            >
+                              <div className='bg-background rounded-full border p-2 shadow-sm'>
+                                <Inbox className='h-4 w-4' />
+                              </div>
+                              <div className='text-left'>
+                                <div className='font-semibold'>Recepción</div>
+                                <div className='text-muted-foreground text-xs'>
+                                  De externo a mi oficina
+                                </div>
+                              </div>
+                            </ToggleGroupItem>
+
+                            <ToggleGroupItem
+                              value='ENVIO'
+                              className='data-[state=on]:bg-primary/5 data-[state=on]:border-primary data-[state=on]:text-primary h-auto justify-start gap-3 border px-4 py-3'
+                            >
+                              <div className='bg-background rounded-full border p-2 shadow-sm'>
+                                <Send className='h-4 w-4' />
+                              </div>
+                              <div className='text-left'>
+                                <div className='font-semibold'>Envío</div>
+                                <div className='text-muted-foreground text-xs'>
+                                  De mi oficina a otra
+                                </div>
+                              </div>
+                            </ToggleGroupItem>
+                          </ToggleGroup>
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                ) : (
-                  <>
-                    <FormItem>
-                      <FormLabel className='flex items-center gap-2'>
-                        Oficina de Origen
-                        <Tooltip>
-                          <TooltipTrigger>
-                            <InfoIcon className='text-muted-foreground h-4 w-4' />
-                          </TooltipTrigger>
-                          <TooltipContent>Su oficina actual</TooltipContent>
-                        </Tooltip>
-                      </FormLabel>
-                      <div className='bg-muted text-muted-foreground flex h-10 w-full items-center rounded-md border px-3 text-sm'>
-                        <Building2 className='mr-2 h-4 w-4 opacity-50' />
-                        {userOficina?.nombre || 'Cargando...'}
-                      </div>
-                    </FormItem>
 
+                  <Separator />
+
+                  {/* 2. Oficinas (Lógica condicional agrupada) */}
+                  <div className='space-y-4'>
+                    {tipoRegistro === 'RECEPCION' ? (
+                      <FormField
+                        control={form.control}
+                        name='oficinaRemitenteId'
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Oficina Remitente (Origen)</FormLabel>
+                            <Combobox
+                              options={oficinas || []}
+                              value={field.value}
+                              onChange={field.onChange}
+                              disabled={loadingOficinas}
+                              placeholder='Buscar remitente...'
+                              searchLabel='Nombre de oficina...'
+                            />
+                            <FormDescription className='text-xs'>
+                              ¿Quién envía el documento físico?
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    ) : (
+                      <>
+                        <FormItem>
+                          <FormLabel>Oficina de Origen</FormLabel>
+                          <div className='bg-muted/50 text-muted-foreground flex h-10 w-full items-center gap-2 rounded-md border px-3 text-sm'>
+                            <Building2 className='h-4 w-4' />
+                            <span className='truncate'>
+                              {userOficina?.nombre || 'Cargando...'}
+                            </span>
+                          </div>
+                        </FormItem>
+
+                        <div className='flex justify-center'>
+                          <ArrowRightLeft className='text-muted-foreground h-4 w-4 rotate-90' />
+                        </div>
+
+                        <FormField
+                          control={form.control}
+                          name='oficinaDestinoId'
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Oficina de Destino</FormLabel>
+                              <Combobox
+                                options={
+                                  oficinas?.filter(
+                                    (o) => o.id !== user?.oficinaId
+                                  ) || []
+                                }
+                                value={field.value}
+                                onChange={field.onChange}
+                                disabled={loadingOficinas}
+                                placeholder='Buscar destino...'
+                                searchLabel='Nombre de oficina...'
+                              />
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* --- COLUMNA DERECHA (8/12): DATOS DEL DOCUMENTO --- */}
+            <div className='space-y-6 lg:col-span-8'>
+              <Card>
+                <CardHeader>
+                  <CardTitle className='flex items-center gap-2'>
+                    <FileText className='text-muted-foreground h-5 w-5' />
+                    Datos del Documento
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className='space-y-6'>
+                  {/* Fila 1: Tipo, Número, Fecha (3 columnas en desktop) */}
+                  <div className='grid gap-6 md:grid-cols-3'>
                     <FormField
                       control={form.control}
-                      name='oficinaDestinoId'
+                      name='tipoDocumentoId'
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Oficina Destino</FormLabel>
+                          <FormLabel>Tipo</FormLabel>
                           <Combobox
-                            options={
-                              oficinas?.filter(
-                                (o) => o.id !== user?.oficinaId
-                              ) || []
-                            }
+                            options={tipos || []}
                             value={field.value}
                             onChange={field.onChange}
-                            disabled={loadingOficinas}
-                            placeholder='Seleccionar destino...'
-                            searchLabel='Buscar destino...'
+                            disabled={loadingTipos}
+                            placeholder='Seleccione...'
+                            searchLabel='Buscar tipo...'
                           />
                           <FormMessage />
                         </FormItem>
                       )}
                     />
-                  </>
-                )}
 
-                {/* Tipo y Número */}
-                <FormField
-                  control={form.control}
-                  name='tipoDocumentoId'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Tipo de Documento</FormLabel>
-                      <Combobox
-                        options={tipos || []}
-                        value={field.value}
-                        onChange={field.onChange}
-                        disabled={loadingTipos}
-                        placeholder='Seleccione tipo...'
-                        searchLabel='Buscar tipo...'
-                      />
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name='numeroDocumento'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>N° de Documento</FormLabel>
-                      <FormControl>
-                        <Input placeholder='Ej: 001-2025' {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Fecha */}
-                <FormField
-                  control={form.control}
-                  name='fechaDocumento'
-                  render={({ field }) => (
-                    <FormItem className='flex flex-col'>
-                      <FormLabel>Fecha del Documento</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
+                    <FormField
+                      control={form.control}
+                      name='numeroDocumento'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Número</FormLabel>
                           <FormControl>
-                            <Button
-                              variant={'outline'}
-                              className={cn(
-                                'w-full pl-3 text-left font-normal',
-                                !field.value && 'text-muted-foreground'
-                              )}
-                            >
-                              {field.value ? (
-                                format(field.value, 'PPP', { locale: es })
-                              ) : (
-                                <span>Seleccionar fecha</span>
-                              )}
-                              <CalendarIcon className='ml-auto h-4 w-4 opacity-50' />
-                            </Button>
+                            <Input placeholder='Ej: 001-2025' {...field} />
                           </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className='w-auto p-0' align='start'>
-                          <Calendar
-                            mode='single'
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            disabled={(date) =>
-                              date > new Date() || date < new Date('1900-01-01')
-                            }
-                            initialFocus
-                            locale={es}
-                          />
-                        </PopoverContent>
-                      </Popover>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                {/* Asunto */}
-                <FormField
-                  control={form.control}
-                  name='asunto'
-                  render={({ field }) => (
-                    <FormItem className='md:col-span-2'>
-                      <FormLabel>Asunto</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder='Describa el asunto del documento...'
-                          className='min-h-[80px] resize-none'
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </CardContent>
-            </Card>
+                    <FormField
+                      control={form.control}
+                      name='fechaDocumento'
+                      render={({ field }) => (
+                        <FormItem className='flex flex-col'>
+                          <FormLabel>Fecha</FormLabel>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant={'outline'}
+                                  className={cn(
+                                    'w-full pl-3 text-left font-normal',
+                                    !field.value && 'text-muted-foreground'
+                                  )}
+                                >
+                                  {field.value ? (
+                                    format(field.value, 'P', { locale: es })
+                                  ) : (
+                                    <span>Seleccionar</span>
+                                  )}
+                                  <CalendarIcon className='ml-auto h-4 w-4 opacity-50' />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent
+                              className='w-auto p-0'
+                              align='start'
+                            >
+                              <Calendar
+                                mode='single'
+                                selected={field.value}
+                                onSelect={field.onChange}
+                                disabled={(date) =>
+                                  date > new Date() ||
+                                  date < new Date('1900-01-01')
+                                }
+                                initialFocus
+                                locale={es}
+                              />
+                            </PopoverContent>
+                          </Popover>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
-            {/* --- PASO 3: DETALLES ADICIONALES --- */}
-            <Card className='shadow-sm'>
-              <CardHeader>
-                <div className='flex items-center justify-between'>
-                  <CardTitle className='flex items-center gap-2 text-lg font-semibold'>
-                    <Info className='text-muted-foreground h-5 w-5' />
-                    Información Adicional
-                  </CardTitle>
-                  <Badge variant='secondary'>Paso 3</Badge>
-                </div>
-              </CardHeader>
-              <CardContent className='space-y-6'>
-                {/* USO DE SEPARATOR (Corrige error TS6133) */}
-                <Separator />
-
-                <div className='grid gap-6 md:grid-cols-2'>
+                  {/* Fila 2: Asunto (Full width) */}
                   <FormField
                     control={form.control}
-                    name='notas'
+                    name='asunto'
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Notas Internas</FormLabel>
-                        <FormControl>
-                          <Textarea placeholder='Uso interno...' {...field} />
-                        </FormControl>
-                        <FormDescription>
-                          Visible solo para su oficina.
-                        </FormDescription>
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name='observaciones'
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Observaciones</FormLabel>
+                        <FormLabel>Asunto Principal</FormLabel>
                         <FormControl>
                           <Textarea
-                            placeholder='Estado físico, anexos...'
+                            placeholder='Describa el contenido del documento...'
+                            className='min-h-[100px] resize-none text-base'
                             {...field}
                           />
                         </FormControl>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
-                </div>
-              </CardContent>
-            </Card>
 
-            {/* Botones */}
-            <div className='flex justify-end gap-4'>
-              <Button
-                type='button'
-                variant='outline'
-                // CORRECCIÓN NAVIGATE: Params por defecto
-                onClick={() =>
-                  navigate({
-                    to: '/tramites',
-                    search: { page: 1, limit: 10 },
-                  })
-                }
-              >
-                Cancelar
-              </Button>
-              <Button
-                type='submit'
-                disabled={createMutation.isPending}
-                className='min-w-[150px]'
-              >
-                {createMutation.isPending
-                  ? 'Registrando...'
-                  : 'Registrar Trámite'}
-              </Button>
+                  <Separator />
+
+                  {/* Fila 3: Información Adicional (Grid de 2 columnas) */}
+                  <div className='grid gap-6 md:grid-cols-2'>
+                    <FormField
+                      control={form.control}
+                      name='notas'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className='flex items-center gap-2'>
+                            <Info className='h-3 w-3' /> Notas Internas
+                          </FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder='Anotaciones privadas...'
+                              className='h-20 resize-none'
+                              {...field}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name='observaciones'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Observaciones</FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder='Detalles físicos (anexos, folios)...'
+                              className='h-20 resize-none'
+                              {...field}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
             </div>
-          </form>
-        </Form>
-      </div>
-    </TooltipProvider>
+          </div>
+
+          {/* BOTONES DE ACCIÓN (PIE DE PÁGINA) */}
+          <div className='mt-8 flex justify-end gap-4 border-t pt-4'>
+            <Button
+              type='button'
+              variant='outline'
+              onClick={() =>
+                navigate({
+                  to: '/tramites',
+                  search: { page: 1, limit: 10 },
+                })
+              }
+              className='w-full sm:w-auto'
+            >
+              Cancelar
+            </Button>
+            <Button
+              type='submit'
+              disabled={createMutation.isPending}
+              className='w-full min-w-[150px] sm:w-auto'
+              size='lg'
+            >
+              {createMutation.isPending
+                ? 'Registrando...'
+                : 'Registrar Trámite'}
+            </Button>
+          </div>
+        </form>
+      </Form>
+    </div>
   )
 }
