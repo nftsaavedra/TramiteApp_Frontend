@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { DateRangeFilter } from '@/components/data-table/date-range-filter'
 import { DataTableFacetedFilter } from '@/components/data-table/faceted-filter'
+// Asegúrate de tener este componente
 import { estados, prioridades } from '../data/data'
 
 export interface FilterOption {
@@ -20,7 +21,8 @@ interface TramitesTableToolbarProps<TData> {
   table: Table<TData>
   oficinasOptions?: FilterOption[]
   tiposDocumentoOptions?: FilterOption[]
-  // Estado externo (URL State)
+
+  // --- PROPS CRÍTICAS PARA BÚSQUEDA Y FECHAS ---
   globalFilter: string
   onGlobalFilterChange: (value: string) => void
   onDateFilterChange: (
@@ -35,6 +37,7 @@ export function TramitesTableToolbar<TData>({
   table,
   oficinasOptions = [],
   tiposDocumentoOptions = [],
+  // Recibimos las props del padre
   globalFilter,
   onGlobalFilterChange,
   onDateFilterChange,
@@ -46,10 +49,9 @@ export function TramitesTableToolbar<TData>({
     !!globalFilter ||
     !!activeDateRange
 
-  // Estado local para input (permite escritura fluida antes del debounce o submit)
+  // Estado local para input (evita lentitud al escribir)
   const [searchValue, setSearchValue] = useState(globalFilter)
 
-  // Sincronizar input local si la URL cambia externamente (ej. navegación atrás/adelante)
   useEffect(() => {
     setSearchValue(globalFilter)
   }, [globalFilter])
@@ -58,7 +60,7 @@ export function TramitesTableToolbar<TData>({
     <div className='flex flex-col gap-4'>
       <div className='flex flex-wrap items-center justify-between gap-2'>
         <div className='flex flex-1 flex-wrap items-center gap-2'>
-          {/* 1. Búsqueda Inteligente */}
+          {/* 1. INPUT DE BÚSQUEDA GLOBAL (Conectado a 'q') */}
           <div className='relative'>
             <Search className='text-muted-foreground absolute top-2.5 left-2 h-4 w-4' />
             <Input
@@ -68,11 +70,11 @@ export function TramitesTableToolbar<TData>({
                 setSearchValue(event.target.value)
                 onGlobalFilterChange(event.target.value)
               }}
-              className='h-8 w-[250px] pl-8 lg:w-[300px]'
+              className='h-8 w-[250px] pl-8 lg:w-[350px]'
             />
           </div>
 
-          {/* 2. Filtro de Fechas Avanzado */}
+          {/* 2. FILTRO DE FECHAS (Conectado a params de fecha) */}
           <DateRangeFilter
             type={activeDateType}
             onTypeChange={(newType) =>
@@ -84,7 +86,7 @@ export function TramitesTableToolbar<TData>({
             }
           />
 
-          {/* 3. Filtros de Columna */}
+          {/* 3. FILTROS DE COLUMNA (Conectados a accessorKey/id) */}
           {table.getColumn('estado') && (
             <DataTableFacetedFilter
               column={table.getColumn('estado')}
@@ -119,14 +121,14 @@ export function TramitesTableToolbar<TData>({
               />
             )}
 
-          {/* Botón Reset */}
           {isFiltered && (
             <Button
               variant='ghost'
               onClick={() => {
                 table.resetColumnFilters()
-                onGlobalFilterChange('')
-                onDateFilterChange('documento', undefined)
+                onGlobalFilterChange('') // Limpia 'q'
+                onDateFilterChange('documento', undefined) // Limpia fechas
+                setSearchValue('')
               }}
               className='h-8 px-2 lg:px-3'
             >

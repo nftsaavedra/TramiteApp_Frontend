@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute, Link } from '@tanstack/react-router'
-// 1. Agregado Link
 import {
   getCoreRowModel,
   useReactTable,
@@ -15,7 +14,6 @@ import {
 import { DateRange } from 'react-day-picker'
 import api from '@/lib/api'
 import { Button } from '@/components/ui/button'
-// 2. Agregado Button
 import { columns } from '@/features/tramites/components/columns'
 import { TramitesDataTable } from '@/features/tramites/components/tramites-table'
 import { TramitesTableToolbar } from '@/features/tramites/components/tramites-table-toolbar'
@@ -25,13 +23,13 @@ import {
   type TramitesSearchParams,
 } from '@/features/tramites/hooks/use-tramites-search'
 
-// --- Definición de la Ruta ---
+// Ruta + Validación
 export const Route = createFileRoute('/_authenticated/tramites/')({
   component: TramitesPage,
   validateSearch: tramitesFilterSchema,
 })
 
-// --- Servicios de Fetching ---
+// --- Fetchers ---
 const fetchOficinas = async () => (await api.get('/oficinas')).data
 const fetchTipos = async () => (await api.get('/tipos-documento')).data
 
@@ -42,10 +40,10 @@ const fetchTramites = async (params: TramitesSearchParams) => {
   query.set('page', (params.page || 1).toString())
   query.set('limit', (params.limit || 10).toString())
 
-  // Búsqueda Inteligente
+  // Búsqueda Inteligente ('q')
   if (params.q) query.set('q', params.q)
 
-  // Filtros de Array
+  // Filtros Arrays
   if (params.estado?.length) query.set('estado', params.estado.join(','))
   if (params.prioridad?.length)
     query.set('prioridad', params.prioridad.join(','))
@@ -54,7 +52,7 @@ const fetchTramites = async (params: TramitesSearchParams) => {
   if (params.tipoDocumentoId?.length)
     query.set('tipoDocumentoId', params.tipoDocumentoId.join(','))
 
-  // Filtros de Fecha
+  // Filtros Fechas
   if (params.fechaDocumentoDesde)
     query.set('fechaDocumentoDesde', params.fechaDocumentoDesde)
   if (params.fechaDocumentoHasta)
@@ -70,13 +68,10 @@ const fetchTramites = async (params: TramitesSearchParams) => {
 }
 
 function TramitesPage() {
-  // 1. Navegación Tipada
   const navigate = Route.useNavigate()
-
-  // 2. Estado URL
   const searchParams = useTramitesSearch()
 
-  // 3. Carga de Datos Auxiliares
+  // --- Datos Auxiliares ---
   const { data: oficinas } = useQuery({
     queryKey: ['oficinas'],
     queryFn: fetchOficinas,
@@ -92,45 +87,27 @@ function TramitesPage() {
     () => oficinas?.map((o: any) => ({ label: o.siglas, value: o.id })) || [],
     [oficinas]
   )
-
   const tiposOptions = useMemo(
     () => tipos?.map((t: any) => ({ label: t.nombre, value: t.id })) || [],
     [tipos]
   )
 
-  // 4. Carga de Datos Principales
+  // --- Datos Principales ---
   const { data: tramitesData, isLoading } = useQuery({
     queryKey: ['tramites', searchParams],
     queryFn: () => fetchTramites(searchParams),
     placeholderData: (prev) => prev,
   })
 
-  // 5. Sincronización Estado Local -> URL
+  // --- Sincronización URL -> Tabla ---
 
-  // A. Paginación
+  // Paginación
   const pagination: PaginationState = {
     pageIndex: (searchParams.page || 1) - 1,
     pageSize: searchParams.limit || 10,
   }
 
-  const onPaginationChange = (updaterOrValue: any) => {
-    const next =
-      typeof updaterOrValue === 'function'
-        ? updaterOrValue(pagination)
-        : updaterOrValue
-
-    navigate({
-      to: '.',
-      search: (prev: any) => ({
-        ...prev,
-        page: next.pageIndex + 1,
-        limit: next.pageSize,
-      }),
-      replace: true,
-    })
-  }
-
-  // B. Filtros de Columna
+  // Filtros Columnas
   const columnFilters = useMemo<ColumnFiltersState>(() => {
     const filters = []
     if (searchParams.estado)
@@ -147,14 +124,39 @@ function TramitesPage() {
     return filters
   }, [searchParams])
 
+  // Ordenamiento
+  const sorting = useMemo<SortingState>(() => {
+    if (searchParams.sortBy) {
+      const [id, desc] = searchParams.sortBy.split(':')
+      return [{ id, desc: desc === 'desc' }]
+    }
+    return []
+  }, [searchParams.sortBy])
+
+  // --- Handlers ---
+
+  const onPaginationChange = (updaterOrValue: any) => {
+    const next =
+      typeof updaterOrValue === 'function'
+        ? updaterOrValue(pagination)
+        : updaterOrValue
+    navigate({
+      to: '.',
+      search: (prev: any) => ({
+        ...prev,
+        page: next.pageIndex + 1,
+        limit: next.pageSize,
+      }),
+      replace: true,
+    })
+  }
+
   const onColumnFiltersChange = (updaterOrValue: any) => {
     const next =
       typeof updaterOrValue === 'function'
         ? updaterOrValue(columnFilters)
         : updaterOrValue
-
     const newParams: any = { ...searchParams, page: 1 }
-
     delete newParams.estado
     delete newParams.prioridad
     delete newParams.oficinaId
@@ -167,14 +169,37 @@ function TramitesPage() {
       if (filter.id === 'tipoDocumentoId')
         newParams.tipoDocumentoId = filter.value
     })
-
     navigate({ to: '.', search: newParams, replace: true })
   }
 
-  // C. Ordenamiento
-  const [sorting, setSorting] = useState<SortingState>([])
+  const onSortingChange = (updaterOrValue: any) => {
+    const next =
+      typeof updaterOrValue === 'function'
+        ? updaterOrValue(sorting)
+        : updaterOrValue
+    if (next.length > 0) {
+      navigate({
+        to: '.',
+        search: (prev: any) => ({
+          ...prev,
+          sortBy: `${next[0].id}:${next[0].desc ? 'desc' : 'asc'}`,
+        }),
+        replace: true,
+      })
+    } else {
+      navigate({
+        to: '.',
+        search: (prev: any) => {
+          const { sortBy, ...rest } = prev
+          return rest
+        },
+        replace: true,
+      })
+    }
+  }
 
-  // 6. Manejadores del Toolbar
+  // --- Handlers Búsqueda Global y Fechas ---
+
   const handleGlobalSearch = (value: string) => {
     navigate({
       to: '.',
@@ -191,7 +216,6 @@ function TramitesPage() {
       to: '.',
       search: (prev: any) => {
         const newParams = { ...prev, page: 1 }
-
         delete newParams.fechaDocumentoDesde
         delete newParams.fechaDocumentoHasta
         delete newParams.creadoDesde
@@ -200,7 +224,6 @@ function TramitesPage() {
         if (range?.from) {
           const fromISO = range.from.toISOString()
           const toISO = range.to ? range.to.toISOString() : fromISO
-
           if (type === 'documento') {
             newParams.fechaDocumentoDesde = fromISO
             newParams.fechaDocumentoHasta = toISO
@@ -215,8 +238,8 @@ function TramitesPage() {
     })
   }
 
-  // 7. Estado Activo para UI
-  const activeDateRange: DateRange | undefined =
+  // Estado activo para UI de fechas
+  const activeDateRange =
     searchParams.fechaDocumentoDesde || searchParams.creadoDesde
       ? {
           from: new Date(
@@ -232,20 +255,21 @@ function TramitesPage() {
       : undefined
   const activeDateType = searchParams.creadoDesde ? 'registro' : 'documento'
 
-  // 8. Instancia de Tabla
+  // --- Tabla ---
   const table = useReactTable({
     data: tramitesData?.data || [],
     columns,
     state: { pagination, columnFilters, sorting },
     onPaginationChange,
     onColumnFiltersChange,
-    onSortingChange: setSorting,
+    onSortingChange,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
     manualPagination: true,
     manualFiltering: true,
+    manualSorting: true,
     pageCount: tramitesData?.meta?.lastPage || 1,
   })
 
@@ -257,10 +281,9 @@ function TramitesPage() {
             Registro de Trámites
           </h2>
           <p className='text-muted-foreground'>
-            Administración centralizada de documentos y movimientos.
+            Administración centralizada de documentos.
           </p>
         </div>
-        {/* 3. Botón Restaurado */}
         <div className='flex items-center space-x-2'>
           <Button asChild>
             <Link to='/tramites/nuevo'>Nuevo Trámite</Link>
@@ -273,6 +296,7 @@ function TramitesPage() {
           table={table}
           oficinasOptions={oficinasOptions}
           tiposDocumentoOptions={tiposOptions}
+          // CONEXIÓN CRÍTICA: Pasamos los handlers y estado al toolbar
           globalFilter={searchParams.q || ''}
           onGlobalFilterChange={handleGlobalSearch}
           onDateFilterChange={handleDateFilterChange}
