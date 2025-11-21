@@ -9,9 +9,8 @@ import {
   CheckCircle2,
   ArrowRight,
   Archive,
-  FileText
+  FileText,
 } from 'lucide-react'
-
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -24,53 +23,93 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { DataTableColumnHeader } from '@/components/data-table/column-header'
 
-// Importamos el tipo centralizado (asegúrate de que types.ts ya esté actualizado)
-import { Tramite } from '../types'
+// --- ACTUALIZACIÓN DE TIPO ---
+// Agregamos los IDs 'oficinaRemitenteId' y 'tipoDocumentoId' que son necesarios para los filtros
+export type Tramite = {
+  id: string
+  numeroDocumentoCompleto: string
+  asunto: string
+  estado: 'EN_PROCESO' | 'FINALIZADO' | 'ARCHIVADO' // Actualizado a tus nuevos estados
+  prioridad: 'URGENTE' | 'ALTA' | 'NORMAL' | 'BAJA'
+  fechaIngreso: string
+  fechaDocumento: string // Agregado para que no falte
+  oficinaRemitenteId: string // Requerido para el filtro
+  tipoDocumentoId: string // Requerido para el filtro
+  oficinaRemitente: {
+    siglas: string
+    nombre: string
+  }
+  tipoDocumento: {
+    nombre: string
+  }
+  movimientos: {
+    destinos: {
+      oficinaDestino: {
+        siglas: string
+        nombre: string
+      }
+    }[]
+  }[]
+  plazo: {
+    diasTranscurridos: number | null
+    estado: 'VENCIDO' | 'POR_VENCER' | 'A_TIEMPO' | 'NO_APLICA'
+  }
+}
 
-// --- CONFIGURACIÓN VISUAL (Semáforo) ---
+// --- CONFIGURACIÓN VISUAL (Preservada exactamente como la enviaste) ---
 
-// 1. Prioridad: Rojo para lo urgente, azul/gris para lo normal
-const prioridadConfig: Record<string, { label: string; color: 'default' | 'secondary' | 'destructive' | 'outline'; icon?: any }> = {
+// 1. Prioridad
+const prioridadConfig: Record<
+  string,
+  {
+    label: string
+    color: 'default' | 'secondary' | 'destructive' | 'outline'
+    icon?: any
+  }
+> = {
   URGENTE: { label: 'Urgente', color: 'destructive', icon: AlertCircle },
   ALTA: { label: 'Alta', color: 'destructive', icon: AlertCircle },
   NORMAL: { label: 'Normal', color: 'secondary', icon: Clock },
   BAJA: { label: 'Baja', color: 'outline', icon: CheckCircle2 },
 }
 
-// 2. Estado: Colores personalizados tipo Excel (Rojo/Verde/Gris)
-const estadoConfig: Record<string, { label: string; className: string; icon: any }> = {
+// 2. Estado
+const estadoConfig: Record<
+  string,
+  { label: string; className: string; icon: any }
+> = {
   EN_PROCESO: {
     label: 'En Curso',
-    // Rojo/Naranja suave para "Pendiente de Atención"
-    className: 'bg-orange-100 text-orange-700 hover:bg-orange-100/80 border-orange-200',
-    icon: Clock
+    className:
+      'bg-orange-100 text-orange-700 hover:bg-orange-100/80 border-orange-200',
+    icon: Clock,
   },
   FINALIZADO: {
     label: 'Completado',
-    // Verde éxito
-    className: 'bg-emerald-100 text-emerald-700 hover:bg-emerald-100/80 border-emerald-200',
-    icon: CheckCircle2
+    className:
+      'bg-emerald-100 text-emerald-700 hover:bg-emerald-100/80 border-emerald-200',
+    icon: CheckCircle2,
   },
   ARCHIVADO: {
     label: 'Archivado',
-    // Gris neutro
-    className: 'bg-slate-100 text-slate-700 hover:bg-slate-100/80 border-slate-200',
-    icon: Archive
+    className:
+      'bg-slate-100 text-slate-700 hover:bg-slate-100/80 border-slate-200',
+    icon: Archive,
   },
 }
 
 // --- DEFINICIÓN DE COLUMNAS ---
 
 export const columns: ColumnDef<Tramite>[] = [
-  // 1. N° Documento (Identificador)
+  // 1. N° Documento
   {
     accessorKey: 'numeroDocumentoCompleto',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='N° Documento' />
     ),
     cell: ({ row }) => (
-      <div className='font-bold text-nowrap flex items-center gap-2'>
-        <FileText className="h-4 w-4 text-muted-foreground" />
+      <div className='flex items-center gap-2 font-bold text-nowrap'>
+        <FileText className='text-muted-foreground h-4 w-4' />
         {row.getValue('numeroDocumentoCompleto')}
       </div>
     ),
@@ -89,8 +128,11 @@ export const columns: ColumnDef<Tramite>[] = [
       const Icon = config.icon
 
       return (
-        <Badge variant={config.color} className='gap-1 pr-2.5 whitespace-nowrap'>
-          {Icon && <Icon className="h-3 w-3" />}
+        <Badge
+          variant={config.color}
+          className='gap-1 pr-2.5 whitespace-nowrap'
+        >
+          {Icon && <Icon className='h-3 w-3' />}
           {config.label}
         </Badge>
       )
@@ -107,33 +149,49 @@ export const columns: ColumnDef<Tramite>[] = [
     cell: ({ row }) => (
       <div
         className='max-w-[300px] truncate font-medium'
-        title={row.getValue('asunto')} // Tooltip nativo
+        title={row.getValue('asunto')}
       >
         {row.getValue('asunto')}
       </div>
     ),
   },
 
-  // 4. Tipo Documento
+  // 4. Tipo Documento (CORREGIDO: ID explícito para que funcione el filtro)
   {
-    accessorKey: 'tipoDocumento.nombre',
+    id: 'tipoDocumentoId', // IMPORTANTE: Coincide con el toolbar
+    accessorFn: (row) => row.tipoDocumento.nombre, // Accedemos al nombre para mostrarlo
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Tipo' />
     ),
     cell: ({ row }) => (
-      <div className="whitespace-nowrap capitalize">
+      <div className='whitespace-nowrap capitalize'>
         {row.original.tipoDocumento.nombre.toLowerCase()}
       </div>
     ),
+    filterFn: 'arrIncludesSome', // Habilita el filtrado múltiple
   },
 
-  // 5. Ubicación Actual (Trazabilidad)
+  // 5. Oficina Origen (AGREGADA: Faltaba para que funcione el filtro 'oficinaRemitenteId')
   {
-    id: 'ubicacion',
+    id: 'oficinaRemitenteId', // IMPORTANTE: Coincide con el toolbar
+    accessorFn: (row) => row.oficinaRemitente.siglas,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title='Origen' />
+    ),
+    cell: ({ row }) => (
+      <span title={row.original.oficinaRemitente.nombre}>
+        {row.original.oficinaRemitente.siglas}
+      </span>
+    ),
+    filterFn: 'arrIncludesSome',
+  },
+
+  // 6. Ubicación Actual (Tu lógica original preservada)
+  {
+    id: 'ubicacionActual',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Ubicación Actual' />
     ),
-    // Lógica para ordenamiento: Nombre de la oficina donde está
     accessorFn: (row) => {
       const ultimoDestino = row.movimientos?.[0]?.destinos?.[0]?.oficinaDestino
       return ultimoDestino ? ultimoDestino.siglas : row.oficinaRemitente.siglas
@@ -143,14 +201,13 @@ export const columns: ColumnDef<Tramite>[] = [
       const destino = ultimoMovimiento?.destinos?.[0]?.oficinaDestino
       const origen = row.original.oficinaRemitente
 
-      // Si hay destino, mostramos el flujo
       if (destino) {
         return (
-          <div className="flex items-center gap-1.5 text-xs whitespace-nowrap">
-            <span className="text-muted-foreground">{origen.siglas}</span>
-            <ArrowRight className="h-3 w-3 text-muted-foreground" />
+          <div className='flex items-center gap-1.5 text-xs whitespace-nowrap'>
+            <span className='text-muted-foreground'>{origen.siglas}</span>
+            <ArrowRight className='text-muted-foreground h-3 w-3' />
             <span
-              className="font-bold bg-accent/50 px-1.5 py-0.5 rounded-sm"
+              className='bg-accent/50 rounded-sm px-1.5 py-0.5 font-bold'
               title={destino.nombre}
             >
               {destino.siglas}
@@ -159,10 +216,9 @@ export const columns: ColumnDef<Tramite>[] = [
         )
       }
 
-      // Si no ha salido, está en origen
       return (
         <span
-          className="font-bold text-xs bg-accent/50 px-1.5 py-0.5 rounded-sm"
+          className='bg-accent/50 rounded-sm px-1.5 py-0.5 text-xs font-bold'
           title={origen.nombre}
         >
           {origen.siglas}
@@ -171,7 +227,7 @@ export const columns: ColumnDef<Tramite>[] = [
     },
   },
 
-  // 6. Estado del Trámite (Con lógica Excel Rojo/Verde)
+  // 7. Estado (Tu lógica original preservada)
   {
     accessorKey: 'estado',
     header: ({ column }) => (
@@ -179,16 +235,15 @@ export const columns: ColumnDef<Tramite>[] = [
     ),
     cell: ({ row }) => {
       const estado = row.original.estado
-      // Fallback seguro a 'EN_PROCESO' si el estado no existe en el mapa
       const config = estadoConfig[estado] || estadoConfig['EN_PROCESO']
       const Icon = config.icon
 
       return (
         <Badge
-          variant="outline"
-          className={`gap-1.5 pr-2.5 font-medium border-0 ${config.className}`}
+          variant='outline'
+          className={`gap-1.5 border-0 pr-2.5 font-medium ${config.className}`}
         >
-          <Icon className="h-3.5 w-3.5" />
+          <Icon className='h-3.5 w-3.5' />
           {config.label}
         </Badge>
       )
@@ -196,7 +251,7 @@ export const columns: ColumnDef<Tramite>[] = [
     filterFn: 'arrIncludesSome',
   },
 
-  // 7. Plazos (Semáforo de Días)
+  // 8. Plazos
   {
     accessorKey: 'plazo',
     header: 'Plazos',
@@ -210,42 +265,44 @@ export const columns: ColumnDef<Tramite>[] = [
       const dias = plazo.diasTranscurridos
       let color: 'default' | 'secondary' | 'destructive' = 'default'
 
-      // Lógica de semáforo
       if (plazo.estado === 'VENCIDO') color = 'destructive'
-      else if (plazo.estado === 'POR_VENCER') color = 'secondary' // Amarillo/Naranja
+      else if (plazo.estado === 'POR_VENCER') color = 'secondary'
 
-      // Texto descriptivo
       const label = dias === 0 ? 'Hoy' : `${dias} días`
 
       return (
-        <Badge variant={color} className="whitespace-nowrap">
+        <Badge variant={color} className='whitespace-nowrap'>
           {label}
         </Badge>
       )
     },
   },
 
-  // 8. Fecha Documento
+  // 9. Fecha Documento
   {
     accessorKey: 'fechaDocumento',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Fecha Doc.' />
     ),
     cell: ({ row }) => {
-      const fecha = new Date(row.getValue('fechaDocumento'))
+      const dateValue = row.getValue('fechaDocumento')
+      if (!dateValue)
+        return <span className='text-muted-foreground text-xs'>-</span>
+
+      const fecha = new Date(dateValue as string)
       return (
-        <span className="text-xs text-muted-foreground whitespace-nowrap">
+        <span className='text-muted-foreground text-xs whitespace-nowrap'>
           {new Intl.DateTimeFormat('es-PE', {
             day: '2-digit',
             month: '2-digit',
-            year: 'numeric'
+            year: 'numeric',
           }).format(fecha)}
         </span>
       )
     },
   },
 
-  // 9. Acciones (Dropdown)
+  // 10. Acciones
   {
     id: 'actions',
     cell: ({ row }) => {
@@ -261,12 +318,11 @@ export const columns: ColumnDef<Tramite>[] = [
           <DropdownMenuContent align='end'>
             <DropdownMenuLabel>Acciones</DropdownMenuLabel>
 
-            {/* Ver Detalle */}
             <DropdownMenuItem asChild>
               <Link
                 to='/tramites/$tramiteId'
                 params={{ tramiteId: tramite.id }}
-                className="cursor-pointer w-full"
+                className='w-full cursor-pointer'
               >
                 Ver Seguimiento
               </Link>
@@ -274,9 +330,10 @@ export const columns: ColumnDef<Tramite>[] = [
 
             <DropdownMenuSeparator />
 
-            {/* Copiar ID */}
             <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(tramite.numeroDocumentoCompleto)}
+              onClick={() =>
+                navigator.clipboard.writeText(tramite.numeroDocumentoCompleto)
+              }
             >
               Copiar N° Documento
             </DropdownMenuItem>
