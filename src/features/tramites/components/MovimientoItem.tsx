@@ -42,9 +42,18 @@ export function MovimientoItem({ movimiento }: MovimientoItemProps) {
       <div className='flex-1 space-y-1'>
         <div className='flex items-center justify-between'>
           <p className='text-sm font-medium'>
-            <span className='font-bold'>{movimiento.usuarioCreador.name}</span>
-            <span className='text-muted-foreground'> desde </span>
-            <span className='font-bold'>{movimiento.oficinaOrigen.siglas}</span>
+            <span className='font-bold'>
+              {movimiento.numeroDocumentoCompleto}
+            </span>
+            {/* <span className='font-bold'> {movimiento.usuarioCreador.name}</span>
+            <span className='text-muted-foreground'> desde </span> */}
+            {/* <span className='font-bold'>{movimiento.oficinaOrigen.siglas}</span> */}
+            <span className='text-muted-foreground'> Fecha: </span>
+            <span className='font-bold'>
+              {format(movimiento.fechaDocumento, "dd 'de' MMMM, yyyy", {
+                locale: es,
+              })}
+            </span>
           </p>
           <time
             className='text-muted-foreground text-xs'

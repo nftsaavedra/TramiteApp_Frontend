@@ -37,6 +37,8 @@ export type Movimiento = {
   destinos: MovimientoDestino[]
   observaciones: string | null
   // Campos añadidos previamente
+  fechaIngreso: string // ISO Date
+  fechaDocumento: string // ISO Date
   numeroDocumento: string | null
   numeroDocumentoCompleto: string | null
   notas: string | null
