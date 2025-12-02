@@ -1,96 +1,142 @@
-// --- TIPOS COMPARTIDOS Y ENUMS ---
+// En: src/features/tramites/types.ts
+
+// --- ENUMS DEL BACKEND (Prisma) ---
 export type TramiteEstado = 'EN_PROCESO' | 'FINALIZADO' | 'ARCHIVADO'
 export type TramitePrioridad = 'BAJA' | 'NORMAL' | 'ALTA' | 'URGENTE'
+export type MovimientoTipoAccion =
+  | 'DERIVACION'
+  | 'RESPUESTA'
+  | 'ASIGNACION'
+  | 'ARCHIVO'
+  | 'CIERRE'
+export type MovimientoDestinoEstado = 'PENDIENTE' | 'RECIBIDO' | 'ATENDIDO'
+export type MovimientoTipoDestino = 'PRINCIPAL' | 'COPIA'
+export type PlazoEstado = 'VENCIDO' | 'POR_VENCER' | 'A_TIEMPO' | 'NO_APLICA'
+export type OficinaTipo =
+  | 'ORGANO_ALTA_DIRECCION'
+  | 'ORGANO_DE_LINEA'
+  | 'UNIDAD_ORGANICA'
+  | 'ORGANO_DE_ASESORAMIENTO'
+  | 'ORGANO_DE_APOYO'
+  | 'EXTERNA'
 
-// --- TIPOS BÁSICOS (Preservados) ---
-export type Oficina = {
+// --- ENTIDADES AUXILIARES ---
+
+export interface Oficina {
   id: string
   nombre: string
   siglas: string
+  tipo?: OficinaTipo // Opcional porque en listados simples a veces no viene
+  parentId?: string | null
+  esInquilino?: boolean
+  isActive?: boolean
 }
 
-export type UsuarioSimple = {
+export interface UsuarioSimple {
   id: string
   name: string
+  email: string
+  role: string
+  oficinaId?: string
+  isActive?: boolean
 }
 
-// --- NUEVO: Tipo para la información de plazos (Backend Calculated) ---
-export type PlazoInfo = {
+export interface TipoDocumento {
+  id: string
+  nombre: string
+  descripcion?: string | null
+  isActive?: boolean
+}
+
+// --- OBJETOS CALCULADOS (No existen en DB, generados por Service) ---
+export interface PlazoInfo {
   diasTranscurridos: number | null
-  estado: 'VENCIDO' | 'POR_VENCER' | 'A_TIEMPO' | 'NO_APLICA'
+  estado: PlazoEstado
 }
 
-// --- SUB-TIPOS DE MOVIMIENTO (Preservados) ---
-export type MovimientoDestino = {
+// --- MOVIMIENTOS Y DESTINOS ---
+
+export interface MovimientoDestino {
   id: string
-  oficinaDestino: Oficina
-  estado: 'PENDIENTE' | 'RECIBIDO' | 'ATENDIDO'
-  fechaRecepcion: string | null
+  tipoDestino: MovimientoTipoDestino
+  estado: MovimientoDestinoEstado
+  fechaRecepcion: string | null // ISO Date String
+  movimientoId: string
+  oficinaDestinoId: string
+  oficinaDestino: Oficina // Relación incluida (include: { oficinaDestino: true })
 }
 
-export type Movimiento = {
+export interface Movimiento {
   id: string
-  tipoAccion: 'DERIVACION' | 'RESPUESTA' | 'ASIGNACION' | 'ARCHIVO' | 'CIERRE'
-  createdAt: string
-  oficinaOrigen: Oficina
-  usuarioCreador: UsuarioSimple
-  destinos: MovimientoDestino[]
-  observaciones: string | null
-  // Campos añadidos previamente
-  fechaIngreso: string // ISO Date
-  fechaDocumento: string // ISO Date
+  tipoAccion: MovimientoTipoAccion
+
+  // Datos del documento específico del movimiento (opcionales)
   numeroDocumento: string | null
   numeroDocumentoCompleto: string | null
+  fechaDocumento: string | null // ISO Date String
+
+  // Contenido
   notas: string | null
+  observaciones: string | null // Ajustado al backend
+
+  // Auditoría y Estado
+  fechaCierre: string | null
+  createdAt: string // ISO Date String
+  updatedAt: string // ISO Date String
+
+  // Relaciones (Foreign Keys)
+  tramiteId: string
+  usuarioCreadorId: string
+  oficinaOrigenId: string
+  tipoDocumentoId: string | null
+
+  // Relaciones (Objetos Anidados)
+  usuarioCreador?: UsuarioSimple
+  oficinaOrigen: Oficina
+  tipoDocumento?: TipoDocumento | null
+
+  // Detalle de destinos
+  destinos: MovimientoDestino[]
 }
 
-export type Anotacion = {
+// --- TRÁMITE COMPLETO (Respuesta de findOne) ---
+export interface TramiteCompleto {
   id: string
-  contenido: string
+
+  // Identificación
+  numeroDocumento: string
+  numeroDocumentoCompleto: string // Generado: TIPO-N-AÑO-SIGLAS
+  asunto: string
+
+  // Estado y Clasificación
+  estado: TramiteEstado
+  prioridad: TramitePrioridad
+
+  // Fechas
+  fechaDocumento: string // ISO Date String
+  fechaIngreso: string // ISO Date String
+  fechaCierre: string | null
   createdAt: string
-  autor: UsuarioSimple
-}
+  updatedAt: string
 
-// --- INTERFAZ PARA LA TABLA (Nueva) ---
-// Esta interfaz es ligera y contiene solo lo necesario para las columnas y filtros
-export interface Tramite {
-  id: string
-  numeroDocumentoCompleto: string
-  asunto: string
-  estado: TramiteEstado
-  prioridad: TramitePrioridad
-  fechaIngreso: string // ISO Date
-  fechaDocumento: string // ISO Date
-
-  // Relaciones
-  oficinaRemitente: Oficina
-  tipoDocumento: { nombre: string }
-
-  // Datos Calculados o Anidados
-  plazo: PlazoInfo
-  movimientos: Movimiento[] // Necesario para calcular "Ubicación Actual"
-}
-
-// --- TIPO COMPLETO PARA DETALLES (Preservado y Enriquecido) ---
-// Se mantiene compatible con tu código anterior, añadiendo 'plazo' que viene del backend
-export type TramiteCompleto = {
-  id: string
-  numeroDocumentoCompleto: string
-  asunto: string
-  estado: TramiteEstado
-  prioridad: TramitePrioridad
-  fechaIngreso: string
-  fechaDocumento: string
-  observaciones: string | null
+  // Notas generales iniciales
   notas: string | null
+  observaciones: string | null
 
+  // Relaciones (Foreign Keys)
+  tipoDocumentoId: string
+  oficinaRemitenteId: string
+  usuarioAsignadoId: string | null
+
+  // Relaciones (Objetos Anidados)
+  tipoDocumento: TipoDocumento
   oficinaRemitente: Oficina
-  tipoDocumento: { nombre: string }
-  usuarioAsignado: UsuarioSimple | null
+  usuarioAsignado?: UsuarioSimple | null
 
+  // Colecciones
   movimientos: Movimiento[]
-  anotaciones: Anotacion[]
+  anotaciones?: any[] // Pendiente de definir estructura de anotaciones si se usa
 
-  // Agregamos esto porque el endpoint findOne del backend también lo devuelve
+  // Campo Calculado (Backend: tramites.service.ts -> getPlazoInfo)
   plazo: PlazoInfo
 }

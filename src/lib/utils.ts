@@ -1,4 +1,6 @@
+import { format } from 'date-fns'
 import { type ClassValue, clsx } from 'clsx'
+import { es } from 'date-fns/locale'
 import { twMerge } from 'tailwind-merge'
 
 export function cn(...inputs: ClassValue[]) {
@@ -7,6 +9,23 @@ export function cn(...inputs: ClassValue[]) {
 
 export function sleep(ms: number = 1000) {
   return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+/**
+ * Formatea una fecha de manera estándar para toda la aplicación.
+ * @param date - Fecha en formato string (ISO) o Date object
+ * @param formatStr - Formato deseado (default: dd/MM/yyyy, HH:mm)
+ */
+export function formatDate(
+  date: string | Date | null | undefined,
+  formatStr: string = 'dd/MM/yyyy, HH:mm'
+) {
+  if (!date) return ''
+  const dateObj = typeof date === 'string' ? new Date(date) : date
+  // Validamos que la fecha sea válida
+  if (isNaN(dateObj.getTime())) return ''
+
+  return format(dateObj, formatStr, { locale: es })
 }
 
 /**
@@ -55,6 +74,5 @@ export function getPageNumbers(currentPage: number, totalPages: number) {
       rangeWithDots.push('...', totalPages)
     }
   }
-
   return rangeWithDots
 }
