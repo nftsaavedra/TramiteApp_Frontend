@@ -9,8 +9,9 @@ export type MovimientoTipoAccion =
   | 'ASIGNACION'
   | 'ARCHIVO'
   | 'CIERRE'
-export type MovimientoDestinoEstado = 'PENDIENTE' | 'RECIBIDO' | 'ATENDIDO'
-export type MovimientoTipoDestino = 'PRINCIPAL' | 'COPIA'
+
+// CAMBIO: Eliminados tipos MovimientoDestinoEstado y MovimientoTipoDestino porque ya no existen en DB
+
 export type PlazoEstado = 'VENCIDO' | 'POR_VENCER' | 'A_TIEMPO' | 'NO_APLICA'
 export type OficinaTipo =
   | 'ORGANO_ALTA_DIRECCION'
@@ -26,7 +27,7 @@ export interface Oficina {
   id: string
   nombre: string
   siglas: string
-  tipo?: OficinaTipo // Opcional porque en listados simples a veces no viene
+  tipo?: OficinaTipo
   parentId?: string | null
   esInquilino?: boolean
   isActive?: boolean
@@ -48,36 +49,32 @@ export interface TipoDocumento {
   isActive?: boolean
 }
 
-// --- OBJETOS CALCULADOS (No existen en DB, generados por Service) ---
+// --- OBJETOS CALCULADOS ---
 export interface PlazoInfo {
   diasTranscurridos: number | null
   estado: PlazoEstado
 }
 
-// --- MOVIMIENTOS Y DESTINOS ---
+// --- MOVIMIENTOS ---
 
-export interface MovimientoDestino {
-  id: string
-  tipoDestino: MovimientoTipoDestino
-  estado: MovimientoDestinoEstado
-  fechaRecepcion: string | null // ISO Date String
-  movimientoId: string
-  oficinaDestinoId: string
-  oficinaDestino: Oficina // Relación incluida (include: { oficinaDestino: true })
-}
+// CAMBIO: Eliminada la interfaz MovimientoDestino (tabla intermedia borrada)
 
 export interface Movimiento {
   id: string
   tipoAccion: MovimientoTipoAccion
 
-  // Datos del documento específico del movimiento (opcionales)
+  // Identidad del documento
   numeroDocumento: string | null
-  numeroDocumentoCompleto: string | null
+  nombreDocumentoCompleto: string | null // CAMBIO: Renombrado
   fechaDocumento: string | null // ISO Date String
 
-  // Contenido
+  // Contenido y Trazabilidad
+  asunto: string | null // NUEVO: Trazabilidad específica del paso
   notas: string | null
-  observaciones: string | null // Ajustado al backend
+  observaciones: string | null
+
+  // Bandera informativa
+  esCopia: boolean // NUEVO
 
   // Auditoría y Estado
   fechaCierre: string | null
@@ -88,15 +85,16 @@ export interface Movimiento {
   tramiteId: string
   usuarioCreadorId: string
   oficinaOrigenId: string
+  oficinaDestinoId?: string | null // NUEVO: Destino directo (opcional en cierres)
   tipoDocumentoId: string | null
 
   // Relaciones (Objetos Anidados)
   usuarioCreador?: UsuarioSimple
   oficinaOrigen: Oficina
+  oficinaDestino?: Oficina | null // NUEVO: Objeto destino directo
   tipoDocumento?: TipoDocumento | null
 
-  // Detalle de destinos
-  destinos: MovimientoDestino[]
+  // CAMBIO: Eliminado 'destinos' (array)
 }
 
 // --- TRÁMITE COMPLETO (Respuesta de findOne) ---
@@ -105,7 +103,7 @@ export interface TramiteCompleto {
 
   // Identificación
   numeroDocumento: string
-  numeroDocumentoCompleto: string // Generado: TIPO-N-AÑO-SIGLAS
+  nombreDocumentoCompleto: string // CAMBIO: Renombrado
   asunto: string
 
   // Estado y Clasificación
@@ -119,24 +117,29 @@ export interface TramiteCompleto {
   createdAt: string
   updatedAt: string
 
-  // Notas generales iniciales
-  notas: string | null
+  // CAMBIO: Eliminado 'notas' (ahora usamos anotaciones o notas en movimientos)
   observaciones: string | null
 
   // Relaciones (Foreign Keys)
   tipoDocumentoId: string
   oficinaRemitenteId: string
+  oficinaDestinoId?: string | null // NUEVO
   usuarioAsignadoId: string | null
 
   // Relaciones (Objetos Anidados)
   tipoDocumento: TipoDocumento
   oficinaRemitente: Oficina
+  oficinaDestino?: Oficina | null // NUEVO: Destinatario Principal
+
+  // NUEVO: Lista de oficinas que recibieron copia (Informativo)
+  copias: Oficina[]
+
   usuarioAsignado?: UsuarioSimple | null
 
   // Colecciones
   movimientos: Movimiento[]
-  anotaciones?: any[] // Pendiente de definir estructura de anotaciones si se usa
+  anotaciones?: any[]
 
-  // Campo Calculado (Backend: tramites.service.ts -> getPlazoInfo)
+  // Campo Calculado
   plazo: PlazoInfo
 }

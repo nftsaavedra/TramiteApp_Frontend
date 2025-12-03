@@ -12,7 +12,6 @@ import {
   ArrowRightLeft,
   FileText,
   Building2,
-  Info,
   Send,
   Inbox,
 } from 'lucide-react'
@@ -92,7 +91,6 @@ export function TramiteForm() {
       tipoRegistro: 'RECEPCION',
       numeroDocumento: '',
       asunto: '',
-      notas: '',
       observaciones: '',
       oficinaRemitenteId: undefined,
       oficinaDestinoId: undefined,
@@ -100,9 +98,15 @@ export function TramiteForm() {
   })
 
   const tipoRegistro = form.watch('tipoRegistro')
-  const userOficina = oficinas?.find((o) => o.id === user?.oficinaId)
 
-  // Efecto de limpieza
+  // Lógica de visualización de Oficina de Usuario:
+  // 1. Buscamos por ID asignado al usuario.
+  // 2. Si no tiene, hacemos fallback a la oficina VPIN (ROOT) para mostrarla en el UI.
+  const userOficina =
+    oficinas?.find((o) => o.id === user?.oficinaId) ||
+    oficinas?.find((o) => o.siglas === 'VPIN')
+
+  // Efecto de limpieza al cambiar tipo
   React.useEffect(() => {
     if (tipoRegistro === 'RECEPCION') {
       form.setValue('oficinaDestinoId', undefined, { shouldValidate: true })
@@ -129,7 +133,6 @@ export function TramiteForm() {
 
   const onSubmit = (data: TramiteFormValues) => createMutation.mutate(data)
 
-  // Componente Combobox
   const Combobox = ({
     options,
     value,
@@ -288,7 +291,14 @@ export function TramiteForm() {
                           <FormItem>
                             <FormLabel>Oficina Remitente (Origen)</FormLabel>
                             <Combobox
-                              options={oficinas || []}
+                              // CAMBIO: Filtramos la oficina actual y VPIN de la lista de remitentes
+                              options={
+                                oficinas?.filter(
+                                  (o) =>
+                                    o.id !== user?.oficinaId &&
+                                    o.siglas !== 'VPIN' // El remitente de una recepción no puede ser la oficina root
+                                ) || []
+                              }
                               value={field.value}
                               onChange={field.onChange}
                               disabled={loadingOficinas}
@@ -309,7 +319,11 @@ export function TramiteForm() {
                           <div className='bg-muted/50 text-muted-foreground flex h-10 w-full items-center gap-2 rounded-md border px-3 text-sm'>
                             <Building2 className='h-4 w-4' />
                             <span className='truncate'>
-                              {userOficina?.nombre || 'Cargando...'}
+                              {userOficina
+                                ? `${userOficina.nombre} (${userOficina.siglas})`
+                                : loadingOficinas
+                                  ? 'Cargando información...'
+                                  : 'No se encontró oficina asignada'}
                             </span>
                           </div>
                         </FormItem>
@@ -327,7 +341,9 @@ export function TramiteForm() {
                               <Combobox
                                 options={
                                   oficinas?.filter(
-                                    (o) => o.id !== user?.oficinaId
+                                    (o) =>
+                                      o.id !== user?.oficinaId &&
+                                      o.siglas !== 'VPIN' // Filtrar también la propia si es VPIN por defecto
                                   ) || []
                                 }
                                 value={field.value}
@@ -461,27 +477,8 @@ export function TramiteForm() {
 
                   <Separator />
 
-                  {/* Fila 3: Información Adicional (Grid de 2 columnas) */}
-                  <div className='grid gap-6 md:grid-cols-2'>
-                    <FormField
-                      control={form.control}
-                      name='notas'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className='flex items-center gap-2'>
-                            <Info className='h-3 w-3' /> Notas Internas
-                          </FormLabel>
-                          <FormControl>
-                            <Textarea
-                              placeholder='Anotaciones privadas...'
-                              className='h-20 resize-none'
-                              {...field}
-                            />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-
+                  {/* Fila 3: Información Adicional (Ajustada a 1 columna para Observaciones) */}
+                  <div className='grid gap-6'>
                     <FormField
                       control={form.control}
                       name='observaciones'
@@ -490,8 +487,8 @@ export function TramiteForm() {
                           <FormLabel>Observaciones</FormLabel>
                           <FormControl>
                             <Textarea
-                              placeholder='Detalles físicos (anexos, folios)...'
-                              className='h-20 resize-none'
+                              placeholder='Detalles físicos (anexos, folios, estado del documento)...'
+                              className='h-24 resize-none'
                               {...field}
                             />
                           </FormControl>

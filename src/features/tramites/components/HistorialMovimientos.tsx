@@ -8,22 +8,24 @@ import {
   AlertTriangle,
   History,
   FileText,
+  Calendar,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { type Movimiento } from '@/features/tramites/types'
+import { type TramiteCompleto } from '@/features/tramites/types'
 import {
   obtenerTipoInteraccion,
-  obtenerTextoSeguro,
+  obtenerAsuntoMovimiento,
 } from '../utils/tramite-helpers'
 
+// CAMBIO: Recibimos el trámite completo para tener contexto global
 interface HistorialMovimientosProps {
-  movimientos: Movimiento[]
+  tramite: TramiteCompleto
 }
 
-export function HistorialMovimientos({
-  movimientos,
-}: HistorialMovimientosProps) {
+export function HistorialMovimientos({ tramite }: HistorialMovimientosProps) {
+  const movimientos = tramite.movimientos
+
   if (!movimientos || movimientos.length === 0) {
     return (
       <Card>
@@ -54,10 +56,18 @@ export function HistorialMovimientos({
   return (
     <Card className='shadow-sm'>
       <CardHeader className='bg-muted/5 border-b pb-4'>
-        <CardTitle className='flex items-center gap-2 text-lg'>
-          <History className='text-primary h-5 w-5' />
-          Trazabilidad ({movimientos.length})
-        </CardTitle>
+        <div className='flex items-center justify-between'>
+          <CardTitle className='flex items-center gap-2 text-lg'>
+            <History className='text-primary h-5 w-5' />
+            Trazabilidad
+          </CardTitle>
+          <Badge
+            variant='outline'
+            className='text-muted-foreground text-xs font-normal'
+          >
+            {movimientos.length} pasos
+          </Badge>
+        </div>
       </CardHeader>
 
       <CardContent className='px-4 pt-8 pb-4 sm:px-6'>
@@ -65,60 +75,70 @@ export function HistorialMovimientos({
           {movimientosOrdenados.map((mov, index) => {
             const estilo = obtenerTipoInteraccion(mov)
             const Icono = estilo.icon
-            const esUltimo = index === movimientosOrdenados.length - 1
 
-            // Texto seguro para notas (si no hay, se muestra un default sutil o nada según prefieras)
-            // Aquí forzamos texto si el usuario quiere "rellenar" la UI, o usamos lógica condicional
-            const notas = mov.notas // || "Sin notas adicionales" (Descomentar si quieres forzar texto)
+            // Lógica para resaltar el último movimiento
+            const esElMasReciente = index === 0
+            const esUltimoEnLista = index === movimientosOrdenados.length - 1
+            const esElPrimeroCronologico = esUltimoEnLista // (Porque ordenamos descendente)
+
+            // Obtener el asunto correcto (del movimiento o heredado del trámite)
+            const asuntoMovimiento = obtenerAsuntoMovimiento(
+              mov,
+              tramite,
+              esElPrimeroCronologico
+            )
 
             return (
-              <div key={mov.id} className='relative flex gap-4'>
+              <div key={mov.id} className='group relative flex gap-4'>
                 {/* COLUMNA IZQUIERDA: LÍNEA DE TIEMPO */}
                 <div className='flex flex-col items-center'>
                   {/* Icono del nodo */}
                   <div
-                    className={`z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border shadow-sm ${estilo.bg} ${estilo.border} `}
+                    className={`z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border shadow-sm transition-all ${esElMasReciente ? 'ring-primary/20 scale-110 ring-2 ring-offset-2' : ''} ${estilo.bg} ${estilo.border} `}
                   >
                     <Icono className={`h-4 w-4 ${estilo.color}`} />
                   </div>
 
                   {/* Línea conectora (Borde izquierdo) */}
-                  {/* Si no es el último elemento, dibujamos la línea hacia abajo */}
-                  {!esUltimo && <div className='bg-border my-1 w-px' />}
+                  {!esUltimoEnLista && (
+                    <div className='bg-border group-hover:bg-primary/20 my-1 h-full w-px transition-colors' />
+                  )}
                 </div>
 
                 {/* COLUMNA DERECHA: CONTENIDO DE LA TARJETA */}
-                {/* pb-8 da el espacio visual entre items sin usar margin que colapsa */}
                 <div
-                  className={`min-w-0 flex-1 ${!esUltimo ? 'pb-8' : 'pb-2'}`}
+                  className={`min-w-0 flex-1 ${!esUltimoEnLista ? 'pb-8' : 'pb-2'}`}
                 >
                   {/* 1. ENCABEZADO: ACCIÓN Y USUARIO */}
                   <div className='mb-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-1'>
                     <div className='flex items-center gap-2'>
                       <span className={`text-sm font-bold ${estilo.color}`}>
+                        {estilo.label}
+                      </span>
+                      <span className='text-muted-foreground bg-muted rounded px-1.5 py-0.5 text-[10px] font-semibold tracking-wider uppercase'>
                         {mov.tipoAccion}
                       </span>
-                      <span className='text-muted-foreground bg-muted rounded-full px-2 py-0.5 text-xs font-medium'>
-                        por {mov.usuarioCreador?.name || 'Sistema'}
-                      </span>
                     </div>
-                    <time className='text-muted-foreground font-mono text-xs whitespace-nowrap'>
-                      {format(new Date(mov.createdAt), 'dd MMM yyyy, HH:mm', {
-                        locale: es,
-                      })}
-                    </time>
+                    <div className='text-muted-foreground flex items-center gap-1 text-xs'>
+                      <Calendar className='h-3 w-3' />
+                      <time className='font-mono whitespace-nowrap'>
+                        {format(new Date(mov.createdAt), 'dd MMM yyyy, HH:mm', {
+                          locale: es,
+                        })}
+                      </time>
+                    </div>
                   </div>
 
                   {/* 2. TARJETA PRINCIPAL DE RUTA */}
                   <div
-                    className={`mb-3 rounded-lg border p-3 text-sm transition-colors ${estilo.tipo === 'ENVIO' ? 'border-blue-100 bg-blue-50/30 hover:bg-blue-50/50' : 'border-emerald-100 bg-emerald-50/30 hover:bg-emerald-50/50'} `}
+                    className={`bg-background mb-3 rounded-lg border p-3 text-sm shadow-sm transition-colors`}
                   >
                     <div className='flex flex-wrap items-center gap-2'>
                       {/* Origen */}
-                      <div className='bg-background/80 border-muted-foreground/30 flex min-w-0 items-center gap-1.5 rounded border border-dashed px-2 py-1'>
-                        <Building2 className='text-muted-foreground h-3.5 w-3.5 shrink-0' />
+                      <div className='text-muted-foreground bg-muted/50 flex items-center gap-1.5 rounded px-2 py-1'>
+                        <Building2 className='h-3.5 w-3.5 shrink-0' />
                         <span
-                          className='max-w-[120px] truncate text-xs font-medium sm:max-w-xs'
+                          className='max-w-[120px] truncate text-xs font-medium'
                           title={mov.oficinaOrigen.nombre}
                         >
                           {mov.oficinaOrigen.siglas}
@@ -129,72 +149,66 @@ export function HistorialMovimientos({
                         className={`h-4 w-4 shrink-0 ${estilo.color}`}
                       />
 
-                      {/* Destino */}
-                      <div className='bg-background flex min-w-0 items-center gap-1.5 rounded border px-2 py-1 shadow-sm'>
+                      {/* Destino (NUEVA LÓGICA DIRECTA) */}
+                      <div className='flex items-center gap-1.5'>
                         <span
-                          className={`max-w-[150px] truncate text-xs font-bold sm:max-w-xs ${estilo.color}`}
+                          className={`max-w-[180px] truncate text-xs font-bold ${estilo.color}`}
                         >
-                          {mov.destinos && mov.destinos.length > 0
-                            ? mov.destinos[0].oficinaDestino.nombre
-                            : 'Gestión Interna / Mismo Origen'}
+                          {mov.oficinaDestino
+                            ? mov.oficinaDestino.nombre
+                            : '(Gestión Interna / Mismo Origen)'}
                         </span>
                       </div>
                     </div>
 
-                    {/* Documento de Referencia (Si existe) */}
-                    {mov.numeroDocumentoCompleto && (
+                    {/* Documento de Referencia en el Movimiento (Si existe) */}
+                    {mov.nombreDocumentoCompleto && (
                       <div className='border-border/60 mt-2 flex items-center gap-2 border-t border-dashed pt-2'>
                         <FileText className='text-muted-foreground h-3.5 w-3.5' />
                         <span className='text-muted-foreground font-mono text-xs'>
                           Ref:{' '}
                           <span className='text-foreground font-medium'>
-                            {mov.numeroDocumentoCompleto}
+                            {mov.nombreDocumentoCompleto}
                           </span>
                         </span>
                       </div>
                     )}
                   </div>
 
-                  {/* 3. SECCIÓN DE CONTENIDO (Notas y Observaciones) */}
-                  {/* Renderizado condicional limpio: Si no hay nada, mostramos mensaje default si lo deseas */}
-                  <div className='space-y-2'>
-                    {notas ? (
-                      <div className='bg-background rounded-md border p-3 text-sm shadow-sm'>
-                        <div className='flex items-start gap-2'>
-                          <StickyNote className='mt-0.5 h-4 w-4 shrink-0 text-blue-500' />
-                          <div className='space-y-1'>
-                            <p className='text-muted-foreground text-xs font-bold tracking-wide uppercase'>
-                              Asunto / Nota
-                            </p>
-                            <p className='text-foreground/90 leading-relaxed'>
-                              {notas}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    ) : (
-                      // Fallback visual para mantener consistencia si es mandatorio mostrar algo
-                      <div className='text-muted-foreground pl-1 text-xs italic'>
-                        Sin asunto o notas registradas.
-                      </div>
-                    )}
-
-                    {mov.observaciones && (
-                      <div className='rounded-md border border-amber-200 bg-amber-50 p-3 text-sm shadow-sm'>
-                        <div className='flex items-start gap-2'>
-                          <AlertTriangle className='mt-0.5 h-4 w-4 shrink-0 text-amber-600' />
-                          <div className='space-y-1'>
-                            <p className='text-xs font-bold tracking-wide text-amber-700 uppercase'>
-                              Observación Importante
-                            </p>
-                            <p className='text-foreground/90 leading-relaxed'>
-                              {mov.observaciones}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    )}
+                  {/* 3. SECCIÓN DE CONTENIDO: ASUNTO (Mandatorio) */}
+                  <div className='mb-2 rounded-md border border-slate-200 bg-slate-50 p-3'>
+                    <p className='mb-1 text-[10px] font-bold tracking-wide text-slate-500 uppercase'>
+                      Asunto del Movimiento
+                    </p>
+                    <p className='text-foreground text-sm leading-relaxed font-medium'>
+                      {asuntoMovimiento}
+                    </p>
                   </div>
+
+                  {/* 4. NOTAS Y OBSERVACIONES ADICIONALES */}
+                  {(mov.notas || mov.observaciones) && (
+                    <div className='space-y-2 pt-1 pl-1'>
+                      {mov.notas && (
+                        <div className='text-muted-foreground flex items-start gap-2 text-xs'>
+                          <StickyNote className='mt-0.5 h-3.5 w-3.5 shrink-0 text-blue-500' />
+                          <span>
+                            <strong className='text-foreground/80'>
+                              Nota:
+                            </strong>{' '}
+                            {mov.notas}
+                          </span>
+                        </div>
+                      )}
+                      {mov.observaciones && (
+                        <div className='flex items-start gap-2 rounded border border-amber-100 bg-amber-50 p-2 text-xs text-amber-700'>
+                          <AlertTriangle className='mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-600' />
+                          <span>
+                            <strong>Observación:</strong> {mov.observaciones}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             )

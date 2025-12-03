@@ -6,6 +6,9 @@ import {
   FileOutput,
   FileInput,
   HelpCircle,
+  ArrowUpRight,
+  // Nuevo icono para salida
+  ArrowDownLeft, // Nuevo icono para entrada
 } from 'lucide-react'
 import { TramiteCompleto, Movimiento } from '../types'
 
@@ -14,8 +17,8 @@ import { TramiteCompleto, Movimiento } from '../types'
  * Lógica de Negocio:
  * 1. Si NO hay movimientos: El trámite está en bandeja de la 'Oficina Remitente'.
  * 2. Si HAY movimientos:
- * a) Si el último movimiento tiene destinos (DERIVACION/ENVIO): Está en la 'Oficina Destino'.
- * b) Si el último movimiento NO tiene destinos (ej. RESPUESTA interna o CIERRE): Se asume que sigue en la 'Oficina Origen'.
+ * a) Si el último movimiento tiene destino: Está en la 'Oficina Destino'.
+ * b) Si el último movimiento NO tiene destino (ej. cierre interno): Se asume que sigue en la 'Oficina Origen'.
  */
 export const obtenerUbicacionActual = (tramite: TramiteCompleto): string => {
   // Caso 1: Trámite recién ingresado o sin flujo iniciado
@@ -23,8 +26,7 @@ export const obtenerUbicacionActual = (tramite: TramiteCompleto): string => {
     return tramite.oficinaRemitente?.nombre || 'Origen Desconocido'
   }
 
-  // Ordenamos por seguridad (Defensive Programming)
-  // Usamos una copia [...movimientos] para no mutar el objeto original
+  // Ordenamos por seguridad
   const movimientosOrdenados = [...tramite.movimientos].sort((a, b) => {
     const fechaA = new Date(a.createdAt).getTime()
     const fechaB = new Date(b.createdAt).getTime()
@@ -33,13 +35,9 @@ export const obtenerUbicacionActual = (tramite: TramiteCompleto): string => {
 
   const ultimoMovimiento = movimientosOrdenados[movimientosOrdenados.length - 1]
 
-  // Caso 2a: Movimiento con destino (ej. Derivación)
-  if (ultimoMovimiento.destinos && ultimoMovimiento.destinos.length > 0) {
-    // Priorizamos el destino PRINCIPAL, si no existe, tomamos el primero
-    const destino =
-      ultimoMovimiento.destinos.find((d) => d.tipoDestino === 'PRINCIPAL') ||
-      ultimoMovimiento.destinos[0]
-    return destino.oficinaDestino?.nombre || 'Destino Desconocido'
+  // Caso 2a: Movimiento con destino directo (NUEVA LÓGICA)
+  if (ultimoMovimiento.oficinaDestino) {
+    return ultimoMovimiento.oficinaDestino.nombre
   }
 
   // Caso 2b: Movimiento interno o cierre sin destino explícito
@@ -52,36 +50,55 @@ export const obtenerUbicacionActual = (tramite: TramiteCompleto): string => {
  */
 export const obtenerTipoInteraccion = (movimiento: Movimiento) => {
   // Lógica: Si hay una oficina destino diferente a la origen, es un ENVÍO.
-  const esEnvio = movimiento.destinos && movimiento.destinos.length > 0
+  // (O simplemente si tiene destino, asumimos salida)
+  const esEnvio = !!movimiento.oficinaDestinoId
 
   if (esEnvio) {
     return {
       tipo: 'ENVIO',
       label: 'Envío / Derivación',
-      icon: FileOutput,
-      // Paleta Azul (Salida) - Diferenciada para lectura rápida
+      icon: ArrowUpRight, // Icono de flecha saliente
       color: 'text-blue-600',
       bg: 'bg-blue-50',
       border: 'border-blue-200',
-      badgeVariant: 'default' as const, // Azul sólido usualmente
+      badgeVariant: 'default' as const,
     }
   }
 
-  // Paleta Esmeralda/Verde (Recepción o Gestión Interna) - Diferenciada
+  // Recepción o Gestión Interna
   return {
     tipo: 'RECEPCION',
     label: 'Recepción / Gestión',
-    icon: FileInput,
+    icon: ArrowDownLeft, // Icono de flecha entrante
     color: 'text-emerald-600',
     bg: 'bg-emerald-50',
     border: 'border-emerald-200',
-    badgeVariant: 'secondary' as const, // Gris/Verde suave
+    badgeVariant: 'secondary' as const,
   }
 }
 
 /**
- * Helper para asegurar que siempre haya texto en la UI (Evita huecos visuales).
- * Nota: El desbordamiento de texto largo se debe manejar en el CSS del componente con 'break-words' o 'truncate'.
+ * Obtiene el asunto a mostrar en un movimiento específico.
+ * Prioridad:
+ * 1. Asunto propio del movimiento.
+ * 2. Si es el primer movimiento y no tiene asunto propio -> Asunto del Trámite.
+ * 3. Fallback genérico.
+ */
+export const obtenerAsuntoMovimiento = (
+  movimiento: Movimiento,
+  tramite: TramiteCompleto,
+  esElPrimero: boolean
+): string => {
+  if (movimiento.asunto) return movimiento.asunto
+
+  // Compatibilidad: Si es el movimiento inicial y no tiene asunto guardado, mostramos el del trámite.
+  if (esElPrimero) return tramite.asunto
+
+  return 'Sin asunto específico registrado'
+}
+
+/**
+ * Helper para asegurar que siempre haya texto en la UI.
  */
 export const obtenerTextoSeguro = (
   texto: string | null | undefined,
@@ -92,7 +109,7 @@ export const obtenerTextoSeguro = (
 }
 
 /**
- * Mapea el estado del plazo calculado por el backend a estilos visuales (Tailwind + Iconos).
+ * Mapea el estado del plazo.
  */
 export const obtenerConfiguracionPlazo = (estado: string) => {
   switch (estado) {
@@ -108,7 +125,7 @@ export const obtenerConfiguracionPlazo = (estado: string) => {
       return {
         label: 'Por Vencer',
         icon: Clock,
-        variant: 'default' as const, // 'warning' si está configurado en theme, sino default
+        variant: 'default' as const,
         textClass: 'text-amber-600',
         bgClass: 'bg-amber-50 border-amber-200',
       }
@@ -116,7 +133,7 @@ export const obtenerConfiguracionPlazo = (estado: string) => {
       return {
         label: 'A Tiempo',
         icon: CheckCircle2,
-        variant: 'outline' as const, // 'success' si existe
+        variant: 'outline' as const,
         textClass: 'text-green-600',
         bgClass: 'bg-green-50 border-green-200',
       }
