@@ -70,9 +70,7 @@ function TramiteDetallePage() {
             >
               <ArrowLeft className='h-4 w-4' />
             </Button>
-            <h1 className='text-3xl font-bold tracking-tight'>
-              Detalle del Trámite
-            </h1>
+            <h1 className='text-3xl font-bold tracking-tight'>Detalle</h1>
           </div>
         </div>
 
@@ -89,13 +87,20 @@ function TramiteDetallePage() {
         </div>
       </div>
 
-      <div className='space-y-8'>
-        <DetallesPrincipales tramite={tramite} />
-        <HistorialMovimientos
-          movimientos={tramite.movimientos}
-          tramiteAsunto={tramite.asunto}
-          tramiteId={tramite.id}
-        />
+      <div className='grid grid-cols-1 gap-8 lg:grid-cols-3'>
+        {/* COLUMNA LATERAL (IZQUIERDA): Detalles */}
+        <div className='space-y-6'>
+          <DetallesPrincipales tramite={tramite} />
+        </div>
+
+        {/* COLUMNA PRINCIPAL (DERECHA): Historial */}
+        <div className='space-y-8 lg:col-span-2'>
+          <HistorialMovimientos
+            movimientos={tramite.movimientos}
+            tramiteAsunto={tramite.asunto}
+            tramiteId={tramite.id}
+          />
+        </div>
       </div>
     </Main>
   )

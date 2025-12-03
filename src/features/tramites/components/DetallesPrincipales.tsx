@@ -3,11 +3,11 @@ import {
   FileText,
   Building,
   Calendar,
-  ChevronsRight,
   FileCheck,
   MapPin,
   AlertOctagon,
   ScrollText,
+  Clock,
 } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
@@ -37,127 +37,151 @@ export function DetallesPrincipales({ tramite }: DetallesPrincipalesProps) {
         ? 'outline'
         : 'default'
 
-  return (
-    <Card className='border-l-primary/80 border-l-4 shadow-sm'>
-      <CardHeader className='bg-muted/20 border-b pb-4'>
-        <div className='flex flex-col justify-between gap-4 md:flex-row md:items-start'>
-          <div className='space-y-1'>
-            <CardTitle className='flex items-center gap-2 text-xl font-bold'>
-              <FileText className='text-primary h-5 w-5' />
-              {tramite.nombreDocumentoCompleto}
-            </CardTitle>
-          </div>
+  const prioridadColor =
+    tramite.prioridad === 'URGENTE'
+      ? 'text-red-600 bg-red-50 border-red-200'
+      : tramite.prioridad === 'ALTA'
+        ? 'text-orange-600 bg-orange-50 border-orange-200'
+        : 'text-slate-600 bg-slate-50 border-slate-200'
 
-          <div className='flex items-center gap-2'>
-            <Badge
-              variant='outline'
-              className='text-[10px] font-semibold tracking-wider uppercase'
-            >
-              Prioridad {tramite.prioridad}
-            </Badge>
-            <Badge variant={estadoVariant} className='px-3 py-1 font-medium'>
-              {tramite.estado.replace('_', ' ')}
-            </Badge>
+  return (
+    <Card className='overflow-hidden shadow-sm transition-all hover:shadow-md'>
+      {/* HEADER: Título y Estados */}
+      <CardHeader className='bg-muted/30 border-b pt-4 pb-3'>
+        <div className='flex flex-col justify-between md:flex-row md:items-start'>
+          <div className='flex-1 space-y-1'>
+            <div className='flex items-center space-x-2'>
+              <Badge
+                variant='outline'
+                className={`text-[10px] font-bold tracking-wider uppercase ${prioridadColor}`}
+              >
+                Prioridad {tramite.prioridad}
+              </Badge>
+              <Badge
+                variant={estadoVariant}
+                className='px-2 py-0.5 text-[10px] font-semibold'
+              >
+                {tramite.estado.replace('_', ' ')}
+              </Badge>
+            </div>
+            <CardTitle className='flex items-start space-x-2 text-sm leading-tight font-bold text-balance'>
+              <FileText className='text-primary mt-0.5 h-4 w-4 shrink-0' />
+              <span>{tramite.nombreDocumentoCompleto}</span>
+            </CardTitle>
           </div>
         </div>
       </CardHeader>
 
-      <CardContent className='space-y-6 pt-6'>
-        {/* SECCIÓN 1: Alerta de Plazos (Si aplica) */}
+      <CardContent className='space-y-4 pt-4'>
+        {/* SECCIÓN 1: Alerta de Plazos (Destacado) */}
         {tramite.plazo.estado !== 'NO_APLICA' && (
           <div
-            className={`flex items-start gap-4 rounded-md border p-4 ${configPlazo.bgClass}`}
+            className={`flex items-start space-x-3 rounded-lg border p-3 shadow-sm ${configPlazo.bgClass}`}
           >
             <div
-              className={`bg-background/60 rounded-full p-2 ${configPlazo.textClass}`}
+              className={`bg-background/80 rounded-full p-1.5 shadow-sm ${configPlazo.textClass}`}
             >
-              <IconoPlazo className='h-5 w-5' />
+              <IconoPlazo className='h-3.5 w-3.5' />
             </div>
-            <div className='space-y-1'>
-              <p className={`text-sm font-bold ${configPlazo.textClass}`}>
-                Plazo {configPlazo.label}
+            <div className='space-y-0.5'>
+              <p className={`text-xs font-bold ${configPlazo.textClass}`}>
+                Estado del Plazo: {configPlazo.label}
               </p>
               {tramite.plazo.diasTranscurridos !== null && (
-                <p className='text-foreground/80 text-xs'>
+                <p className='text-foreground/80 text-[10px] leading-relaxed'>
                   Han transcurrido{' '}
-                  <strong>{tramite.plazo.diasTranscurridos}</strong> días
-                  hábiles desde la última acción relevante.
+                  <strong className='font-mono text-[11px]'>
+                    {tramite.plazo.diasTranscurridos}
+                  </strong>{' '}
+                  días hábiles desde la última acción relevante.
                 </p>
               )}
             </div>
           </div>
         )}
 
-        {/* SECCIÓN 2: Datos Clave */}
-        <div className='grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-2'>
-          <InfoItem
-            icon={ScrollText}
-            label='Asunto'
-            value={
-              <span className='text-foreground leading-snug font-medium'>
-                {tramite.asunto}
-              </span>
-            }
-          />
-
-          <InfoItem
-            icon={Building}
-            label='Oficina Remitente'
-            value={
-              <div className='flex flex-col'>
-                <span className='font-medium'>
-                  {tramite.oficinaRemitente.nombre}
-                </span>
-                <span className='text-muted-foreground text-xs'>
-                  ({tramite.oficinaRemitente.siglas})
-                </span>
-              </div>
-            }
-          />
-
-          <InfoItem
-            icon={MapPin}
-            label='Ubicación Actual'
-            value={
-              <span className='text-primary flex items-center gap-1.5 font-bold'>
-                {ubicacionActual}
-              </span>
-            }
-          />
-
-          <InfoItem
-            icon={Calendar}
-            label='Fecha Documento'
-            value={formatDate(tramite.fechaRecepcion, 'dd/MM/yyyy')}
-          />
-
-          <InfoItem
-            icon={ChevronsRight}
-            label='Fecha Ingreso'
-            value={formatDate(tramite.fechaIngreso)}
-          />
-
-          <InfoItem
-            icon={FileCheck}
-            label='Tipo Documento'
-            value={tramite.tipoDocumento.nombre}
-          />
+        {/* SECCIÓN 2: ASUNTO (Full Width - Protagonismo) */}
+        <div className='space-y-1.5'>
+          <div className='text-muted-foreground flex items-center space-x-1.5'>
+            <ScrollText className='h-3.5 w-3.5' />
+            <h3 className='text-[10px] font-bold tracking-wide uppercase'>
+              Asunto del Trámite
+            </h3>
+          </div>
+          <div className='bg-muted/10 border-border/50 rounded-md border p-2.5'>
+            <p className='text-foreground text-xs leading-relaxed font-medium text-balance'>
+              {tramite.asunto}
+            </p>
+          </div>
         </div>
 
-        {/* SECCIÓN 3: Observaciones (Notas eliminadas) */}
+        <Separator />
+
+        {/* SECCIÓN 3: Datos de Trazabilidad (Vertical Stack para Sidebar) */}
+        <div className='flex flex-col space-y-4'>
+          {/* Contexto */}
+          <div className='space-y-4'>
+            <InfoItem
+              icon={FileCheck}
+              label='Tipo Documento'
+              value={tramite.tipoDocumento.nombre}
+            />
+            <InfoItem
+              icon={Building}
+              label='Oficina Remitente'
+              value={
+                <div className='flex flex-col'>
+                  <span className='font-medium'>
+                    {tramite.oficinaRemitente.nombre}
+                  </span>
+                  <span className='text-muted-foreground text-[10px]'>
+                    {tramite.oficinaRemitente.siglas}
+                  </span>
+                </div>
+              }
+            />
+          </div>
+
+          {/* Ubicación */}
+          <div className='space-y-4'>
+            <InfoItem
+              icon={MapPin}
+              label='Ubicación Actual'
+              value={
+                <span className='text-primary flex items-center space-x-1 font-bold'>
+                  {ubicacionActual}
+                </span>
+              }
+            />
+          </div>
+
+          {/* Fechas */}
+          <div className='space-y-4'>
+            <InfoItem
+              icon={Calendar}
+              label='Fecha Documento'
+              value={formatDate(tramite.fechaRecepcion, 'dd MMM yyyy')}
+            />
+            <InfoItem
+              icon={Clock}
+              label='Fecha Ingreso'
+              value={formatDate(tramite.fechaIngreso, 'dd MMM yyyy, HH:mm')}
+            />
+          </div>
+        </div>
+
+        {/* SECCIÓN 4: Observaciones (Si existen) */}
         {tramite.observaciones && (
           <>
-            <Separator />
-            <div className='grid grid-cols-1 gap-4 text-sm'>
-              <div className='space-y-1.5'>
-                <div className='flex items-center gap-2 text-xs font-semibold text-amber-600 uppercase'>
-                  <AlertOctagon className='h-3.5 w-3.5' />
-                  Observaciones Iniciales
-                </div>
-                <p className='text-muted-foreground bg-muted/30 rounded-md border border-dashed p-2.5'>
-                  {tramite.observaciones}
-                </p>
+            <Separator className='my-1' />
+            <div className='bg-muted/30 rounded-md border border-dashed p-3'>
+              <div className='mb-1 flex items-center space-x-1.5 text-[10px] font-bold tracking-wide text-amber-600 uppercase'>
+                <AlertOctagon className='h-3 w-3' />
+                <span>Observaciones Iniciales</span>
               </div>
+              <p className='text-muted-foreground text-[10px] leading-relaxed'>
+                {tramite.observaciones}
+              </p>
             </div>
           </>
         )}
