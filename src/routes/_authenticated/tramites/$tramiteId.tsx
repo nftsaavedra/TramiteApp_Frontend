@@ -1,11 +1,11 @@
 // En: src/routes/_authenticated/tramites/$tramiteId.tsx
 import { useQuery } from '@tanstack/react-query'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useRouter } from '@tanstack/react-router'
+import { ArrowLeft, RefreshCw } from 'lucide-react'
 import api from '@/lib/api'
+import { Button } from '@/components/ui/button'
 import { Main } from '@/components/layout/main'
-import { AccionesTramite } from '@/features/tramites/components/AccionesTramite'
 import { DetallesPrincipales } from '@/features/tramites/components/DetallesPrincipales'
-import { GestionAnotaciones } from '@/features/tramites/components/GestionAnotaciones'
 import { HistorialMovimientos } from '@/features/tramites/components/HistorialMovimientos'
 import { type TramiteCompleto } from '@/features/tramites/types'
 
@@ -22,11 +22,13 @@ export const Route = createFileRoute('/_authenticated/tramites/$tramiteId')({
 
 function TramiteDetallePage() {
   const { tramiteId } = Route.useParams()
+  const router = useRouter()
 
   const {
     data: tramite,
     isLoading,
     error,
+    refetch,
   } = useQuery({
     queryKey: ['tramite', tramiteId],
     queryFn: () => fetchTramiteById(tramiteId),
@@ -54,41 +56,46 @@ function TramiteDetallePage() {
     )
   }
 
-  // --- INICIO: LÓGICA PARA DETERMINAR LA OFICINA ACTUAL ---
-  const ultimoMovimiento = tramite.movimientos[tramite.movimientos.length - 1]
-  const oficinaActualNombre =
-    ultimoMovimiento && ultimoMovimiento.destinos.length > 0
-      ? ultimoMovimiento.destinos[0].oficinaDestino.nombre
-      : tramite.oficinaRemitente.nombre
-  // --- FIN DE LA LÓGICA ---
-
   return (
     <Main>
-      <div className='mb-4'>
-        <h1 className='text-3xl font-bold tracking-tight'>
-          Detalle del Trámite
-        </h1>
-        <p className='text-muted-foreground'>
-          {tramite.numeroDocumentoCompleto}
-        </p>
+      <div className='mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
+        <div className='space-y-1'>
+          <div className='flex items-center gap-2'>
+            <Button
+              variant='ghost'
+              size='icon'
+              onClick={() => router.history.back()}
+              className='h-8 w-8'
+              title='Volver'
+            >
+              <ArrowLeft className='h-4 w-4' />
+            </Button>
+            <h1 className='text-3xl font-bold tracking-tight'>
+              Detalle del Trámite
+            </h1>
+          </div>
+        </div>
+
+        <div className='flex items-center gap-2 sm:self-start'>
+          <Button
+            variant='outline'
+            size='sm'
+            onClick={() => refetch()}
+            className='gap-2'
+          >
+            <RefreshCw className='h-4 w-4' />
+            Actualizar
+          </Button>
+        </div>
       </div>
 
-      <div className='grid grid-cols-1 gap-8 lg:grid-cols-3'>
-        {/* Columna Izquierda (Información e Historial) */}
-        <div className='space-y-8 lg:col-span-2'>
-          <DetallesPrincipales tramite={tramite} />
-          <HistorialMovimientos movimientos={tramite.movimientos} />
-        </div>
-
-        {/* Columna Derecha (Acciones y Anotaciones) */}
-        <div className='space-y-8 lg:col-span-1'>
-          {/* Pasa el nombre de la oficina actual al componente de acciones */}
-          <AccionesTramite
-            tramiteId={tramite.id}
-            oficinaActualNombre={oficinaActualNombre}
-          />
-          <GestionAnotaciones tramite={tramite} />
-        </div>
+      <div className='space-y-8'>
+        <DetallesPrincipales tramite={tramite} />
+        <HistorialMovimientos
+          movimientos={tramite.movimientos}
+          tramiteAsunto={tramite.asunto}
+          tramiteId={tramite.id}
+        />
       </div>
     </Main>
   )

@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import {
@@ -53,10 +53,10 @@ const fetchTramites = async (params: TramitesSearchParams) => {
     query.set('tipoDocumentoId', params.tipoDocumentoId.join(','))
 
   // Filtros Fechas
-  if (params.fechaDocumentoDesde)
-    query.set('fechaDocumentoDesde', params.fechaDocumentoDesde)
-  if (params.fechaDocumentoHasta)
-    query.set('fechaDocumentoHasta', params.fechaDocumentoHasta)
+  if (params.fechaRecepcionDesde)
+    query.set('fechaRecepcionDesde', params.fechaRecepcionDesde)
+  if (params.fechaRecepcionHasta)
+    query.set('fechaRecepcionHasta', params.fechaRecepcionHasta)
   if (params.creadoDesde) query.set('creadoDesde', params.creadoDesde)
   if (params.creadoHasta) query.set('creadoHasta', params.creadoHasta)
 
@@ -216,8 +216,8 @@ function TramitesPage() {
       to: '.',
       search: (prev: any) => {
         const newParams = { ...prev, page: 1 }
-        delete newParams.fechaDocumentoDesde
-        delete newParams.fechaDocumentoHasta
+        delete newParams.fechaRecepcionDesde
+        delete newParams.fechaRecepcionHasta
         delete newParams.creadoDesde
         delete newParams.creadoHasta
 
@@ -225,8 +225,8 @@ function TramitesPage() {
           const fromISO = range.from.toISOString()
           const toISO = range.to ? range.to.toISOString() : fromISO
           if (type === 'documento') {
-            newParams.fechaDocumentoDesde = fromISO
-            newParams.fechaDocumentoHasta = toISO
+            newParams.fechaRecepcionDesde = fromISO
+            newParams.fechaRecepcionHasta = toISO
           } else {
             newParams.creadoDesde = fromISO
             newParams.creadoHasta = toISO
@@ -240,15 +240,15 @@ function TramitesPage() {
 
   // Estado activo para UI de fechas
   const activeDateRange =
-    searchParams.fechaDocumentoDesde || searchParams.creadoDesde
+    searchParams.fechaRecepcionDesde || searchParams.creadoDesde
       ? {
           from: new Date(
-            searchParams.fechaDocumentoDesde || searchParams.creadoDesde!
+            searchParams.fechaRecepcionDesde || searchParams.creadoDesde!
           ),
           to: new Date(
-            searchParams.fechaDocumentoHasta ||
+            searchParams.fechaRecepcionHasta ||
               searchParams.creadoHasta ||
-              searchParams.fechaDocumentoDesde ||
+              searchParams.fechaRecepcionDesde ||
               searchParams.creadoDesde!
           ),
         }

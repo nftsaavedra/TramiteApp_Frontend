@@ -3,8 +3,6 @@ import {
   CheckCircle2,
   Clock,
   AlertCircle,
-  FileOutput,
-  FileInput,
   HelpCircle,
   ArrowUpRight,
   // Nuevo icono para salida
@@ -49,9 +47,8 @@ export const obtenerUbicacionActual = (tramite: TramiteCompleto): string => {
  * Devuelve la configuración visual (Iconos y Colores) para el Timeline.
  */
 export const obtenerTipoInteraccion = (movimiento: Movimiento) => {
-  // Lógica: Si hay una oficina destino diferente a la origen, es un ENVÍO.
-  // (O simplemente si tiene destino, asumimos salida)
-  const esEnvio = !!movimiento.oficinaDestinoId
+  // Lógica: Usamos directamente el tipoAccion del movimiento
+  const esEnvio = movimiento.tipoAccion === 'ENVIO'
 
   if (esEnvio) {
     return {
@@ -65,7 +62,7 @@ export const obtenerTipoInteraccion = (movimiento: Movimiento) => {
     }
   }
 
-  // Recepción o Gestión Interna
+  // Recepción
   return {
     tipo: 'RECEPCION',
     label: 'Recepción / Gestión',
@@ -86,13 +83,13 @@ export const obtenerTipoInteraccion = (movimiento: Movimiento) => {
  */
 export const obtenerAsuntoMovimiento = (
   movimiento: Movimiento,
-  tramite: TramiteCompleto,
+  tramiteAsunto: string,
   esElPrimero: boolean
 ): string => {
   if (movimiento.asunto) return movimiento.asunto
 
   // Compatibilidad: Si es el movimiento inicial y no tiene asunto guardado, mostramos el del trámite.
-  if (esElPrimero) return tramite.asunto
+  if (esElPrimero) return tramiteAsunto
 
   return 'Sin asunto específico registrado'
 }

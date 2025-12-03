@@ -14,8 +14,8 @@ export const tramitesFilterSchema = z.object({
   tipoDocumentoId: z.array(z.string()).optional(),
 
   // Fechas
-  fechaDocumentoDesde: z.string().optional(),
-  fechaDocumentoHasta: z.string().optional(),
+  fechaRecepcionDesde: z.string().optional(),
+  fechaRecepcionHasta: z.string().optional(),
   creadoDesde: z.string().optional(),
   creadoHasta: z.string().optional(),
 })

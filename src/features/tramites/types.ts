@@ -3,12 +3,7 @@
 // --- ENUMS DEL BACKEND (Prisma) ---
 export type TramiteEstado = 'EN_PROCESO' | 'FINALIZADO' | 'ARCHIVADO'
 export type TramitePrioridad = 'BAJA' | 'NORMAL' | 'ALTA' | 'URGENTE'
-export type MovimientoTipoAccion =
-  | 'DERIVACION'
-  | 'RESPUESTA'
-  | 'ASIGNACION'
-  | 'ARCHIVO'
-  | 'CIERRE'
+export type MovimientoTipoAccion = 'ENVIO' | 'RECEPCION'
 
 // CAMBIO: Eliminados tipos MovimientoDestinoEstado y MovimientoTipoDestino porque ya no existen en DB
 
@@ -66,7 +61,7 @@ export interface Movimiento {
   // Identidad del documento
   numeroDocumento: string | null
   nombreDocumentoCompleto: string | null // CAMBIO: Renombrado
-  fechaDocumento: string | null // ISO Date String
+  fechaRecepcion: string | null // ISO Date String
 
   // Contenido y Trazabilidad
   asunto: string | null // NUEVO: Trazabilidad específica del paso
@@ -111,7 +106,7 @@ export interface TramiteCompleto {
   prioridad: TramitePrioridad
 
   // Fechas
-  fechaDocumento: string // ISO Date String
+  fechaRecepcion: string // ISO Date String
   fechaIngreso: string // ISO Date String
   fechaCierre: string | null
   createdAt: string

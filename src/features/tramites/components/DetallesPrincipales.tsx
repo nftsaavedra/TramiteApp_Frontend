@@ -38,18 +38,14 @@ export function DetallesPrincipales({ tramite }: DetallesPrincipalesProps) {
         : 'default'
 
   return (
-    <Card className='border-l-primary/80 h-full border-l-4 shadow-sm'>
+    <Card className='border-l-primary/80 border-l-4 shadow-sm'>
       <CardHeader className='bg-muted/20 border-b pb-4'>
         <div className='flex flex-col justify-between gap-4 md:flex-row md:items-start'>
           <div className='space-y-1'>
             <CardTitle className='flex items-center gap-2 text-xl font-bold'>
               <FileText className='text-primary h-5 w-5' />
-              Datos del Trámite
-            </CardTitle>
-            <p className='text-muted-foreground bg-background/50 w-fit rounded border px-2 py-0.5 font-mono text-sm'>
-              {/* CAMBIO: Uso del nuevo nombre del campo */}
               {tramite.nombreDocumentoCompleto}
-            </p>
+            </CardTitle>
           </div>
 
           <div className='flex items-center gap-2'>
@@ -132,7 +128,7 @@ export function DetallesPrincipales({ tramite }: DetallesPrincipalesProps) {
           <InfoItem
             icon={Calendar}
             label='Fecha Documento'
-            value={formatDate(tramite.fechaDocumento, 'dd/MM/yyyy')}
+            value={formatDate(tramite.fechaRecepcion, 'dd/MM/yyyy')}
           />
 
           <InfoItem

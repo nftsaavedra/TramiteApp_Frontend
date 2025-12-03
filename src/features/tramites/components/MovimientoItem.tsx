@@ -1,23 +1,14 @@
 // En: src/features/tramites/components/MovimientoItem.tsx
 import { format, formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
-import {
-  ArrowDown,
-  ArrowRight,
-  Archive,
-  CheckCircle,
-  FileUp,
-} from 'lucide-react'
+import { ArrowRight, Inbox } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { type Movimiento } from '@/features/tramites/types'
 
 // Mapeo de acciones a iconos y colores para una mejor visualización
 const actionConfig = {
-  DERIVACION: { icon: ArrowRight, color: 'text-blue-500' },
-  RESPUESTA: { icon: FileUp, color: 'text-green-500' },
-  ARCHIVO: { icon: Archive, color: 'text-gray-500' },
-  CIERRE: { icon: CheckCircle, color: 'text-red-500' },
-  ASIGNACION: { icon: ArrowDown, color: 'text-purple-500' },
+  ENVIO: { icon: ArrowRight, color: 'text-blue-500' },
+  RECEPCION: { icon: Inbox, color: 'text-green-500' },
 }
 
 interface MovimientoItemProps {
@@ -43,17 +34,21 @@ export function MovimientoItem({ movimiento }: MovimientoItemProps) {
         <div className='flex items-center justify-between'>
           <p className='text-sm font-medium'>
             <span className='font-bold'>
-              {movimiento.numeroDocumentoCompleto}
+              {movimiento.nombreDocumentoCompleto || 'Sin Documento'}
             </span>
             {/* <span className='font-bold'> {movimiento.usuarioCreador.name}</span>
             <span className='text-muted-foreground'> desde </span> */}
             {/* <span className='font-bold'>{movimiento.oficinaOrigen.siglas}</span> */}
-            <span className='text-muted-foreground'> Fecha: </span>
-            <span className='font-bold'>
-              {format(movimiento.fechaDocumento, "dd 'de' MMMM, yyyy", {
-                locale: es,
-              })}
-            </span>
+            {movimiento.fechaRecepcion && (
+              <>
+                <span className='text-muted-foreground'> Fecha: </span>
+                <span className='font-bold'>
+                  {format(movimiento.fechaRecepcion, "dd 'de' MMMM, yyyy", {
+                    locale: es,
+                  })}
+                </span>
+              </>
+            )}
           </p>
           <time
             className='text-muted-foreground text-xs'
@@ -69,12 +64,14 @@ export function MovimientoItem({ movimiento }: MovimientoItemProps) {
         </div>
         <div className='text-muted-foreground text-sm'>
           <Badge variant='secondary'>{movimiento.tipoAccion}</Badge>
-          <span> a </span>
-          {movimiento.destinos.map((d) => (
-            <span key={d.id} className='text-primary font-semibold'>
-              {d.oficinaDestino.nombre}{' '}
-            </span>
-          ))}
+          {movimiento.oficinaDestino && (
+            <>
+              <span> a </span>
+              <span className='text-primary font-semibold'>
+                {movimiento.oficinaDestino.nombre}
+              </span>
+            </>
+          )}
         </div>
         {movimiento.notas && (
           <p className='pt-1 text-sm italic'>"{movimiento.notas}"</p>

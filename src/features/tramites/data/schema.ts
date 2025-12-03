@@ -6,37 +6,40 @@ export const tiposRegistro = ['RECEPCION', 'ENVIO'] as const
 // Esquema de validación principal
 export const tramiteFormSchema = z
   .object({
-    // CORRECCIÓN: Usar 'required_error' en lugar de 'message'
+    // CORRECCIÓN: Usar 'message' según la definición de tipos
     tipoRegistro: z.enum(tiposRegistro, {
-      required_error: 'Seleccione el tipo de registro.',
-      invalid_type_error: 'Tipo de registro no válido.',
+      error: () => ({ message: 'Seleccione el tipo de registro.' }),
     }),
 
     // Campos condicionales
     oficinaRemitenteId: z.string().optional(),
     oficinaDestinoId: z.string().optional(),
 
-    // CORRECCIÓN: 'required_error' para cuando el campo está vacío/null
+    // CORRECCIÓN: 'message' para errores requeridos
     tipoDocumentoId: z
-      .string({ required_error: 'Seleccione un tipo de documento.' })
+      .string({ message: 'Seleccione un tipo de documento.' })
       .min(1, 'Seleccione un tipo de documento.'),
 
     numeroDocumento: z
-      .string({ required_error: 'El número de documento es obligatorio.' })
+      .string({ message: 'El número de documento es obligatorio.' })
       .min(1, 'El número de documento es obligatorio.'),
 
-    fechaDocumento: z.date({
-      required_error: 'La fecha del documento es obligatoria.',
-      invalid_type_error: 'Formato de fecha inválido.',
+    // CAMBIO: Renombrado de fechaDocumento a fechaRecepcion
+    fechaRecepcion: z.date({
+      message: 'La fecha de recepción es obligatoria.',
     }),
 
     asunto: z
-      .string({ required_error: 'El asunto es obligatorio.' })
+      .string({ message: 'El asunto es obligatorio.' })
       .min(5, 'El asunto debe ser descriptivo (mínimo 5 caracteres).')
       .max(500, 'El asunto es demasiado largo.'),
 
-    notas: z.string().optional(),
+    // CAMBIO: Eliminado el campo 'notas'
+
     observaciones: z.string().optional(),
+
+    // NUEVO: Soporte para múltiples copias (opcional, array de IDs)
+    copiasIds: z.array(z.string()).optional(),
   })
   // Validación Condicional: Si es RECEPCIÓN, exige Remitente
   .refine(

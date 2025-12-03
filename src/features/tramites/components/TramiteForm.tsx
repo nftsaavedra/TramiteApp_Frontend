@@ -91,9 +91,12 @@ export function TramiteForm() {
       tipoRegistro: 'RECEPCION',
       numeroDocumento: '',
       asunto: '',
+      // NOTA: Campo 'notas' eliminado
       observaciones: '',
       oficinaRemitenteId: undefined,
       oficinaDestinoId: undefined,
+      // Inicializamos fecha como undefined para que el usuario seleccione
+      fechaRecepcion: undefined,
     },
   })
 
@@ -101,7 +104,7 @@ export function TramiteForm() {
 
   // Lógica de visualización de Oficina de Usuario:
   // 1. Buscamos por ID asignado al usuario.
-  // 2. Si no tiene, hacemos fallback a la oficina VPIN (ROOT) para mostrarla en el UI.
+  // 2. Si no tiene, hacemos fallback a la oficina VPIN (ROOT).
   const userOficina =
     oficinas?.find((o) => o.id === user?.oficinaId) ||
     oficinas?.find((o) => o.siglas === 'VPIN')
@@ -291,12 +294,13 @@ export function TramiteForm() {
                           <FormItem>
                             <FormLabel>Oficina Remitente (Origen)</FormLabel>
                             <Combobox
-                              // CAMBIO: Filtramos la oficina actual y VPIN de la lista de remitentes
+                              // FILTRO MEJORADO:
+                              // Excluye mi propia oficina y la oficina VPIN (ROOT) de los remitentes posibles
                               options={
                                 oficinas?.filter(
                                   (o) =>
                                     o.id !== user?.oficinaId &&
-                                    o.siglas !== 'VPIN' // El remitente de una recepción no puede ser la oficina root
+                                    o.siglas !== 'VPIN'
                                 ) || []
                               }
                               value={field.value}
@@ -343,7 +347,7 @@ export function TramiteForm() {
                                   oficinas?.filter(
                                     (o) =>
                                       o.id !== user?.oficinaId &&
-                                      o.siglas !== 'VPIN' // Filtrar también la propia si es VPIN por defecto
+                                      o.siglas !== 'VPIN'
                                   ) || []
                                 }
                                 value={field.value}
@@ -373,7 +377,7 @@ export function TramiteForm() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className='space-y-6'>
-                  {/* Fila 1: Tipo, Número, Fecha (3 columnas en desktop) */}
+                  {/* Fila 1: Tipo, Número, Fecha */}
                   <div className='grid gap-6 md:grid-cols-3'>
                     <FormField
                       control={form.control}
@@ -408,12 +412,13 @@ export function TramiteForm() {
                       )}
                     />
 
+                    {/* CAMBIO: Renombrado a fechaRecepcion */}
                     <FormField
                       control={form.control}
-                      name='fechaDocumento'
+                      name='fechaRecepcion'
                       render={({ field }) => (
                         <FormItem className='flex flex-col'>
-                          <FormLabel>Fecha</FormLabel>
+                          <FormLabel>Fecha de Recepción</FormLabel>
                           <Popover>
                             <PopoverTrigger asChild>
                               <FormControl>
@@ -425,9 +430,9 @@ export function TramiteForm() {
                                   )}
                                 >
                                   {field.value ? (
-                                    format(field.value, 'P', { locale: es })
+                                    format(field.value, 'PPP p', { locale: es })
                                   ) : (
-                                    <span>Seleccionar</span>
+                                    <span>Seleccionar fecha y hora</span>
                                   )}
                                   <CalendarIcon className='ml-auto h-4 w-4 opacity-50' />
                                 </Button>
@@ -440,7 +445,20 @@ export function TramiteForm() {
                               <Calendar
                                 mode='single'
                                 selected={field.value}
-                                onSelect={field.onChange}
+                                onSelect={(date) => {
+                                  if (!date) {
+                                    field.onChange(undefined)
+                                    return
+                                  }
+                                  if (field.value) {
+                                    const newDate = new Date(date)
+                                    newDate.setHours(field.value.getHours())
+                                    newDate.setMinutes(field.value.getMinutes())
+                                    field.onChange(newDate)
+                                  } else {
+                                    field.onChange(date)
+                                  }
+                                }}
                                 disabled={(date) =>
                                   date > new Date() ||
                                   date < new Date('1900-01-01')
@@ -448,6 +466,30 @@ export function TramiteForm() {
                                 initialFocus
                                 locale={es}
                               />
+                              <div className='border-t p-3'>
+                                <Input
+                                  type='time'
+                                  className='mt-2'
+                                  value={
+                                    field.value
+                                      ? format(field.value, 'HH:mm')
+                                      : ''
+                                  }
+                                  onChange={(e) => {
+                                    const time = e.target.value
+                                    if (!time) return
+                                    const [hours, minutes] = time
+                                      .split(':')
+                                      .map(Number)
+                                    const newDate = field.value
+                                      ? new Date(field.value)
+                                      : new Date()
+                                    newDate.setHours(hours)
+                                    newDate.setMinutes(minutes)
+                                    field.onChange(newDate)
+                                  }}
+                                />
+                              </div>
                             </PopoverContent>
                           </Popover>
                           <FormMessage />
@@ -456,7 +498,7 @@ export function TramiteForm() {
                     />
                   </div>
 
-                  {/* Fila 2: Asunto (Full width) */}
+                  {/* Fila 2: Asunto */}
                   <FormField
                     control={form.control}
                     name='asunto'
@@ -477,7 +519,7 @@ export function TramiteForm() {
 
                   <Separator />
 
-                  {/* Fila 3: Información Adicional (Ajustada a 1 columna para Observaciones) */}
+                  {/* Fila 3: Observaciones (Full Width) */}
                   <div className='grid gap-6'>
                     <FormField
                       control={form.control}
@@ -501,7 +543,7 @@ export function TramiteForm() {
             </div>
           </div>
 
-          {/* BOTONES DE ACCIÓN (PIE DE PÁGINA) */}
+          {/* BOTONES DE ACCIÓN */}
           <div className='mt-8 flex justify-end gap-4 border-t pt-4'>
             <Button
               type='button'
