@@ -1,50 +1,24 @@
 // En: src/features/dashboard/components/ActividadReciente.tsx
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
+import { RecentActivity } from '../services/dashboard.service'
 
-// Datos de ejemplo para la actividad reciente
-const activities = [
-  {
-    user: 'N. Saavedra',
-    action: 'derivó',
-    document: 'INF-001-2025',
-    to: 'DGA',
-    color: 'bg-blue-500',
-  },
-  {
-    user: 'J. Pérez',
-    action: 'archivó',
-    document: 'SOL-045-2025',
-    to: 'Archivo',
-    color: 'bg-gray-500',
-  },
-  {
-    user: 'M. García',
-    action: 'creó',
-    document: 'MEM-102-2025',
-    to: 'Mesa de Partes',
-    color: 'bg-green-500',
-  },
-  {
-    user: 'A. Torres',
-    action: 'recibió',
-    document: 'INF-001-2025',
-    to: 'DGA',
-    color: 'bg-yellow-500',
-  },
-  {
-    user: 'S. Rojas',
-    action: 'cerró',
-    document: 'RES-012-2025',
-    to: 'Finalizado',
-    color: 'bg-red-500',
-  },
-]
+interface ActividadRecienteProps {
+  data?: RecentActivity[]
+}
 
-export function ActividadReciente() {
+export function ActividadReciente({ data = [] }: ActividadRecienteProps) {
+  if (data.length === 0) {
+    return (
+      <div className='text-muted-foreground py-4 text-center'>
+        No hay actividad reciente.
+      </div>
+    )
+  }
+
   return (
     <div className='space-y-6'>
-      {activities.map((activity, index) => (
+      {data.map((activity, index) => (
         <div key={index} className='flex items-center gap-4'>
           <Avatar className='h-9 w-9'>
             <AvatarFallback className={activity.color + ' text-white'}>

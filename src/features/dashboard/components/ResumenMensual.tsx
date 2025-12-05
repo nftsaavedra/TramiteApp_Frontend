@@ -1,23 +1,12 @@
 // En: src/features/dashboard/components/ResumenMensual.tsx
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from 'recharts'
+import { MonthlyVolume } from '../services/dashboard.service'
 
-// Datos de ejemplo para trámites por mes
-const data = [
-  { name: 'Ene', total: Math.floor(Math.random() * 200) + 50 },
-  { name: 'Feb', total: Math.floor(Math.random() * 200) + 50 },
-  { name: 'Mar', total: Math.floor(Math.random() * 200) + 50 },
-  { name: 'Abr', total: Math.floor(Math.random() * 200) + 50 },
-  { name: 'May', total: Math.floor(Math.random() * 200) + 50 },
-  { name: 'Jun', total: Math.floor(Math.random() * 200) + 50 },
-  { name: 'Jul', total: Math.floor(Math.random() * 200) + 50 },
-  { name: 'Ago', total: Math.floor(Math.random() * 200) + 50 },
-  { name: 'Sep', total: Math.floor(Math.random() * 200) + 50 },
-  { name: 'Oct', total: Math.floor(Math.random() * 200) + 50 },
-  { name: 'Nov', total: Math.floor(Math.random() * 200) + 50 },
-  { name: 'Dic', total: Math.floor(Math.random() * 200) + 50 },
-]
+interface ResumenMensualProps {
+  data?: MonthlyVolume[]
+}
 
-export function ResumenMensual() {
+export function ResumenMensual({ data = [] }: ResumenMensualProps) {
   return (
     <ResponsiveContainer width='100%' height={350}>
       <BarChart data={data}>
