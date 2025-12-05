@@ -204,7 +204,7 @@ export const columns: ColumnDef<Tramite>[] = [
     ),
     cell: ({ row }) => (
       <div
-        className='text-foreground max-w-[250px] truncate text-sm font-medium'
+        className='text-foreground truncate text-sm font-medium'
         title={row.getValue('asunto')}
       >
         {row.getValue('asunto')}

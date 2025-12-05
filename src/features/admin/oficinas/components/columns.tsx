@@ -9,6 +9,8 @@ import { DataTableRowActions } from './oficinas-row-actions'
 
 // En: src/features/admin/oficinas/components/columns.tsx
 
+// En: src/features/admin/oficinas/components/columns.tsx
+
 // 1. Tipo actualizado para incluir la relación `parent` opcional
 export type Oficina = {
   id: string
@@ -53,9 +55,7 @@ export const columns: ColumnDef<Oficina>[] = [
       <DataTableColumnHeader column={column} title='Nombre' />
     ),
     cell: ({ row }) => (
-      <div className='max-w-[500px] truncate font-medium'>
-        {row.getValue('nombre')}
-      </div>
+      <div className='truncate font-medium'>{row.getValue('nombre')}</div>
     ),
   },
   {

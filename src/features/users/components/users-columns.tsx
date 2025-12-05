@@ -15,6 +15,8 @@ import { type User } from './users-provider'
 
 // En: src/features/users/components/users-columns.tsx
 
+// En: src/features/users/components/users-columns.tsx
+
 // Mapa de etiquetas para roles (Mejora UX: evita mostrar 'MESA_PARTES' crudo)
 const roleLabels: Record<string, string> = {
   ADMIN: 'Administrador',
@@ -69,9 +71,7 @@ export const createUsersColumns = ({
       <DataTableColumnHeader column={column} title='Nombre' />
     ),
     cell: ({ row }) => (
-      <div className='max-w-[200px] truncate font-medium'>
-        {row.getValue('name')}
-      </div>
+      <div className='truncate font-medium'>{row.getValue('name')}</div>
     ),
     enableHiding: false, // Generalmente no queremos ocultar el nombre
   },
@@ -114,10 +114,7 @@ export const createUsersColumns = ({
     cell: ({ row }) => {
       const oficina = row.original.oficina
       return oficina ? (
-        <span
-          className='block max-w-[150px] truncate font-medium'
-          title={oficina.nombre}
-        >
+        <span className='block truncate font-medium' title={oficina.nombre}>
           {oficina.siglas}
         </span>
       ) : (

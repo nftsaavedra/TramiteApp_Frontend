@@ -152,7 +152,7 @@ export function HistorialMovimientos({
                           <div className='text-muted-foreground bg-muted/50 flex items-center gap-1.5 rounded px-2 py-1'>
                             <Building2 className='h-3.5 w-3.5 shrink-0' />
                             <span
-                              className='max-w-[120px] truncate text-xs font-medium'
+                              className='truncate text-xs font-medium'
                               title={mov.oficinaOrigen.nombre}
                             >
                               {mov.oficinaOrigen.siglas}
@@ -164,9 +164,9 @@ export function HistorialMovimientos({
                           />
 
                           {/* Destino (NUEVA LÓGICA DIRECTA) */}
-                          <div className='flex items-center gap-1.5'>
+                          <div className='flex min-w-0 items-center gap-1.5'>
                             <span
-                              className={`max-w-[180px] truncate text-xs font-bold ${estilo.color}`}
+                              className={`truncate text-xs font-bold ${estilo.color}`}
                             >
                               {mov.oficinaDestino
                                 ? mov.oficinaDestino.nombre
