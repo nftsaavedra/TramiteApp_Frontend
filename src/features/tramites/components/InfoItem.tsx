@@ -10,10 +10,12 @@ interface InfoItemProps {
 export function InfoItem({ icon: Icon, label, value }: InfoItemProps) {
   return (
     <div className='flex items-start gap-3'>
-      <Icon className='text-muted-foreground mt-1 h-5 w-5' />
-      <div className='flex flex-col'>
-        <span className='text-muted-foreground text-sm'>{label}</span>
-        <span className='font-semibold'>{value}</span>
+      <Icon className='text-muted-foreground mt-0.5 h-5 w-5' />
+      <div className='flex flex-col space-y-0.5'>
+        <span className='text-muted-foreground text-sm font-medium'>
+          {label}
+        </span>
+        <span className='text-foreground text-sm font-bold'>{value}</span>
       </div>
     </div>
   )

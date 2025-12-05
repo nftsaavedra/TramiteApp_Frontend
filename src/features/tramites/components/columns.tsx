@@ -126,7 +126,7 @@ export const columns: ColumnDef<Tramite>[] = [
 
       const fecha = new Date(dateValue as string)
       return (
-        <span className=''>
+        <span className='text-muted-foreground text-sm font-medium'>
           {new Intl.DateTimeFormat('es-PE', {
             day: '2-digit',
             month: '2-digit',
@@ -149,7 +149,7 @@ export const columns: ColumnDef<Tramite>[] = [
     cell: ({ row }) => (
       <span
         title={row.original.oficinaRemitente.nombre}
-        className='text-xs font-medium'
+        className='text-foreground text-sm font-bold'
       >
         {row.original.oficinaRemitente.siglas}
       </span>
@@ -165,7 +165,7 @@ export const columns: ColumnDef<Tramite>[] = [
       <DataTableColumnHeader column={column} title='Tipo' />
     ),
     cell: ({ row }) => (
-      <div className='font-medium uppercase'>
+      <div className='text-muted-foreground text-xs font-bold tracking-wide uppercase'>
         {row.original.tipoDocumento.nombre}
       </div>
     ),
@@ -184,7 +184,7 @@ export const columns: ColumnDef<Tramite>[] = [
         <Link
           to='/tramites/$tramiteId'
           params={{ tramiteId: row.original.id }}
-          className='hover:text-primary group flex items-center gap-1.5 font-bold text-nowrap underline decoration-transparent underline-offset-2 transition-all hover:decoration-current'
+          className='hover:text-primary group flex items-center gap-2 text-sm font-bold text-nowrap underline decoration-transparent underline-offset-2 transition-all hover:decoration-current'
         >
           <>
             <FileText className='text-primary/70 group-hover:text-primary h-3.5 w-3.5 transition-colors' />
@@ -204,7 +204,7 @@ export const columns: ColumnDef<Tramite>[] = [
     ),
     cell: ({ row }) => (
       <div
-        className='max-w-[250px] truncate font-medium'
+        className='text-foreground max-w-[250px] truncate text-sm font-medium'
         title={row.getValue('asunto')}
       >
         {row.getValue('asunto')}
