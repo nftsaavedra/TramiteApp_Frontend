@@ -20,7 +20,12 @@ export function MovimientoItem({ movimiento }: MovimientoItemProps) {
     icon: ArrowRight,
     color: 'text-gray-500',
   }
-  const fechaCreacion = new Date(movimiento.createdAt)
+
+  // FECHA REAL: Si existe fechaMovimiento (regularización), se usa esa.
+  // Si no, fallback a createdAt (retrocompatibilidad).
+  const fechaVisual = new Date(
+    movimiento.fechaMovimiento || movimiento.createdAt
+  )
 
   return (
     <div className='flex gap-4'>
@@ -36,14 +41,11 @@ export function MovimientoItem({ movimiento }: MovimientoItemProps) {
             <span className='mb-0.5 block font-bold'>
               {movimiento.nombreDocumentoCompleto || 'Sin Documento'}
             </span>
-            {/* <span className='font-bold'> {movimiento.usuarioCreador.name}</span>
-            <span className='text-muted-foreground'> desde </span> */}
-            {/* <span className='font-bold'>{movimiento.oficinaOrigen.siglas}</span> */}
             {movimiento.fechaRecepcion && (
               <>
-                <span className='text-muted-foreground'> Fecha: </span>
+                <span className='text-muted-foreground'> Documento: </span>
                 <span className='text-foreground font-semibold'>
-                  {format(movimiento.fechaRecepcion, "dd 'de' MMMM, yyyy", {
+                  {format(new Date(movimiento.fechaRecepcion), 'dd/MM/yyyy', {
                     locale: es,
                   })}
                 </span>
@@ -51,12 +53,12 @@ export function MovimientoItem({ movimiento }: MovimientoItemProps) {
             )}
           </p>
           <time
-            className='text-muted-foreground text-xs'
-            title={format(fechaCreacion, "dd 'de' MMMM, yyyy 'a las' HH:mm", {
+            className='text-muted-foreground ml-2 text-xs whitespace-nowrap'
+            title={format(fechaVisual, "dd 'de' MMMM, yyyy 'a las' HH:mm", {
               locale: es,
             })}
           >
-            {formatDistanceToNow(fechaCreacion, {
+            {formatDistanceToNow(fechaVisual, {
               addSuffix: true,
               locale: es,
             })}

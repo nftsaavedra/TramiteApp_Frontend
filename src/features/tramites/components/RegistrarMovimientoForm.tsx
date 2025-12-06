@@ -78,7 +78,7 @@ const formSchema = z
     asunto: z.string().optional(),
     tipoDocumentoId: z.string().optional(),
     numeroDocumento: z.string().optional(),
-    fechaRecepcion: z.date().optional(),
+    fechaMovimiento: z.date().optional(), // Antes fechaRecepcion
     notas: z.string().optional(),
     observaciones: z.string().optional(),
   })
@@ -132,6 +132,7 @@ export function RegistrarMovimientoForm({
       asunto: '',
       notas: '',
       observaciones: '',
+      fechaMovimiento: new Date(), // Default a AHORA
     },
   })
 
@@ -423,7 +424,7 @@ export function RegistrarMovimientoForm({
 
                 <FormField
                   control={form.control}
-                  name='fechaRecepcion'
+                  name='fechaMovimiento'
                   render={({ field }) => (
                     <FormItem className='flex flex-col'>
                       <FormLabel>Fecha y Hora</FormLabel>
@@ -461,6 +462,10 @@ export function RegistrarMovimientoForm({
                                 newDate.setMinutes(field.value.getMinutes())
                                 field.onChange(newDate)
                               } else {
+                                // Al seleccionar día, mantener hora actual por defecto si no tenía
+                                const now = new Date()
+                                date.setHours(now.getHours())
+                                date.setMinutes(now.getMinutes())
                                 field.onChange(date)
                               }
                             }}

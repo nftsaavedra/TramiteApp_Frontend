@@ -62,6 +62,7 @@ export interface Movimiento {
   numeroDocumento: string | null
   nombreDocumentoCompleto: string | null // CAMBIO: Renombrado
   fechaRecepcion: string | null // ISO Date String
+  fechaMovimiento?: string // NUEVO: Fecha Real (Regularización)
 
   // Contenido y Trazabilidad
   asunto: string | null // NUEVO: Trazabilidad específica del paso
