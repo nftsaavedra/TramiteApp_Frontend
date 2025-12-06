@@ -1,5 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { Logo } from '@/assets/logo'
 import {
   Card,
   CardContent,
@@ -7,6 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import { NewsFeed } from '@/features/auth/components/NewsFeed'
 import { UserAuthForm } from '@/features/auth/components/UserAuthForm'
 
 export const Route = createFileRoute('/(auth)/login')({
@@ -57,22 +57,10 @@ function LoginPage() {
           </CardContent>
         </Card>
       </div>
-      <div className='relative hidden h-full overflow-hidden border-l bg-zinc-900 p-10 text-white lg:flex lg:flex-col lg:justify-between dark:bg-zinc-950'>
+      <div className='relative hidden h-full flex-col items-center justify-center overflow-hidden border-l bg-zinc-900 text-white lg:flex dark:bg-zinc-950'>
         <div className='absolute inset-0 bg-stone-900' />
-        <div className='relative z-20 flex items-center text-lg font-medium'>
-          <Logo className='h-8 w-8' />
-          <CardTitle className='text-3xl font-bold tracking-tight'>
-            {import.meta.env.VITE_APP_NAME || 'Tramite App'}
-          </CardTitle>
-        </div>
-        <div className='relative z-20 mt-auto'>
-          <blockquote className='space-y-2'>
-            <p className='text-lg'>
-              &ldquo;Una plataforma diseñada para simplificar y agilizar cada
-              paso de tus procesos administrativos.&rdquo;
-            </p>
-            <footer className='text-sm'>@VPIN-UNF</footer>
-          </blockquote>
+        <div className='relative z-20 flex w-full max-w-lg items-center justify-center p-8'>
+          <NewsFeed />
         </div>
       </div>
     </div>

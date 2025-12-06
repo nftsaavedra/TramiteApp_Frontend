@@ -29,6 +29,7 @@ export function ForgotPasswordForm({
 }: React.HTMLAttributes<HTMLFormElement>) {
   const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState(false)
+  const [isSubmitted, setIsSubmitted] = useState(false)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -37,19 +38,42 @@ export function ForgotPasswordForm({
 
   function onSubmit(data: z.infer<typeof formSchema>) {
     setIsLoading(true)
-    // eslint-disable-next-line no-console
-    console.log(data)
 
     toast.promise(sleep(2000), {
       loading: 'Sending email...',
       success: () => {
         setIsLoading(false)
-        form.reset()
-        navigate({ to: '/otp' })
+        setIsSubmitted(true)
         return `Email sent to ${data.email}`
       },
       error: 'Error',
     })
+  }
+
+  if (isSubmitted) {
+    return (
+      <div className='flex flex-col items-center justify-center space-y-4 py-4 text-center'>
+        <div className='bg-primary/10 text-primary flex h-12 w-12 items-center justify-center rounded-full'>
+          <ArrowRight className='h-6 w-6' />
+        </div>
+        <div className='space-y-2'>
+          <h3 className='text-lg font-medium'>Check your email</h3>
+          <p className='text-muted-foreground text-sm'>
+            We have sent a password reset link to <br />
+            <span className='text-foreground font-medium'>
+              {form.getValues('email')}
+            </span>
+          </p>
+        </div>
+        <Button
+          className='w-full'
+          variant='outline'
+          onClick={() => setIsSubmitted(false)}
+        >
+          Try another email
+        </Button>
+      </div>
+    )
   }
 
   return (
