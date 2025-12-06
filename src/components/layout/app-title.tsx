@@ -25,8 +25,12 @@ export function AppTitle() {
               onClick={() => setOpenMobile(false)}
               className='grid flex-1 text-start text-sm leading-tight'
             >
-              <span className='truncate font-bold'>tramite-app</span>
-              <span className='truncate text-xs'>Vite + ShadcnUI</span>
+              <span className='truncate font-bold'>
+                {import.meta.env.VITE_APP_NAME}
+              </span>
+              <span className='truncate text-xs'>
+                {import.meta.env.VITE_APP_DESCRIPTION}
+              </span>
             </Link>
             <ToggleSidebar />
           </div>

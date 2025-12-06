@@ -77,7 +77,9 @@ export function AppSidebar() {
       <SidebarHeader>
         <div className='flex items-center gap-2'>
           <Logo className='h-6 w-6' />
-          <span className='text-lg font-semibold'>TramiteApp</span>
+          <span className='text-lg font-semibold'>
+            {import.meta.env.VITE_APP_NAME}
+          </span>
         </div>
       </SidebarHeader>
       <SidebarContent>
