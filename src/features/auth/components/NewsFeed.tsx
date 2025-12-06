@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { Card } from '@/components/ui/card'
-import { Skeleton } from '@/components/ui/skeleton'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { Skeleton } from '@/components/ui/skeleton'
 
 interface WiFiPost {
   id: number
@@ -16,7 +16,7 @@ interface WiFiPost {
 
 const FEED_URL =
   import.meta.env.VITE_NEWS_FEED_URL ||
-  'https://viceinvestigacion.unf.edu.pe/wp-json/wp/v2/posts?per_page=5&_embed'
+  'https://viceinvestigacion.unf.edu.pe/wp-json/wp/v2/posts?per_page=5'
 
 export function NewsFeed() {
   const { data, isLoading, isError } = useQuery<WiFiPost[]>({
@@ -50,19 +50,19 @@ export function NewsFeed() {
 
   if (isError || !data) {
     return (
-      <div className='flex h-full items-center justify-center p-6 text-center text-muted-foreground'>
+      <div className='text-muted-foreground flex h-full items-center justify-center p-6 text-center'>
         <p>No se pudieron cargar las noticias recientes.</p>
       </div>
     )
   }
 
   return (
-    <div className='flex h-full flex-col bg-sidebar p-6 text-sidebar-foreground'>
+    <div className='bg-sidebar text-sidebar-foreground flex h-full flex-col p-6'>
       <div className='mb-6'>
         <h2 className='text-2xl font-bold tracking-tight'>
           Noticias y Eventos
         </h2>
-        <p className='text-sm text-muted-foreground'>
+        <p className='text-muted-foreground text-sm'>
           Mantente informado con las últimas actualizaciones.
         </p>
       </div>
@@ -81,10 +81,10 @@ export function NewsFeed() {
                 rel='noopener noreferrer'
                 className='block'
               >
-                <Card className='group overflow-hidden border-sidebar-border bg-sidebar-accent/50 transition-all hover:bg-sidebar-accent hover:shadow-md'>
+                <Card className='group border-sidebar-border bg-sidebar-accent/50 hover:bg-sidebar-accent overflow-hidden transition-all hover:shadow-md'>
                   <div className='flex flex-col sm:flex-row'>
                     {imageUrl && (
-                      <div className='relative h-48 w-full sm:h-auto sm:w-32 shrink-0 overflow-hidden'>
+                      <div className='relative h-48 w-full shrink-0 overflow-hidden sm:h-auto sm:w-32'>
                         <img
                           src={imageUrl}
                           alt={post.title.rendered}
@@ -95,13 +95,13 @@ export function NewsFeed() {
                     )}
                     <div className='flex flex-1 flex-col p-4'>
                       <h3
-                        className='mb-2 line-clamp-2 text-base font-semibold leading-tight group-hover:text-primary transition-colors'
+                        className='group-hover:text-primary mb-2 line-clamp-2 text-base leading-tight font-semibold transition-colors'
                         dangerouslySetInnerHTML={{
                           __html: post.title.rendered,
                         }}
                       />
                       <div
-                        className='line-clamp-2 text-sm text-muted-foreground'
+                        className='text-muted-foreground line-clamp-2 text-sm'
                         dangerouslySetInnerHTML={{
                           __html: post.excerpt.rendered,
                         }}
