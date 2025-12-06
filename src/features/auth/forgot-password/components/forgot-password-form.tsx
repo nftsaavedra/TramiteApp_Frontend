@@ -57,21 +57,26 @@ export function ForgotPasswordForm({
           <ArrowRight className='h-6 w-6' />
         </div>
         <div className='space-y-2'>
-          <h3 className='text-lg font-medium'>Check your email</h3>
+          <h3 className='text-lg font-medium'>Revisa tu correo</h3>
           <p className='text-muted-foreground text-sm'>
-            We have sent a password reset link to <br />
+            Hemos enviado un código de recuperación a <br />
             <span className='text-foreground font-medium'>
               {form.getValues('email')}
             </span>
           </p>
         </div>
-        <Button
-          className='w-full'
-          variant='outline'
-          onClick={() => setIsSubmitted(false)}
-        >
-          Try another email
-        </Button>
+        <div className='flex w-full flex-col gap-2'>
+          <Button className='w-full' onClick={() => navigate({ to: '/otp' })}>
+            Ingresar código
+          </Button>
+          <Button
+            className='w-full'
+            variant='ghost'
+            onClick={() => setIsSubmitted(false)}
+          >
+            Probar otro correo
+          </Button>
+        </div>
       </div>
     )
   }

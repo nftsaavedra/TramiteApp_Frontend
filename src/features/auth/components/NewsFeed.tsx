@@ -29,7 +29,7 @@ interface WpPost {
 }
 
 const FEED_URL =
-  'https://viceinvestigacion.unf.edu.pe/wp-json/wp/v2/posts?per_page=5&_embed'
+  'https://viceinvestigacion.unf.edu.pe/wp-json/wp/v2/posts?per_page=10&_embed'
 
 export function NewsFeed() {
   const [api, setApi] = React.useState<CarouselApi>()
