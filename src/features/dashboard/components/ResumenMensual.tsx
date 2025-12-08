@@ -1,5 +1,12 @@
 // En: src/features/dashboard/components/ResumenMensual.tsx
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from 'recharts'
+import {
+  Bar,
+  BarChart,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
+  LabelList,
+} from 'recharts'
 import { MonthlyVolume } from '../services/dashboard.service'
 
 interface ResumenMensualProps {
@@ -22,15 +29,22 @@ export function ResumenMensual({ data = [] }: ResumenMensualProps) {
           fontSize={12}
           tickLine={false}
           axisLine={false}
-          // Formateador sin el signo de dólar
           tickFormatter={(value) => `${value}`}
         />
         <Bar
           dataKey='total'
-          fill='currentColor'
+          fill='hsl(var(--primary))'
           radius={[4, 4, 0, 0]}
-          className='fill-primary'
-        />
+          className='stroke-primary stroke-1'
+        >
+          <LabelList
+            dataKey='total'
+            position='top'
+            className='fill-foreground text-xs font-bold'
+            offset={10}
+            formatter={(val: any) => (val > 0 ? val : '')}
+          />
+        </Bar>
       </BarChart>
     </ResponsiveContainer>
   )

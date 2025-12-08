@@ -18,6 +18,7 @@ export interface RecentActivity {
   document: string
   to: string
   color: string
+  date: string
 }
 
 export const dashboardService = {
