@@ -20,6 +20,8 @@ import {
   obtenerTipoInteraccion,
   obtenerAsuntoMovimiento,
 } from '../utils/tramite-helpers'
+import { AnotacionFormDialog } from './AnotacionFormDialog'
+import { AnotacionItem } from './AnotacionItem'
 import { RegistrarMovimientoForm } from './RegistrarMovimientoForm'
 
 interface HistorialMovimientosProps {
@@ -128,6 +130,23 @@ export function HistorialMovimientos({
                           <span className='text-muted-foreground bg-muted rounded px-1.5 py-0.5 text-[10px] font-semibold tracking-wider uppercase'>
                             {mov.tipoAccion}
                           </span>
+                          {/* Botón de Anotar solo para el último movimiento (Activo) */}
+                          {esElMasReciente && (
+                            <AnotacionFormDialog
+                              tramiteId={tramiteId}
+                              movimientoId={mov.id}
+                              trigger={
+                                <Button
+                                  variant='ghost'
+                                  size='icon'
+                                  className='h-6 w-6 rounded-full hover:bg-blue-50 hover:text-blue-600'
+                                  title='Agregar observación o anotación a este paso'
+                                >
+                                  <StickyNote className='h-3.5 w-3.5' />
+                                </Button>
+                              }
+                            />
+                          )}
                         </div>
                         <div className='text-muted-foreground flex items-center gap-1 text-xs'>
                           <Calendar className='h-3 w-3' />
@@ -222,6 +241,21 @@ export function HistorialMovimientos({
                               </span>
                             </div>
                           )}
+                        </div>
+                      )}
+
+                      {/* 5. LISTA DE ANOTACIONES */}
+                      {mov.anotaciones && mov.anotaciones.length > 0 && (
+                        <div className='mt-3 space-y-3 rounded-md border border-yellow-100 bg-yellow-50/50 p-3'>
+                          <div className='flex items-center gap-2 text-[10px] font-bold tracking-wide text-yellow-700 uppercase'>
+                            <StickyNote className='h-3 w-3' />
+                            Anotaciones del paso
+                          </div>
+                          <div className='space-y-3 pl-1'>
+                            {mov.anotaciones.map((nota) => (
+                              <AnotacionItem key={nota.id} anotacion={nota} />
+                            ))}
+                          </div>
                         </div>
                       )}
                     </div>

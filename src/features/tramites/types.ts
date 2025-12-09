@@ -91,6 +91,8 @@ export interface Movimiento {
   tipoDocumento?: TipoDocumento | null
 
   // CAMBIO: Eliminado 'destinos' (array)
+
+  anotaciones?: Anotacion[]
 }
 
 // --- TRÁMITE COMPLETO (Respuesta de findOne) ---
@@ -134,8 +136,27 @@ export interface TramiteCompleto {
 
   // Colecciones
   movimientos: Movimiento[]
-  anotaciones?: any[]
+  anotaciones: Anotacion[]
 
   // Campo Calculado
   plazo: PlazoInfo
+}
+
+export interface Anotacion {
+  id: string
+  contenido: string
+  createdAt: string
+  autor: {
+    id: string
+    name: string
+    email: string
+  }
+  movimientoId?: string | null
+  movimiento?: {
+    id: string
+    tipoAccion: string
+    oficinaOrigen: {
+      siglas: string
+    }
+  } | null
 }

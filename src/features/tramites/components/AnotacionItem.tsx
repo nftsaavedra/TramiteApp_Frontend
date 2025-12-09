@@ -34,6 +34,15 @@ export function AnotacionItem({ anotacion }: AnotacionItemProps) {
         <p className='text-muted-foreground text-sm whitespace-pre-wrap'>
           {anotacion.contenido}
         </p>
+
+        {anotacion.movimiento && (
+          <div className='mt-2 flex items-center gap-2 rounded-md bg-slate-100 px-2 py-1 text-xs text-slate-600'>
+            <span className='font-semibold'>
+              Ref: {anotacion.movimiento.tipoAccion}
+            </span>
+            <span>({anotacion.movimiento.oficinaOrigen.siglas})</span>
+          </div>
+        )}
       </div>
     </div>
   )
