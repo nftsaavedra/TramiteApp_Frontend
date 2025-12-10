@@ -218,46 +218,44 @@ export function HistorialMovimientos({
                         </p>
                       </div>
 
-                      {/* 4. NOTAS Y OBSERVACIONES ADICIONALES */}
-                      {(mov.notas || mov.observaciones) && (
-                        <div className='space-y-2 pt-1 pl-1'>
-                          {mov.notas && (
-                            <div className='text-muted-foreground flex items-start gap-2 text-xs'>
-                              <StickyNote className='mt-0.5 h-3.5 w-3.5 shrink-0 text-blue-500' />
-                              <span>
-                                <strong className='text-foreground/80'>
-                                  Nota:
-                                </strong>{' '}
-                                {mov.notas}
-                              </span>
-                            </div>
-                          )}
-                          {mov.observaciones && (
-                            <div className='flex items-start gap-2 rounded border border-amber-100 bg-amber-50 p-2 text-xs text-amber-700'>
-                              <AlertTriangle className='mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-600' />
-                              <span>
-                                <strong>Observación:</strong>{' '}
-                                {mov.observaciones}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      )}
-
-                      {/* 5. LISTA DE ANOTACIONES */}
-                      {mov.anotaciones && mov.anotaciones.length > 0 && (
-                        <div className='mt-3 space-y-3 rounded-md border border-yellow-100 bg-yellow-50/50 p-3'>
-                          <div className='flex items-center gap-2 text-[10px] font-bold tracking-wide text-yellow-700 uppercase'>
-                            <StickyNote className='h-3 w-3' />
-                            Anotaciones del paso
+                      {/* SECCIÓN UNIFICADA: NOTAS, OBSERVACIONES Y ANOTACIONES */}
+                      <div className='mt-3 space-y-3 border-l-2 border-slate-100 pl-3'>
+                        {/* 1. NOTAS DEL SISTEMA (Nota/Observación) */}
+                        {(mov.notas || mov.observaciones) && (
+                          <div className='space-y-2'>
+                            {mov.observaciones && (
+                              <div className='flex gap-2 rounded-md bg-amber-50/50 p-2 text-sm text-amber-700'>
+                                <AlertTriangle className='mt-0.5 h-4 w-4 shrink-0 text-amber-500' />
+                                <div className='flex flex-col'>
+                                  <span className='mb-0.5 text-xs font-semibold tracking-wide text-amber-600 uppercase'>
+                                    Observación Importante
+                                  </span>
+                                  <span>{mov.observaciones}</span>
+                                </div>
+                              </div>
+                            )}
+                            {mov.notas && (
+                              <div className='flex gap-2 text-sm text-slate-600'>
+                                <StickyNote className='mt-0.5 h-4 w-4 shrink-0 text-slate-400' />
+                                <span>{mov.notas}</span>
+                              </div>
+                            )}
                           </div>
-                          <div className='space-y-3 pl-1'>
+                        )}
+
+                        {/* 2. ANOTACIONES DE USUARIOS */}
+                        {mov.anotaciones && mov.anotaciones.length > 0 && (
+                          <div className='space-y-3 pt-2'>
                             {mov.anotaciones.map((nota) => (
-                              <AnotacionItem key={nota.id} anotacion={nota} />
+                              <AnotacionItem
+                                key={nota.id}
+                                anotacion={nota}
+                                minimal
+                              />
                             ))}
                           </div>
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </div>
                   </div>
                 )
