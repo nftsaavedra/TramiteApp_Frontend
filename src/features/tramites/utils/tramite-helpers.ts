@@ -19,6 +19,11 @@ import { TramiteCompleto, Movimiento } from '../types'
  * b) Si el último movimiento NO tiene destino (ej. cierre interno): Se asume que sigue en la 'Oficina Origen'.
  */
 export const obtenerUbicacionActual = (tramite: TramiteCompleto): string => {
+  // Lógica Maestra: Si el backend informa oficinaDestino, esa es la ubicación actual.
+  if (tramite.oficinaDestino) {
+    return tramite.oficinaDestino.nombre
+  }
+
   // Caso 1: Trámite recién ingresado o sin flujo iniciado
   if (!tramite.movimientos || tramite.movimientos.length === 0) {
     return tramite.oficinaRemitente?.nombre || 'Origen Desconocido'

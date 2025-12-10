@@ -219,6 +219,12 @@ export const columns: ColumnDef<Tramite>[] = [
       <DataTableColumnHeader column={column} title='Ubicación Actual' />
     ),
     accessorFn: (row) => {
+      // Prioridad 1: Ubicación actual maestra (Actualizada por backend)
+      if (row.oficinaDestino) {
+        return row.oficinaDestino.siglas
+      }
+
+      // Fallback: Deducir de movimientos
       const ultimoMovimiento = row.movimientos?.[0]
       if (ultimoMovimiento?.oficinaDestino) {
         return ultimoMovimiento.oficinaDestino.siglas
@@ -228,15 +234,18 @@ export const columns: ColumnDef<Tramite>[] = [
       )
     },
     cell: ({ row }) => {
+      const destinoMaestro = row.original.oficinaDestino
       const ultimoMovimiento = row.original.movimientos?.[0]
-      const destino = ultimoMovimiento?.oficinaDestino
+
+      const destino = destinoMaestro || ultimoMovimiento?.oficinaDestino
       const origen = row.original.oficinaRemitente
 
       if (destino) {
         return (
           <div className='flex items-center gap-1'>
+            {/* Si hay movimiento previo, mostramos origen -> destino. Si es directo, solo destino */}
             <span className='scale-90 opacity-70'>
-              {ultimoMovimiento?.oficinaOrigen.siglas}
+              {ultimoMovimiento?.oficinaOrigen.siglas || origen.siglas}
             </span>
             <ArrowRight className='h-3 w-3' />
             <span
