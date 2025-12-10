@@ -121,108 +121,88 @@ export function HistorialMovimientos({
                     <div
                       className={`min-w-0 flex-1 ${!esUltimoEnLista ? 'pb-8' : 'pb-2'}`}
                     >
-                      {/* 1. ENCABEZADO: ACCIÓN Y USUARIO */}
-                      <div className='mb-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-1'>
-                        <div className='flex items-center gap-2'>
-                          <span className={`text-sm font-bold ${estilo.color}`}>
-                            {estilo.label}
-                          </span>
-                          <span className='text-muted-foreground bg-muted rounded px-1.5 py-0.5 text-[10px] font-semibold tracking-wider uppercase'>
-                            {mov.tipoAccion}
-                          </span>
-                          {/* Botón de Anotar solo para el último movimiento (Activo) */}
-                          {esElMasReciente && (
-                            <AnotacionFormDialog
-                              tramiteId={tramiteId}
-                              movimientoId={mov.id}
-                              trigger={
-                                <Button
-                                  variant='ghost'
-                                  size='icon'
-                                  className='h-6 w-6 rounded-full hover:bg-blue-50 hover:text-blue-600'
-                                  title='Agregar observación o anotación a este paso'
-                                >
-                                  <StickyNote className='h-3.5 w-3.5' />
-                                </Button>
-                              }
-                            />
-                          )}
-                        </div>
-                        <div className='text-muted-foreground flex items-center gap-1 text-xs'>
-                          <Calendar className='h-3 w-3' />
-                          <time className='font-mono whitespace-nowrap'>
-                            {format(
-                              new Date(mov.createdAt),
-                              'dd MMM yyyy, HH:mm',
-                              {
-                                locale: es,
-                              }
-                            )}
-                          </time>
-                        </div>
-                      </div>
-
-                      {/* 2. TARJETA PRINCIPAL DE RUTA */}
-                      <div
-                        className={`bg-background mb-3 rounded-lg border p-3 text-sm shadow-sm transition-colors`}
-                      >
-                        <div className='flex flex-wrap items-center gap-2'>
-                          {/* Origen */}
-                          <div className='text-muted-foreground bg-muted/50 flex items-center gap-1.5 rounded px-2 py-1'>
-                            <Building2 className='h-3.5 w-3.5 shrink-0' />
-                            <span
-                              className='truncate text-xs font-medium'
-                              title={mov.oficinaOrigen.nombre}
-                            >
-                              {mov.oficinaOrigen.siglas}
-                            </span>
-                          </div>
-
-                          <ArrowRight
-                            className={`h-4 w-4 shrink-0 ${estilo.color}`}
-                          />
-
-                          {/* Destino (NUEVA LÓGICA DIRECTA) */}
-                          <div className='flex min-w-0 items-center gap-1.5'>
-                            <span
-                              className={`truncate text-xs font-bold ${estilo.color}`}
-                            >
-                              {mov.oficinaDestino
-                                ? mov.oficinaDestino.nombre
-                                : '(Gestión Interna / Mismo Origen)'}
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Documento de Referencia en el Movimiento (Si existe) */}
-                        {mov.nombreDocumentoCompleto && (
-                          <div className='border-border/60 mt-2 flex items-center gap-2 border-t border-dashed pt-2'>
-                            <FileText className='text-muted-foreground h-3.5 w-3.5' />
-                            <span className='text-muted-foreground font-mono text-xs'>
-                              Ref:{' '}
-                              <span className='text-foreground font-medium'>
+                      {/* 1. DATA PRINCIPAL: FECHA REAL Y DOCUMENTO */}
+                      <div className='mb-1 flex flex-col gap-1'>
+                        <div className='flex items-start justify-between gap-4'>
+                          {/* Identidad del Documento o Acción */}
+                          <div className='flex flex-col'>
+                            {mov.nombreDocumentoCompleto ? (
+                              <span className='text-foreground text-base font-bold tracking-tight'>
                                 {mov.nombreDocumentoCompleto}
                               </span>
-                            </span>
+                            ) : (
+                              <span className='text-foreground/80 text-sm font-semibold'>
+                                {estilo.label}
+                              </span>
+                            )}
+
+                            {/* Ruta / Contexto Administrativo */}
+                            <div className='text-muted-foreground mt-1 flex items-center gap-2 text-xs'>
+                              <Badge
+                                variant='outline'
+                                className='h-5 border-slate-200 py-0 text-[10px] font-normal tracking-wider text-slate-500 uppercase'
+                              >
+                                {mov.tipoAccion}
+                              </Badge>
+                              <span>|</span>
+                              <div className='flex items-center gap-1'>
+                                <span
+                                  title={mov.oficinaOrigen.nombre}
+                                  className='font-medium text-slate-700'
+                                >
+                                  {mov.oficinaOrigen.siglas}
+                                </span>
+                                <ArrowRight className='h-3 w-3 text-slate-400' />
+                                <span
+                                  title={
+                                    mov.oficinaDestino?.nombre ??
+                                    'Gestión Interna'
+                                  }
+                                  className='font-medium text-slate-700'
+                                >
+                                  {mov.oficinaDestino
+                                    ? mov.oficinaDestino.siglas
+                                    : mov.oficinaOrigen.siglas}
+                                </span>
+                              </div>
+                            </div>
                           </div>
-                        )}
+
+                          {/* Fecha del Cargo / Movimiento (Prioridad) */}
+                          <div className='flex shrink-0 flex-col items-end'>
+                            <div className='flex items-center gap-1.5 rounded-md border border-slate-200/50 bg-slate-100/80 px-2 py-1 text-sm font-semibold text-slate-700'>
+                              <Calendar className='h-3.5 w-3.5 text-slate-500' />
+                              <time>
+                                {format(
+                                  new Date(
+                                    mov.fechaMovimiento ||
+                                      mov.fechaRecepcion ||
+                                      mov.createdAt
+                                  ),
+                                  'dd MMM yyyy, HH:mm',
+                                  { locale: es }
+                                )}
+                              </time>
+                            </div>
+                          </div>
+                        </div>
                       </div>
 
-                      {/* 3. SECCIÓN DE CONTENIDO: ASUNTO (Mandatorio) */}
-                      <div className='mb-2 rounded-md border border-slate-200 bg-slate-50 p-3'>
-                        <p className='mb-1 text-[10px] font-bold tracking-wide text-slate-500 uppercase'>
-                          Asunto del Movimiento
-                        </p>
-                        <p className='text-foreground text-sm leading-relaxed font-medium'>
+                      {/* 2. ASUNTO DEL MOVIMIENTO */}
+                      <div className='mt-3 mb-2'>
+                        <p className='text-foreground/90 text-sm leading-relaxed font-normal'>
+                          <span className='text-foreground/60 mr-2 text-xs font-semibold tracking-wide uppercase'>
+                            Asunto:
+                          </span>
                           {asuntoMovimiento}
                         </p>
                       </div>
 
                       {/* SECCIÓN UNIFICADA: NOTAS, OBSERVACIONES Y ANOTACIONES */}
-                      <div className='mt-3 space-y-3 border-l-2 border-slate-100 pl-3'>
+                      <div className='mt-2 space-y-2 border-l-2 border-slate-100 pl-3'>
                         {/* 1. NOTAS DEL SISTEMA (Nota/Observación) */}
                         {(mov.notas || mov.observaciones) && (
-                          <div className='space-y-2'>
+                          <div className='space-y-2 pt-1'>
                             {mov.observaciones && (
                               <div className='flex gap-2 rounded-md bg-amber-50/50 p-2 text-sm text-amber-700'>
                                 <AlertTriangle className='mt-0.5 h-4 w-4 shrink-0 text-amber-500' />
@@ -245,7 +225,7 @@ export function HistorialMovimientos({
 
                         {/* 2. ANOTACIONES DE USUARIOS */}
                         {mov.anotaciones && mov.anotaciones.length > 0 && (
-                          <div className='space-y-3 pt-2'>
+                          <div className='space-y-2 pt-1'>
                             {mov.anotaciones.map((nota) => (
                               <AnotacionItem
                                 key={nota.id}
@@ -254,6 +234,39 @@ export function HistorialMovimientos({
                               />
                             ))}
                           </div>
+                        )}
+                      </div>
+
+                      {/* Footer: Auditoría / Metadata de Sistema */}
+                      <div className='mt-3 flex items-center justify-between border-t border-slate-100 pt-2'>
+                        <div className='flex items-center gap-4 font-mono text-[10px] text-slate-400'>
+                          <span title='Fecha de registro en sistema'>
+                            Reg:{' '}
+                            {format(new Date(mov.createdAt), 'dd/MM/yy HH:mm', {
+                              locale: es,
+                            })}
+                          </span>
+                          <span>
+                            Por: {mov.usuarioCreador?.name ?? 'Sistema'}
+                          </span>
+                        </div>
+
+                        {/* Botón de Anotar solo para el último movimiento (Activo) */}
+                        {esElMasReciente && (
+                          <AnotacionFormDialog
+                            tramiteId={tramiteId}
+                            movimientoId={mov.id}
+                            trigger={
+                              <Button
+                                variant='ghost'
+                                size='sm'
+                                className='h-6 gap-1.5 px-2 text-[10px] text-slate-500 hover:bg-slate-100 hover:text-slate-800'
+                              >
+                                <StickyNote className='h-3 w-3' />
+                                <span>Anotar</span>
+                              </Button>
+                            }
+                          />
                         )}
                       </div>
                     </div>
