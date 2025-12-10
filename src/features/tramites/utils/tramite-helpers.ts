@@ -20,12 +20,16 @@ import { TramiteCompleto, Movimiento } from '../types'
  */
 export const obtenerUbicacionActual = (tramite: TramiteCompleto): string => {
   // Lógica Maestra: Si el backend informa oficinaDestino, esa es la ubicación actual.
+  // [DEBUG] Priorizamos el campo maestro.
   if (tramite.oficinaDestino) {
     return tramite.oficinaDestino.nombre
   }
 
   // Caso 1: Trámite recién ingresado o sin flujo iniciado
   if (!tramite.movimientos || tramite.movimientos.length === 0) {
+    // Si es recepcion (tiene remitente) y no tiene destino, asumimos que falló la asignación, pero mostramos advertencia?
+    // Mejor fallback: Si es recepcion y no hay movimientos, debería ser VPIN.
+    // Pero si el backend falló, mejor mostrar origen.
     return tramite.oficinaRemitente?.nombre || 'Origen Desconocido'
   }
 
