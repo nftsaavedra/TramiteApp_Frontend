@@ -215,7 +215,7 @@ export function RegistrarMovimientoForm({
             >
               <span className='truncate'>
                 {selectedItem
-                  ? selectedItem.nombre || selectedItem.siglas
+                  ? selectedItem.siglas || selectedItem.nombre
                   : placeholder}
               </span>
               <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
@@ -439,7 +439,9 @@ export function RegistrarMovimientoForm({
                               )}
                             >
                               {field.value ? (
-                                format(field.value, 'PPP p', { locale: es })
+                                format(field.value, 'dd/MM/yyyy HH:mm', {
+                                  locale: es,
+                                })
                               ) : (
                                 <span>Seleccione fecha</span>
                               )}
