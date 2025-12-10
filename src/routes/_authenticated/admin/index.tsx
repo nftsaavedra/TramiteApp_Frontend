@@ -6,8 +6,8 @@ export const Route = createFileRoute('/_authenticated/admin/')({
 
 function AdminIndex() {
   return (
-    <div className="p-2">
-      <h3>Dashboard de Administración</h3>
+    <div className='p-2'>
+      <h3>Escritorio</h3>
     </div>
   )
 }

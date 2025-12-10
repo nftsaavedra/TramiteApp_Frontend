@@ -161,7 +161,7 @@ export function DetallesPrincipales({ tramite }: DetallesPrincipalesProps) {
           <div className='rounded-md border border-amber-100 bg-amber-50/50 p-3'>
             <div className='mb-1 flex items-center gap-1.5 text-xs font-bold tracking-wide text-amber-700 uppercase'>
               <AlertOctagon className='h-3.5 w-3.5' />
-              <span>Observaciones Iniciales</span>
+              <span>Observaciones</span>
             </div>
             <p className='text-sm text-amber-900/80'>{tramite.observaciones}</p>
           </div>

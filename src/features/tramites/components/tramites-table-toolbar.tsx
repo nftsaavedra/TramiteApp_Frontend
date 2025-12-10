@@ -4,11 +4,11 @@ import { useState, useEffect } from 'react'
 import { Table } from '@tanstack/react-table'
 import { X, Search } from 'lucide-react'
 import { DateRange } from 'react-day-picker'
+import { useDebounce } from '@/hooks/use-debounce'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { DateRangeFilter } from '@/components/data-table/date-range-filter'
 import { DataTableFacetedFilter } from '@/components/data-table/faceted-filter'
-// Asegúrate de tener este componente
 import { estados, prioridades } from '../data/data'
 
 export interface FilterOption {
@@ -52,8 +52,21 @@ export function TramitesTableToolbar<TData>({
   // Estado local para input (evita lentitud al escribir)
   const [searchValue, setSearchValue] = useState(globalFilter)
 
+  // Debounce del valor de búsqueda: solo actualiza el filtro global después de 500ms
+  const debouncedSearchValue = useDebounce(searchValue, 500)
+
+  // Sincronizar filtro global cuando cambia el valor debounced
   useEffect(() => {
-    setSearchValue(globalFilter)
+    if (debouncedSearchValue !== globalFilter) {
+      onGlobalFilterChange(debouncedSearchValue)
+    }
+  }, [debouncedSearchValue, onGlobalFilterChange, globalFilter])
+
+  // Sincronizar input local si el filtro global cambia externamente (ej: botón limpiar)
+  useEffect(() => {
+    if (globalFilter !== searchValue) {
+      setSearchValue(globalFilter)
+    }
   }, [globalFilter])
 
   return (
@@ -68,7 +81,7 @@ export function TramitesTableToolbar<TData>({
               value={searchValue}
               onChange={(event) => {
                 setSearchValue(event.target.value)
-                onGlobalFilterChange(event.target.value)
+                // ELIMINADO: onGlobalFilterChange inmediato
               }}
               className='h-8 w-[250px] pl-8 lg:w-[350px]'
             />

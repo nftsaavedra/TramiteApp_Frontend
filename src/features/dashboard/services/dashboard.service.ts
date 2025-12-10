@@ -7,9 +7,10 @@ export interface DashboardStats {
   usuariosActivos: number
 }
 
-export interface MonthlyVolume {
+export interface VolumeStat {
   name: string
   total: number
+  date?: string
 }
 
 export interface RecentActivity {
@@ -27,8 +28,13 @@ export const dashboardService = {
     return data
   },
 
-  getMonthlyVolume: async (): Promise<MonthlyVolume[]> => {
-    const { data } = await api.get('/dashboard/monthly-volume')
+  getVolumeStats: async (
+    groupBy: 'hour' | 'day' | 'week' | 'month' | 'year' = 'month',
+    limit: number = 6
+  ): Promise<VolumeStat[]> => {
+    const { data } = await api.get('/dashboard/volume-stats', {
+      params: { groupBy, limit },
+    })
     return data
   },
 

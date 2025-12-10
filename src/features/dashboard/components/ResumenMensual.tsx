@@ -7,13 +7,13 @@ import {
   YAxis,
   LabelList,
 } from 'recharts'
-import { MonthlyVolume } from '../services/dashboard.service'
+import { VolumeStat } from '../services/dashboard.service'
 
-interface ResumenMensualProps {
-  data?: MonthlyVolume[]
+interface VolumenChartProps {
+  data?: VolumeStat[]
 }
 
-export function ResumenMensual({ data = [] }: ResumenMensualProps) {
+export function VolumenChart({ data = [] }: VolumenChartProps) {
   return (
     <ResponsiveContainer width='100%' height={350}>
       <BarChart data={data}>

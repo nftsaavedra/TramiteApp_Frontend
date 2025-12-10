@@ -76,7 +76,6 @@ export function DateRangeFilter({
         </PopoverTrigger>
         <PopoverContent className='w-auto p-0' align='start'>
           <Calendar
-            autoFocus // CORREGIDO: 'initialFocus' está deprecado
             mode='range'
             defaultMonth={date?.from}
             selected={date}

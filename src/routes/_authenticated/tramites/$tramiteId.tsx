@@ -103,6 +103,7 @@ function TramiteDetallePage() {
             tramiteId={tramite.id}
             tramiteEstado={tramite.estado}
             tramiteFechaCierre={tramite.fechaCierre}
+            anotaciones={tramite.anotaciones}
           />
         </div>
       </div>

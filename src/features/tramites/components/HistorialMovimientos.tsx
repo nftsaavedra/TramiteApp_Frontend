@@ -6,14 +6,17 @@ import {
   Building2,
   StickyNote,
   AlertTriangle,
+  History as HistoryIcon,
+  FileText,
   Calendar,
+  Send,
   CheckCircle2,
   Archive,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { type Movimiento } from '@/features/tramites/types'
+import { type Movimiento, type Anotacion } from '@/features/tramites/types'
 import {
   obtenerTipoInteraccion,
   obtenerAsuntoMovimiento,
@@ -24,6 +27,7 @@ import { RegistrarMovimientoForm } from './RegistrarMovimientoForm'
 
 interface HistorialMovimientosProps {
   movimientos: Movimiento[]
+  anotaciones: Anotacion[] // NUEVO: Para buscar la nota de cierre
   tramiteAsunto: string
   tramiteId: string
   tramiteEstado: string
@@ -32,6 +36,7 @@ interface HistorialMovimientosProps {
 
 export function HistorialMovimientos({
   movimientos,
+  anotaciones,
   tramiteAsunto,
   tramiteId,
   tramiteEstado,
@@ -54,11 +59,53 @@ export function HistorialMovimientos({
   const esArchivado = tramiteEstado === 'ARCHIVADO'
   const estaCerrado = esFinalizado || esArchivado
 
+  // Buscar la anotación de cierre (Asumiendo que el backend le puso el prefijo o es la más reciente cerca del cierre)
+  // Estrategia: Buscar anotación que contenga "TRÁMITE FINALIZADO" o "TRÁMITE ARCHIVADO"
+  const anotacionCierre = estaCerrado
+    ? anotaciones?.find((a) =>
+        a.contenido.includes(
+          esFinalizado ? 'TRÁMITE FINALIZADO' : 'TRÁMITE ARCHIVADO'
+        )
+      )
+    : null
+
+  const infoCierre = anotacionCierre
+    ? {
+        autor: anotacionCierre.autor.name,
+        contenido: anotacionCierre.contenido
+          .replace('TRÁMITE FINALIZADO: ', '')
+          .replace('TRÁMITE ARCHIVADO: ', ''),
+        fecha: anotacionCierre.createdAt,
+      }
+    : null
+
   return (
     <>
       <Card className='shadow-sm'>
-        {/* ... existing header ... */}
-        {/* Header content unchanged, just keeping context if needed, but I'll use ... in replacement block to focus on render loop */}
+        <CardHeader className='bg-muted/5 border-b pb-4'>
+          <div className='flex items-center justify-between'>
+            <CardTitle className='flex items-center gap-2 text-lg'>
+              <HistoryIcon className='text-primary h-5 w-5' />
+              Historial de Movimientos
+            </CardTitle>
+            <div className='flex items-center gap-2'>
+              {tieneMovimientos && (
+                <Badge
+                  variant='outline'
+                  className='text-muted-foreground text-xs font-normal'
+                >
+                  {movimientos.length} pasos
+                </Badge>
+              )}
+              {/* Solo permitir registrar movimientos si NO está cerrado y NO está archivado */}
+              {!estaCerrado && (
+                <Button size='sm' onClick={() => setIsModalOpen(true)}>
+                  <Send className='mr-2 h-4 w-4' /> Registrar Movimiento
+                </Button>
+              )}
+            </div>
+          </div>
+        </CardHeader>
 
         <CardContent className='px-4 pt-8 pb-4 sm:px-6'>
           {!tieneMovimientos ? (
@@ -105,9 +152,26 @@ export function HistorialMovimientos({
                           )}
                       </span>
                     </div>
-                    <p className='text-muted-foreground mt-1 text-sm'>
-                      El ciclo de vida del trámite ha concluido.
-                    </p>
+
+                    {infoCierre ? (
+                      <div className='bg-muted/30 mt-3 rounded-md border border-dashed border-slate-200 p-3'>
+                        <p className='text-foreground text-sm font-medium italic'>
+                          "{infoCierre.contenido}"
+                        </p>
+                        <div className='text-muted-foreground mt-2 flex items-center gap-2 text-xs'>
+                          <span className='font-semibold'>
+                            {esFinalizado
+                              ? 'Finalizado por:'
+                              : 'Archivado por:'}
+                          </span>
+                          <span>{infoCierre.autor}</span>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className='text-muted-foreground mt-1 text-sm'>
+                        El ciclo de vida del trámite ha concluido.
+                      </p>
+                    )}
                   </div>
                 </div>
               )}
@@ -308,6 +372,7 @@ export function HistorialMovimientos({
         </CardContent>
       </Card>
 
+      {/* Modales */}
       <RegistrarMovimientoForm
         tramiteId={tramiteId}
         open={isModalOpen}
