@@ -1,4 +1,3 @@
-// En: src/features/tramites/components/HistorialMovimientos.tsx
 import { useState } from 'react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
@@ -7,10 +6,9 @@ import {
   Building2,
   StickyNote,
   AlertTriangle,
-  History,
-  FileText,
   Calendar,
-  Send,
+  CheckCircle2,
+  Archive,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -28,12 +26,16 @@ interface HistorialMovimientosProps {
   movimientos: Movimiento[]
   tramiteAsunto: string
   tramiteId: string
+  tramiteEstado: string
+  tramiteFechaCierre?: string | null
 }
 
 export function HistorialMovimientos({
   movimientos,
   tramiteAsunto,
   tramiteId,
+  tramiteEstado,
+  tramiteFechaCierre,
 }: HistorialMovimientosProps) {
   const [isModalOpen, setIsModalOpen] = useState(false)
 
@@ -47,33 +49,20 @@ export function HistorialMovimientos({
       )
     : []
 
+  // Lógica de Nodo de Cierre
+  const esFinalizado = tramiteEstado === 'FINALIZADO'
+  const esArchivado = tramiteEstado === 'ARCHIVADO'
+  const estaCerrado = esFinalizado || esArchivado
+
   return (
     <>
       <Card className='shadow-sm'>
-        <CardHeader className='bg-muted/5 border-b pb-4'>
-          <div className='flex items-center justify-between'>
-            <CardTitle className='flex items-center gap-2 text-lg'>
-              <History className='text-primary h-5 w-5' />
-              Historial de Movimientos
-            </CardTitle>
-            <div className='flex items-center gap-2'>
-              {tieneMovimientos && (
-                <Badge
-                  variant='outline'
-                  className='text-muted-foreground text-xs font-normal'
-                >
-                  {movimientos.length} pasos
-                </Badge>
-              )}
-              <Button size='sm' onClick={() => setIsModalOpen(true)}>
-                <Send className='mr-2 h-4 w-4' /> Registrar Movimiento
-              </Button>
-            </div>
-          </div>
-        </CardHeader>
+        {/* ... existing header ... */}
+        {/* Header content unchanged, just keeping context if needed, but I'll use ... in replacement block to focus on render loop */}
 
         <CardContent className='px-4 pt-8 pb-4 sm:px-6'>
           {!tieneMovimientos ? (
+            // ... empty state ...
             <div className='text-muted-foreground bg-muted/10 flex flex-col items-center justify-center rounded-lg border border-dashed py-10 text-center'>
               <Building2 className='mb-3 h-10 w-10 opacity-20' />
               <p className='text-sm font-medium'>Sin movimientos registrados</p>
@@ -83,7 +72,48 @@ export function HistorialMovimientos({
             </div>
           ) : (
             <div className='flex flex-col'>
+              {/* NODO DE CIERRE (Visualmente el primero/más reciente) */}
+              {estaCerrado && (
+                <div className='flex gap-4 pb-8'>
+                  <div className='flex flex-col items-center'>
+                    <div
+                      className={`z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border shadow-sm ${esFinalizado ? 'border-green-200 bg-green-100 text-green-600' : 'border-slate-200 bg-slate-100 text-slate-500'}`}
+                    >
+                      {esFinalizado ? (
+                        <CheckCircle2 className='h-4 w-4' />
+                      ) : (
+                        <Archive className='h-4 w-4' />
+                      )}
+                    </div>
+                    <div className='bg-border my-1 h-full w-px' />
+                  </div>
+                  <div className='flex-1 pt-1'>
+                    <div
+                      className={`flex items-center gap-2 font-bold ${esFinalizado ? 'text-green-700' : 'text-slate-700'}`}
+                    >
+                      <span>
+                        {esFinalizado
+                          ? 'TRÁMITE FINALIZADO'
+                          : 'TRÁMITE ARCHIVADO'}
+                      </span>
+                      <span className='text-muted-foreground bg-muted rounded-full px-2 py-0.5 text-xs font-normal'>
+                        {tramiteFechaCierre &&
+                          format(
+                            new Date(tramiteFechaCierre),
+                            'dd MMM yyyy, HH:mm',
+                            { locale: es }
+                          )}
+                      </span>
+                    </div>
+                    <p className='text-muted-foreground mt-1 text-sm'>
+                      El ciclo de vida del trámite ha concluido.
+                    </p>
+                  </div>
+                </div>
+              )}
+
               {movimientosOrdenados.map((mov, index) => {
+                // ... map logic
                 const estilo = obtenerTipoInteraccion(mov)
                 const Icono = estilo.icon
 

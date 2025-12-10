@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Main } from '@/components/layout/main'
 import { DetallesPrincipales } from '@/features/tramites/components/DetallesPrincipales'
 import { HistorialMovimientos } from '@/features/tramites/components/HistorialMovimientos'
+import { TramiteActions } from '@/features/tramites/components/TramiteActions'
 import { type TramiteCompleto } from '@/features/tramites/types'
 
 const fetchTramiteById = async (
@@ -75,6 +76,7 @@ function TramiteDetallePage() {
         </div>
 
         <div className='flex items-center gap-2 sm:self-start'>
+          <TramiteActions tramite={tramite} />
           <Button
             variant='outline'
             size='sm'
@@ -99,6 +101,8 @@ function TramiteDetallePage() {
             movimientos={tramite.movimientos}
             tramiteAsunto={tramite.asunto}
             tramiteId={tramite.id}
+            tramiteEstado={tramite.estado}
+            tramiteFechaCierre={tramite.fechaCierre}
           />
         </div>
       </div>
