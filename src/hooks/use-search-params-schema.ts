@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { z } from 'zod'
+import { type z } from 'zod'
 import { useSearch } from '@tanstack/react-router'
 
 export function useSearchParamsSchema<T extends z.ZodType>(schema: T) {
@@ -9,6 +9,7 @@ export function useSearchParamsSchema<T extends z.ZodType>(schema: T) {
   const params = useMemo(() => {
     const result = schema.safeParse(search)
     if (!result.success) {
+      // eslint-disable-next-line no-console
       console.warn('⚠️ Error validando params URL:', result.error)
       return {} as z.infer<T>
     }

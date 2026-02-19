@@ -2,7 +2,7 @@
 
 'use client'
 
-import { z } from 'zod'
+import { type z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '@/components/ui/button'
@@ -23,7 +23,9 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { oficinaSchema, tiposOficina } from '../data/schema'
-import { Oficina } from './columns'
+import { type Oficina } from './columns'
+
+// En: src/features/admin/oficinas/components/oficina-form.tsx
 
 // En: src/features/admin/oficinas/components/oficina-form.tsx
 // Importamos el tipo Oficina
@@ -44,7 +46,9 @@ export function OficinaForm({
     defaultValues: {
       nombre: defaultValues?.nombre ?? '',
       siglas: defaultValues?.siglas ?? '',
-      tipo: defaultValues?.tipo as any,
+      tipo: (defaultValues?.tipo ?? '') as z.infer<
+        typeof oficinaSchema
+      >['tipo'],
       parentId: defaultValues?.parentId ?? null,
     },
   })

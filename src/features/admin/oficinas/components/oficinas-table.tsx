@@ -4,10 +4,10 @@
 
 import * as React from 'react'
 import {
-  ColumnDef,
-  ColumnFiltersState,
-  SortingState,
-  VisibilityState,
+  type ColumnDef,
+  type ColumnFiltersState,
+  type SortingState,
+  type VisibilityState,
   flexRender,
   getCoreRowModel,
   getFacetedRowModel,
@@ -26,7 +26,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { DataTablePagination } from '@/components/data-table/pagination'
-import { Oficina } from './columns'
+import { type Oficina } from './columns'
 import { DataTableToolbar } from './oficinas-table-toolbar'
 
 // En: src/features/admin/oficinas/components/oficinas-table.tsx

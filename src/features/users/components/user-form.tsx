@@ -2,8 +2,6 @@
 
 'use client'
 
-import React from 'react'
-import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '@/components/ui/button'
@@ -25,8 +23,10 @@ import {
 } from '@/components/ui/select'
 import { PasswordInput } from '@/components/password-input'
 import { rolesOptions } from '../data/data'
-import { userSchema, UserFormValues } from '../data/schema'
-import { Oficina, User } from './users-provider'
+import { userSchema, type UserFormValues } from '../data/schema'
+import { type Oficina, type User } from './users-provider'
+
+// En: src/features/users/components/user-form.tsx
 
 // En: src/features/users/components/user-form.tsx
 
@@ -53,23 +53,11 @@ export function UserForm({
     defaultValues: {
       name: defaultValues?.name ?? '',
       email: defaultValues?.email ?? '',
-      role: defaultValues?.role as any,
+      role: defaultValues?.role as UserFormValues['role'],
       oficinaId: defaultValues?.oficina?.id ?? vpinOficinaId,
       password: '',
       confirmPassword: '',
     },
-  })
-
-  // Refinamiento del schema para validación condicional de la contraseña
-  const formSchema = userSchema.superRefine((data, ctx) => {
-    if (!isEditing && (!data.password || data.password.length < 8)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message:
-          'La contraseña es obligatoria y debe tener al menos 8 caracteres.',
-        path: ['password'],
-      })
-    }
   })
 
   const handleSubmit = form.handleSubmit((values) => {

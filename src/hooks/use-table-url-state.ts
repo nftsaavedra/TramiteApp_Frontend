@@ -8,10 +8,13 @@ import type {
 
 type SearchRecord = Record<string, unknown>
 
-// --- CORRECCIÓN: Relajamos el tipo 'search' a 'any' ---
+// --- CORRECCIÓN: Relajamos el tipo 'search' con union type ---
 // Esto soluciona el conflicto de tipos con TanStack Router cuando
 // una ruta tiene parámetros de búsqueda obligatorios (como page/pageSize).
-export type NavigateFn = (opts: { search: any; replace?: boolean }) => void
+export type NavigateFn = (opts: {
+  search: SearchRecord | ((prev: SearchRecord) => SearchRecord) | boolean
+  replace?: boolean
+}) => void
 // ------------------------------------------------------
 
 type UseTableUrlStateParams = {

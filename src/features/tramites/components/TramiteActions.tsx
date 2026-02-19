@@ -1,10 +1,14 @@
 import { useState } from 'react'
 import { z } from 'zod'
+import { type AxiosError, type AxiosResponse } from 'axios'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useRouter } from '@tanstack/react-router'
-import { Archive, CheckCircle2, AlertTriangle, Loader2 } from 'lucide-react'
+import {
+  useMutation,
+  useQueryClient,
+  type UseMutationResult,
+} from '@tanstack/react-query'
+import { Archive, CheckCircle2, Loader2, type LucideIcon } from 'lucide-react'
 import { toast } from 'sonner'
 import api from '@/lib/api'
 import { Button } from '@/components/ui/button'
@@ -26,7 +30,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Textarea } from '@/components/ui/textarea'
-import { TramiteCompleto } from '../types'
+import { type TramiteCompleto } from '../types'
 
 // Esquema de validación para la nota obligatoria
 const actionSchema = z.object({
@@ -41,7 +45,6 @@ interface TramiteActionsProps {
 }
 
 export function TramiteActions({ tramite }: TramiteActionsProps) {
-  const router = useRouter()
   const queryClient = useQueryClient()
   const [openFinalizar, setOpenFinalizar] = useState(false)
   const [openArchivar, setOpenArchivar] = useState(false)
@@ -55,7 +58,7 @@ export function TramiteActions({ tramite }: TramiteActionsProps) {
       setOpenFinalizar(false)
       queryClient.invalidateQueries({ queryKey: ['tramite', tramite.id] })
     },
-    onError: (error: any) => {
+    onError: (error: AxiosError<{ message?: string }>) => {
       toast.error(
         error.response?.data?.message || 'Error al finalizar el trámite'
       )
@@ -71,7 +74,7 @@ export function TramiteActions({ tramite }: TramiteActionsProps) {
       setOpenArchivar(false)
       queryClient.invalidateQueries({ queryKey: ['tramite', tramite.id] })
     },
-    onError: (error: any) => {
+    onError: (error: AxiosError<{ message?: string }>) => {
       toast.error(
         error.response?.data?.message || 'Error al archivar el trámite'
       )
@@ -132,7 +135,7 @@ function ActionDialog({
   title: string
   description: string
   triggerLabel: string
-  triggerIcon: any
+  triggerIcon: LucideIcon
   triggerVariant?:
     | 'default'
     | 'destructive'
@@ -144,7 +147,12 @@ function ActionDialog({
   confirmVariant?: 'default' | 'destructive' | 'outline' | 'secondary'
   isOpen: boolean
   onOpenChange: (open: boolean) => void
-  mutation: any
+  mutation: UseMutationResult<
+    AxiosResponse,
+    AxiosError<{ message?: string }>,
+    { contenido: string },
+    unknown
+  >
 }) {
   const form = useForm<z.infer<typeof actionSchema>>({
     resolver: zodResolver(actionSchema),

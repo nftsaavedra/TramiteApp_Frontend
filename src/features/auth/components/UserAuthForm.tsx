@@ -45,7 +45,7 @@ export function UserAuthForm() {
         navigate({ to: '/' })
       }
     } catch (error) {
-      console.error('Error de autenticación:', error)
+      if (import.meta.env.DEV) console.error('Error de autenticación:', error) // eslint-disable-line no-console
       setAuthError('Credenciales incorrectas. Verifique sus datos.')
     }
   }

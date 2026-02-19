@@ -7,10 +7,12 @@ import {
   getFacetedRowModel,
   getFacetedUniqueValues,
   getFilteredRowModel,
-  PaginationState,
-  ColumnFiltersState,
-  SortingState,
-  VisibilityState,
+  type PaginationState,
+  type ColumnFiltersState,
+  type SortingState,
+  type VisibilityState,
+  type Updater,
+  type ColumnFilter,
 } from '@tanstack/react-table'
 import api from '@/lib/api'
 import { createUsersColumns } from '@/features/users/components/users-columns'
@@ -115,11 +117,11 @@ function UsersPageContent() {
     pageSize: searchParams.limit || 10,
   }
 
-  const onPaginationChange = (updater: any) => {
+  const onPaginationChange = (updater: Updater<PaginationState>) => {
     const next = typeof updater === 'function' ? updater(pagination) : updater
     navigate({
       to: '.',
-      search: (prev: any) => ({
+      search: (prev) => ({
         ...prev,
         page: next.pageIndex + 1,
         limit: next.pageSize,
@@ -138,24 +140,28 @@ function UsersPageContent() {
     return filters
   }, [searchParams])
 
-  const onColumnFiltersChange = (updater: any) => {
+  const onColumnFiltersChange = (updater: Updater<ColumnFiltersState>) => {
     const next =
       typeof updater === 'function' ? updater(columnFilters) : updater
-    const newParams: any = { ...searchParams, page: 1 } // Reset a pág 1 al filtrar
+    const newParams = { ...searchParams, page: 1 } as UsersSearchParams
 
     delete newParams.role
     delete newParams.activo
 
-    next.forEach((filter: any) => {
-      if (filter.id === 'role') newParams.role = filter.value
-      if (filter.id === 'isActive') newParams.activo = filter.value?.[0]
+    next.forEach((filter: ColumnFilter) => {
+      if (filter.id === 'role') newParams.role = filter.value as string[]
+      if (filter.id === 'isActive')
+        newParams.activo = (filter.value as string[])?.[0] as
+          | 'true'
+          | 'false'
+          | undefined
     })
 
     navigate({ to: '.', search: newParams, replace: true })
   }
 
   // 3. Ordenamiento (ASC/DESC)
-  const onSortingChange = (updater: any) => {
+  const onSortingChange = (updater: Updater<SortingState>) => {
     const next = typeof updater === 'function' ? updater(sorting) : updater
     setSorting(next)
 
@@ -163,7 +169,7 @@ function UsersPageContent() {
       const { id, desc } = next[0]
       navigate({
         to: '.',
-        search: (prev: any) => ({
+        search: (prev) => ({
           ...prev,
           sortBy: `${id}:${desc ? 'desc' : 'asc'}`,
         }),
@@ -172,8 +178,8 @@ function UsersPageContent() {
     } else {
       navigate({
         to: '.',
-        search: (prev: any) => {
-          const { sortBy, ...rest } = prev
+        search: (prev) => {
+          const { sortBy: _, ...rest } = prev
           return rest
         },
         replace: true,
@@ -227,7 +233,7 @@ function UsersPageContent() {
           onGlobalFilterChange={(val) =>
             navigate({
               to: '.',
-              search: (prev: any) => ({
+              search: (prev) => ({
                 ...prev,
                 q: val || undefined,
                 page: 1,

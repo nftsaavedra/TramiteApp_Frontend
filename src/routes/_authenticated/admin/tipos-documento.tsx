@@ -1,5 +1,6 @@
 // En: src/routes/_authenticated/admin/tipos-documento.tsx
 import * as React from 'react'
+import { type AxiosError } from 'axios'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { toast } from 'sonner'
@@ -25,7 +26,7 @@ import { createTiposDocumentoColumns } from '@/features/admin/tipos-documento/co
 // Importaciones específicas del módulo que estamos creando
 import { TipoDocumentoForm } from '@/features/admin/tipos-documento/components/tipo-documento-form'
 import { TiposDocumentoDataTable } from '@/features/admin/tipos-documento/components/tipos-documento-table'
-import { TipoDocumentoFormValues } from '@/features/admin/tipos-documento/data/schema'
+import { type TipoDocumentoFormValues } from '@/features/admin/tipos-documento/data/schema'
 
 export const Route = createFileRoute('/_authenticated/admin/tipos-documento')({
   component: AdminTiposDocumento,
@@ -72,7 +73,7 @@ function AdminTiposDocumento() {
       queryClient.invalidateQueries({ queryKey: ['tipos-documento'] })
       closeDialogs()
     },
-    onError: (error: any) => {
+    onError: (error: AxiosError<{ message?: string }>) => {
       toast.error(
         `Error: ${error.response?.data?.message || 'No se pudo realizar la operación.'}`
       )
@@ -107,15 +108,15 @@ function AdminTiposDocumento() {
   })
 
   // --- MANEJADORES DE ACCIONES ---
-  const openForm = (item: TipoDocumento | null = null) => {
+  const openForm = React.useCallback((item: TipoDocumento | null = null) => {
     setSelected(item)
     setIsFormOpen(true)
-  }
+  }, [])
 
-  const openDeleteDialog = (item: TipoDocumento) => {
+  const openDeleteDialog = React.useCallback((item: TipoDocumento) => {
     setSelected(item)
     setIsDeleteDialogOpen(true)
-  }
+  }, [])
 
   const closeDialogs = () => {
     setIsFormOpen(false)
@@ -138,7 +139,7 @@ function AdminTiposDocumento() {
         onEdit: openForm,
         onDelete: openDeleteDialog,
       }),
-    []
+    [openForm, openDeleteDialog]
   )
 
   if (isLoading) return <div className='p-6'>Cargando datos...</div>

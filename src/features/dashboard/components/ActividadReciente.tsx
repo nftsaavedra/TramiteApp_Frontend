@@ -3,7 +3,7 @@ import { es } from 'date-fns/locale'
 import { FileText, Send, CheckCircle, Archive, AlertCircle } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { RecentActivity } from '../services/dashboard.service'
+import { type RecentActivity } from '../services/dashboard.service'
 
 interface ActividadRecienteProps {
   data?: RecentActivity[]

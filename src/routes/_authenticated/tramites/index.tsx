@@ -7,11 +7,13 @@ import {
   getFacetedRowModel,
   getFacetedUniqueValues,
   getFilteredRowModel,
-  PaginationState,
-  ColumnFiltersState,
-  SortingState,
+  type PaginationState,
+  type ColumnFiltersState,
+  type SortingState,
+  type Updater,
+  type ColumnFilter,
 } from '@tanstack/react-table'
-import { DateRange } from 'react-day-picker'
+import { type DateRange } from 'react-day-picker'
 import api from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { columns } from '@/features/tramites/components/columns'
@@ -84,11 +86,19 @@ function TramitesPage() {
   })
 
   const oficinasOptions = useMemo(
-    () => oficinas?.map((o: any) => ({ label: o.siglas, value: o.id })) || [],
+    () =>
+      (oficinas as { id: string; siglas: string }[] | undefined)?.map((o) => ({
+        label: o.siglas,
+        value: o.id,
+      })) || [],
     [oficinas]
   )
   const tiposOptions = useMemo(
-    () => tipos?.map((t: any) => ({ label: t.nombre, value: t.id })) || [],
+    () =>
+      (tipos as { id: string; nombre: string }[] | undefined)?.map((t) => ({
+        label: t.nombre,
+        value: t.id,
+      })) || [],
     [tipos]
   )
 
@@ -135,14 +145,14 @@ function TramitesPage() {
 
   // --- Handlers ---
 
-  const onPaginationChange = (updaterOrValue: any) => {
+  const onPaginationChange = (updaterOrValue: Updater<PaginationState>) => {
     const next =
       typeof updaterOrValue === 'function'
         ? updaterOrValue(pagination)
         : updaterOrValue
     navigate({
       to: '.',
-      search: (prev: any) => ({
+      search: (prev) => ({
         ...prev,
         page: next.pageIndex + 1,
         limit: next.pageSize,
@@ -151,28 +161,32 @@ function TramitesPage() {
     })
   }
 
-  const onColumnFiltersChange = (updaterOrValue: any) => {
+  const onColumnFiltersChange = (
+    updaterOrValue: Updater<ColumnFiltersState>
+  ) => {
     const next =
       typeof updaterOrValue === 'function'
         ? updaterOrValue(columnFilters)
         : updaterOrValue
-    const newParams: any = { ...searchParams, page: 1 }
+    const newParams = { ...searchParams, page: 1 } as TramitesSearchParams
     delete newParams.estado
     delete newParams.prioridad
     delete newParams.oficinaId
     delete newParams.tipoDocumentoId
 
-    next.forEach((filter: any) => {
-      if (filter.id === 'estado') newParams.estado = filter.value
-      if (filter.id === 'prioridad') newParams.prioridad = filter.value
-      if (filter.id === 'oficinaRemitenteId') newParams.oficinaId = filter.value
+    next.forEach((filter: ColumnFilter) => {
+      if (filter.id === 'estado') newParams.estado = filter.value as string[]
+      if (filter.id === 'prioridad')
+        newParams.prioridad = filter.value as string[]
+      if (filter.id === 'oficinaRemitenteId')
+        newParams.oficinaId = filter.value as string[]
       if (filter.id === 'tipoDocumentoId')
-        newParams.tipoDocumentoId = filter.value
+        newParams.tipoDocumentoId = filter.value as string[]
     })
     navigate({ to: '.', search: newParams, replace: true })
   }
 
-  const onSortingChange = (updaterOrValue: any) => {
+  const onSortingChange = (updaterOrValue: Updater<SortingState>) => {
     const next =
       typeof updaterOrValue === 'function'
         ? updaterOrValue(sorting)
@@ -180,7 +194,7 @@ function TramitesPage() {
     if (next.length > 0) {
       navigate({
         to: '.',
-        search: (prev: any) => ({
+        search: (prev) => ({
           ...prev,
           sortBy: `${next[0].id}:${next[0].desc ? 'desc' : 'asc'}`,
         }),
@@ -189,8 +203,8 @@ function TramitesPage() {
     } else {
       navigate({
         to: '.',
-        search: (prev: any) => {
-          const { sortBy, ...rest } = prev
+        search: (prev) => {
+          const { sortBy: _, ...rest } = prev
           return rest
         },
         replace: true,
@@ -203,7 +217,7 @@ function TramitesPage() {
   const handleGlobalSearch = (value: string) => {
     navigate({
       to: '.',
-      search: (prev: any) => ({ ...prev, q: value || undefined, page: 1 }),
+      search: (prev) => ({ ...prev, q: value || undefined, page: 1 }),
       replace: true,
     })
   }
@@ -214,7 +228,7 @@ function TramitesPage() {
   ) => {
     navigate({
       to: '.',
-      search: (prev: any) => {
+      search: (prev) => {
         const newParams = { ...prev, page: 1 }
         delete newParams.fechaRecepcionDesde
         delete newParams.fechaRecepcionHasta

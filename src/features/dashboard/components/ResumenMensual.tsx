@@ -1,4 +1,5 @@
 // En: src/features/dashboard/components/ResumenMensual.tsx
+import React from 'react'
 import {
   Bar,
   BarChart,
@@ -7,7 +8,7 @@ import {
   YAxis,
   LabelList,
 } from 'recharts'
-import { VolumeStat } from '../services/dashboard.service'
+import { type VolumeStat } from '../services/dashboard.service'
 
 interface VolumenChartProps {
   data?: VolumeStat[]
@@ -42,7 +43,9 @@ export function VolumenChart({ data = [] }: VolumenChartProps) {
             position='top'
             className='fill-foreground text-xs font-bold'
             offset={10}
-            formatter={(val: any) => (val > 0 ? val : '')}
+            formatter={(val: React.ReactNode) =>
+              typeof val === 'number' && val > 0 ? val : ''
+            }
           />
         </Bar>
       </BarChart>

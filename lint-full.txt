@@ -1,0 +1,309 @@
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+
+D:\DEV\tramite_frontend\src\components\data-table\date-range-filter.tsx
+  4:1  error  All imports in the declaration are only used as types. Use `import type`  @typescript-eslint/consistent-type-imports
+
+D:\DEV\tramite_frontend\src\context\AuthContext.tsx
+   1:1   error    Imports "ReactNode" are only used as type                                                                                       @typescript-eslint/consistent-type-imports
+  53:11  error    Unexpected console statement                                                                                                    no-console
+  74:9   error    Unexpected console statement                                                                                                    no-console
+  96:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+D:\DEV\tramite_frontend\src\features\admin\oficinas\components\columns.tsx
+  5:1  error  All imports in the declaration are only used as types. Use `import type`  @typescript-eslint/consistent-type-imports
+
+D:\DEV\tramite_frontend\src\features\admin\oficinas\components\oficina-form.tsx
+   5:1   error  All imports in the declaration are only used as types. Use `import type`  @typescript-eslint/consistent-type-imports
+  26:1   error  All imports in the declaration are only used as types. Use `import type`  @typescript-eslint/consistent-type-imports
+  47:36  error  Unexpected any. Specify a different type                                  @typescript-eslint/no-explicit-any
+
+D:\DEV\tramite_frontend\src\features\admin\oficinas\components\oficinas-row-actions.tsx
+  15:1  error  All imports in the declaration are only used as types. Use `import type`  @typescript-eslint/consistent-type-imports
+
+D:\DEV\tramite_frontend\src\features\admin\oficinas\components\oficinas-table-toolbar.tsx
+  6:1  error  All imports in the declaration are only used as types. Use `import type`  @typescript-eslint/consistent-type-imports
+
+D:\DEV\tramite_frontend\src\features\admin\oficinas\components\oficinas-table.tsx
+   6:1   error    Imports "ColumnDef", "ColumnFiltersState", "SortingState" and "VisibilityState" are only used as type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    @typescript-eslint/consistent-type-imports
+  29:1   error    All imports in the declaration are only used as types. Use `import type`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 @typescript-eslint/consistent-type-imports
+  59:17  warning  Compilation Skipped: Use of incompatible library
+
+This API returns functions which cannot be memoized without leading to stale UI. To prevent this, by default React Compiler will skip memoizing this component/hook. However, you may see issues if values from this API are passed to other components/hooks that are memoized.
+
+D:\DEV\tramite_frontend\src\features\admin\oficinas\components\oficinas-table.tsx:59:17
+  57 |   const [sorting, setSorting] = React.useState<SortingState>([])
+  58 |
+> 59 |   const table = useReactTable({
+     |                 ^^^^^^^^^^^^^ TanStack Table's `useReactTable()` API returns functions that cannot be memoized safely
+  60 |     data,
+  61 |     columns,
+  62 |     state: {  react-hooks/incompatible-library
+
+D:\DEV\tramite_frontend\src\features\admin\tipos-documento\components\columns.tsx
+  6:1  error  All imports in the declaration are only used as types. Use `import type`  @typescript-eslint/consistent-type-imports
+  7:1  error  All imports in the declaration are only used as types. Use `import type`  @typescript-eslint/consistent-type-imports
+
+D:\DEV\tramite_frontend\src\features\admin\tipos-documento\components\tipo-documento-form.tsx
+  5:1  error  All imports in the declaration are only used as types. Use `import type`  @typescript-eslint/consistent-type-imports
+
+D:\DEV\tramite_frontend\src\features\admin\tipos-documento\components\tipos-documento-table.tsx
+   7:1   error    Imports "ColumnDef", "ColumnFiltersState" and "SortingState" are only used as type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  @typescript-eslint/consistent-type-imports
+  18:1   error    All imports in the declaration are only used as types. Use `import type`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            @typescript-eslint/consistent-type-imports
+  49:17  warning  Compilation Skipped: Use of incompatible library
+
+This API returns functions which cannot be memoized without leading to stale UI. To prevent this, by default React Compiler will skip memoizing this component/hook. However, you may see issues if values from this API are passed to other components/hooks that are memoized.
+
+D:\DEV\tramite_frontend\src\features\admin\tipos-documento\components\tipos-documento-table.tsx:49:17
+  47 |   )
+  48 |
+> 49 |   const table = useReactTable({
+     |                 ^^^^^^^^^^^^^ TanStack Table's `useReactTable()` API returns functions that cannot be memoized safely
+  50 |     data,
+  51 |     columns,
+  52 |     state: { sorting, columnFilters },  react-hooks/incompatible-library
+
+D:\DEV\tramite_frontend\src\features\auth\components\UserAuthForm.tsx
+  48:32  error  Unexpected console statement  no-console
+
+D:\DEV\tramite_frontend\src\features\auth\otp\components\otp-form.tsx
+  41:15  warning  Compilation Skipped: Use of incompatible library
+
+This API returns functions which cannot be memoized without leading to stale UI. To prevent this, by default React Compiler will skip memoizing this component/hook. However, you may see issues if values from this API are passed to other components/hooks that are memoized.
+
+D:\DEV\tramite_frontend\src\features\auth\otp\components\otp-form.tsx:41:15
+  39 |   })
+  40 |
+> 41 |   const otp = form.watch('otp')
+     |               ^^^^ React Hook Form's `useForm()` API returns a `watch()` function which cannot be memoized safely.
+  42 |
+  43 |   function onSubmit(_data: z.infer<typeof formSchema>) {
+  44 |     setIsLoading(true)  react-hooks/incompatible-library
+
+D:\DEV\tramite_frontend\src\features\dashboard\components\ActividadReciente.tsx
+  6:1  error  All imports in the declaration are only used as types. Use `import type`  @typescript-eslint/consistent-type-imports
+
+D:\DEV\tramite_frontend\src\features\dashboard\components\ResumenMensual.tsx
+  10:1   error  All imports in the declaration are only used as types. Use `import type`  @typescript-eslint/consistent-type-imports
+  45:30  error  Unexpected any. Specify a different type                                  @typescript-eslint/no-explicit-any
+
+D:\DEV\tramite_frontend\src\features\dashboard\index.tsx
+  24:1   error  Imports "DashboardStats", "VolumeStat" and "RecentActivity" are only used as type  @typescript-eslint/consistent-type-imports
+  81:11  error  Unexpected console statement                                                       no-console
+
+D:\DEV\tramite_frontend\src\features\settings\account\account-form.tsx
+  61:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  62:32  error  Unexpected console statement              no-console
+
+D:\DEV\tramite_frontend\src\features\settings\profile\profile-form.tsx
+  66:32  error  Unexpected console statement  no-console
+
+D:\DEV\tramite_frontend\src\features\tramites\components\AnotacionFormDialog.tsx
+  64:22  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\DEV\tramite_frontend\src\features\tramites\components\RegistrarMovimientoForm.tsx
+  171:22  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  173:9   error  Unexpected console statement              no-console
+  194:14  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\DEV\tramite_frontend\src\features\tramites\components\TramiteActions.tsx
+   28:1   error  All imports in the declaration are only used as types. Use `import type`  @typescript-eslint/consistent-type-imports
+   56:22  error  Unexpected any. Specify a different type                                  @typescript-eslint/no-explicit-any
+   72:22  error  Unexpected any. Specify a different type                                  @typescript-eslint/no-explicit-any
+  133:16  error  Unexpected any. Specify a different type                                  @typescript-eslint/no-explicit-any
+  145:13  error  Unexpected any. Specify a different type                                  @typescript-eslint/no-explicit-any
+
+D:\DEV\tramite_frontend\src\features\tramites\components\TramiteForm.tsx
+  131:20  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  132:32  error  Unexpected console statement              no-console
+  147:14  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\DEV\tramite_frontend\src\features\tramites\components\columns.tsx
+   4:1   error  All imports in the declaration are only used as types. Use `import type`  @typescript-eslint/consistent-type-imports
+  81:12  error  Unexpected any. Specify a different type                                  @typescript-eslint/no-explicit-any
+  92:45  error  Unexpected any. Specify a different type                                  @typescript-eslint/no-explicit-any
+
+D:\DEV\tramite_frontend\src\features\tramites\components\tramites-table-toolbar.tsx
+   4:1  error    All imports in the declaration are only used as types. Use `import type`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        @typescript-eslint/consistent-type-imports
+   6:1  error    All imports in the declaration are only used as types. Use `import type`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        @typescript-eslint/consistent-type-imports
+  68:7  error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+D:\DEV\tramite_frontend\src\features\tramites\components\tramites-table-toolbar.tsx:68:7
+  66 |   useEffect(() => {
+  67 |     if (globalFilter !== searchValue) {
+> 68 |       setSearchValue(globalFilter)
+     |       ^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  69 |     }
+  70 |   }, [globalFilter])
+  71 |  react-hooks/set-state-in-effect
+  70:6  warning  React Hook useEffect has a missing dependency: 'searchValue'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  react-hooks/exhaustive-deps
+
+D:\DEV\tramite_frontend\src\features\tramites\components\tramites-table.tsx
+  3:1  error  Imports "TableInstance" are only used as type  @typescript-eslint/consistent-type-imports
+
+D:\DEV\tramite_frontend\src\features\tramites\utils\tramite-helpers.ts
+  11:1  error  All imports in the declaration are only used as types. Use `import type`  @typescript-eslint/consistent-type-imports
+
+D:\DEV\tramite_frontend\src\features\users\components\user-form.tsx
+  26:1   error  Imports "UserFormValues" are only used as type                            @typescript-eslint/consistent-type-imports
+  27:1   error  All imports in the declaration are only used as types. Use `import type`  @typescript-eslint/consistent-type-imports
+  54:36  error  Unexpected any. Specify a different type                                  @typescript-eslint/no-explicit-any
+
+D:\DEV\tramite_frontend\src\features\users\components\users-action-dialog.tsx
+  12:1  error  All imports in the declaration are only used as types. Use `import type`  @typescript-eslint/consistent-type-imports
+
+D:\DEV\tramite_frontend\src\features\users\components\users-provider.tsx
+    3:1   error    Imports "UseQueryResult" and "UseMutationResult" are only used as type                                                          @typescript-eslint/consistent-type-imports
+   12:1   error    All imports in the declaration are only used as types. Use `import type`                                                        @typescript-eslint/consistent-type-imports
+   49:37  error    Unexpected any. Specify a different type                                                                                        @typescript-eslint/no-explicit-any
+   51:5   error    Unexpected any. Specify a different type                                                                                        @typescript-eslint/no-explicit-any
+   56:37  error    Unexpected any. Specify a different type                                                                                        @typescript-eslint/no-explicit-any
+  102:22  error    Unexpected any. Specify a different type                                                                                        @typescript-eslint/no-explicit-any
+  145:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+D:\DEV\tramite_frontend\src\features\users\components\users-table-toolbar.tsx
+  4:1  error  All imports in the declaration are only used as types. Use `import type`  @typescript-eslint/consistent-type-imports
+
+D:\DEV\tramite_frontend\src\features\users\index.tsx
+    4:1   error    Imports "PaginationState", "ColumnFiltersState", "SortingState" and "VisibilityState" are only used as type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           @typescript-eslint/consistent-type-imports
+  111:40  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              @typescript-eslint/no-explicit-any
+  134:43  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              @typescript-eslint/no-explicit-any
+  137:22  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              @typescript-eslint/no-explicit-any
+  144:27  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              @typescript-eslint/no-explicit-any
+  153:37  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              @typescript-eslint/no-explicit-any
+  182:17  warning  Compilation Skipped: Use of incompatible library
+
+This API returns functions which cannot be memoized without leading to stale UI. To prevent this, by default React Compiler will skip memoizing this component/hook. However, you may see issues if values from this API are passed to other components/hooks that are memoized.
+
+D:\DEV\tramite_frontend\src\features\users\index.tsx:182:17
+  180 |
+  181 |   // Instancia Maestra de la Tabla (Headless UI)
+> 182 |   const table = useReactTable({
+      |                 ^^^^^^^^^^^^^ TanStack Table's `useReactTable()` API returns functions that cannot be memoized safely
+  183 |     data: usersData?.data || [], // Asumiendo estructura { data: [], meta: {} } del backend
+  184 |     columns,
+  185 |     state: {  react-hooks/incompatible-library
+
+D:\DEV\tramite_frontend\src\hooks\use-search-params-schema.ts
+   2:1  error  All imports in the declaration are only used as types. Use `import type`  @typescript-eslint/consistent-type-imports
+  12:7  error  Unexpected console statement                                              no-console
+
+D:\DEV\tramite_frontend\src\hooks\use-table-url-state.ts
+  14:43  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\DEV\tramite_frontend\src\lib\handle-server-error.ts
+  5:28  error  Unexpected console statement  no-console
+
+D:\DEV\tramite_frontend\src\main.tsx
+  26:34  error  Unexpected console statement  no-console
+
+D:\DEV\tramite_frontend\src\routes\_authenticated\admin\oficinas.tsx
+   5:1   error  All imports in the declaration are only used as types. Use `import type`  @typescript-eslint/consistent-type-imports
+  24:1   error  Imports "Oficina" are only used as type                                   @typescript-eslint/consistent-type-imports
+  27:1   error  All imports in the declaration are only used as types. Use `import type`  @typescript-eslint/consistent-type-imports
+  84:22  error  Unexpected any. Specify a different type                                  @typescript-eslint/no-explicit-any
+
+D:\DEV\tramite_frontend\src\routes\_authenticated\admin\tipos-documento.tsx
+   28:1   error  All imports in the declaration are only used as types. Use `import type`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       @typescript-eslint/consistent-type-imports
+   75:22  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       @typescript-eslint/no-explicit-any
+  136:5   error  Compilation Skipped: Existing memoization could not be preserved
+
+React Compiler has skipped optimizing this component because the existing manual memoization could not be preserved. The inferred dependencies did not match the manually specified dependencies, which could cause the value to change more or less frequently than expected. The inferred dependency was `openForm`, but the source dependencies were []. Inferred dependency not present in source.
+
+D:\DEV\tramite_frontend\src\routes\_authenticated\admin\tipos-documento.tsx:136:5
+  134 |   // Se pasan los manejadores a la función que crea las columnas
+  135 |   const columns = React.useMemo(
+> 136 |     () =>
+      |     ^^^^^
+> 137 |       createTiposDocumentoColumns({
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 138 |         onEdit: openForm,
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 139 |         onDelete: openDeleteDialog,
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 140 |       }),
+      | ^^^^^^^^^ Could not preserve existing manual memoization
+  141 |     []
+  142 |   )
+  143 |          react-hooks/preserve-manual-memoization
+  136:5   error  Compilation Skipped: Existing memoization could not be preserved
+
+React Compiler has skipped optimizing this component because the existing manual memoization could not be preserved. The inferred dependencies did not match the manually specified dependencies, which could cause the value to change more or less frequently than expected. The inferred dependency was `openDeleteDialog`, but the source dependencies were []. Inferred dependency not present in source.
+
+D:\DEV\tramite_frontend\src\routes\_authenticated\admin\tipos-documento.tsx:136:5
+  134 |   // Se pasan los manejadores a la función que crea las columnas
+  135 |   const columns = React.useMemo(
+> 136 |     () =>
+      |     ^^^^^
+> 137 |       createTiposDocumentoColumns({
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 138 |         onEdit: openForm,
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 139 |         onDelete: openDeleteDialog,
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 140 |       }),
+      | ^^^^^^^^^ Could not preserve existing manual memoization
+  141 |     []
+  142 |   )
+  143 |  react-hooks/preserve-manual-memoization
+
+D:\DEV\tramite_frontend\src\routes\_authenticated\admin\usuarios.tsx
+    4:1   error    Imports "PaginationState", "ColumnFiltersState", "SortingState" and "VisibilityState" are only used as type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  @typescript-eslint/consistent-type-imports
+  118:40  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     @typescript-eslint/no-explicit-any
+  122:22  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     @typescript-eslint/no-explicit-any
+  141:43  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     @typescript-eslint/no-explicit-any
+  144:22  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     @typescript-eslint/no-explicit-any
+  149:27  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     @typescript-eslint/no-explicit-any
+  158:37  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     @typescript-eslint/no-explicit-any
+  166:24  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     @typescript-eslint/no-explicit-any
+  175:24  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     @typescript-eslint/no-explicit-any
+  185:17  warning  Compilation Skipped: Use of incompatible library
+
+This API returns functions which cannot be memoized without leading to stale UI. To prevent this, by default React Compiler will skip memoizing this component/hook. However, you may see issues if values from this API are passed to other components/hooks that are memoized.
+
+D:\DEV\tramite_frontend\src\routes\_authenticated\admin\usuarios.tsx:185:17
+  183 |
+  184 |   // --- INSTANCIA DE LA TABLA ---
+> 185 |   const table = useReactTable({
+      |                 ^^^^^^^^^^^^^ TanStack Table's `useReactTable()` API returns functions that cannot be memoized safely
+  186 |     data: usersData?.data || [],
+  187 |     columns,
+  188 |     state: {  react-hooks/incompatible-library
+  230:30  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     @typescript-eslint/no-explicit-any
+
+D:\DEV\tramite_frontend\src\routes\_authenticated\tramites\index.tsx
+    4:1   error    Imports "PaginationState", "ColumnFiltersState" and "SortingState" are only used as type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              @typescript-eslint/consistent-type-imports
+   14:1   error    All imports in the declaration are only used as types. Use `import type`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              @typescript-eslint/consistent-type-imports
+   87:29  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              @typescript-eslint/no-explicit-any
+   91:26  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              @typescript-eslint/no-explicit-any
+  138:47  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              @typescript-eslint/no-explicit-any
+  145:22  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              @typescript-eslint/no-explicit-any
+  154:50  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              @typescript-eslint/no-explicit-any
+  159:22  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              @typescript-eslint/no-explicit-any
+  165:27  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              @typescript-eslint/no-explicit-any
+  175:44  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              @typescript-eslint/no-explicit-any
+  183:24  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              @typescript-eslint/no-explicit-any
+  192:24  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              @typescript-eslint/no-explicit-any
+  206:22  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              @typescript-eslint/no-explicit-any
+  217:22  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              @typescript-eslint/no-explicit-any
+  259:17  warning  Compilation Skipped: Use of incompatible library
+
+This API returns functions which cannot be memoized without leading to stale UI. To prevent this, by default React Compiler will skip memoizing this component/hook. However, you may see issues if values from this API are passed to other components/hooks that are memoized.
+
+D:\DEV\tramite_frontend\src\routes\_authenticated\tramites\index.tsx:259:17
+  257 |
+  258 |   // --- Tabla ---
+> 259 |   const table = useReactTable({
+      |                 ^^^^^^^^^^^^^ TanStack Table's `useReactTable()` API returns functions that cannot be memoized safely
+  260 |     data: tramitesData?.data || [],
+  261 |     columns,
+  262 |     state: { pagination, columnFilters, sorting },  react-hooks/incompatible-library
+
+✖ 109 problems (100 errors, 9 warnings)
+  38 errors and 0 warnings potentially fixable with the `--fix` option.
+

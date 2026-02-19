@@ -7,10 +7,12 @@ import {
   getFacetedRowModel,
   getFacetedUniqueValues,
   getFilteredRowModel,
-  PaginationState,
-  ColumnFiltersState,
-  SortingState,
-  VisibilityState,
+  type PaginationState,
+  type ColumnFiltersState,
+  type SortingState,
+  type VisibilityState,
+  type Updater,
+  type ColumnFilter,
 } from '@tanstack/react-table'
 import api from '@/lib/api'
 import { createUsersColumns } from './components/users-columns'
@@ -108,7 +110,7 @@ function UsersPageContent() {
     pageSize: searchParams.limit || 10,
   }
 
-  const onPaginationChange = (updater: any) => {
+  const onPaginationChange = (updater: Updater<PaginationState>) => {
     const next = typeof updater === 'function' ? updater(pagination) : updater
     navigate({
       to: '.',
@@ -131,26 +133,30 @@ function UsersPageContent() {
     return filters
   }, [searchParams])
 
-  const onColumnFiltersChange = (updater: any) => {
+  const onColumnFiltersChange = (updater: Updater<ColumnFiltersState>) => {
     const next =
       typeof updater === 'function' ? updater(columnFilters) : updater
-    const newParams: any = { ...searchParams, page: 1 }
+    const newParams = { ...searchParams, page: 1 } as UsersSearchParams
 
     // Reseteamos filtros previos en URL
     delete newParams.role
     delete newParams.activo
 
     // Aplicamos nuevos filtros
-    next.forEach((filter: any) => {
-      if (filter.id === 'role') newParams.role = filter.value
-      if (filter.id === 'isActive') newParams.activo = filter.value?.[0]
+    next.forEach((filter: ColumnFilter) => {
+      if (filter.id === 'role') newParams.role = filter.value as string[]
+      if (filter.id === 'isActive')
+        newParams.activo = (filter.value as string[])?.[0] as
+          | 'true'
+          | 'false'
+          | undefined
     })
 
     navigate({ to: '.', search: newParams, replace: true })
   }
 
   // Sincronización Ordenamiento -> URL (Restaura clic en cabeceras)
-  const onSortingChange = (updater: any) => {
+  const onSortingChange = (updater: Updater<SortingState>) => {
     const next = typeof updater === 'function' ? updater(sorting) : updater
     setSorting(next)
 

@@ -2,7 +2,6 @@ import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { MailPlus, Send } from 'lucide-react'
-import { showSubmittedData } from '@/lib/show-submitted-data'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -24,7 +23,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { SelectDropdown } from '@/components/select-dropdown'
-import { roles } from '../data/data'
+import { rolesOptions } from '../data/data'
 
 const formSchema = z.object({
   email: z.email({
@@ -51,9 +50,9 @@ export function UsersInviteDialog({
     defaultValues: { email: '', role: '', desc: '' },
   })
 
-  const onSubmit = (values: UserInviteForm) => {
+  const onSubmit = (_values: UserInviteForm) => {
     form.reset()
-    showSubmittedData(values)
+
     onOpenChange(false)
   }
 
@@ -108,7 +107,7 @@ export function UsersInviteDialog({
                     defaultValue={field.value}
                     onValueChange={field.onChange}
                     placeholder='Select a role'
-                    items={roles.map(({ label, value }) => ({
+                    items={rolesOptions.map(({ label, value }) => ({
                       label,
                       value,
                     }))}

@@ -1,9 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Table } from '@tanstack/react-table'
+import { type Table } from '@tanstack/react-table'
 import { X, Search } from 'lucide-react'
-import { DateRange } from 'react-day-picker'
+import { type DateRange } from 'react-day-picker'
 import { useDebounce } from '@/hooks/use-debounce'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -64,9 +64,7 @@ export function TramitesTableToolbar<TData>({
 
   // Sincronizar input local si el filtro global cambia externamente (ej: botón limpiar)
   useEffect(() => {
-    if (globalFilter !== searchValue) {
-      setSearchValue(globalFilter)
-    }
+    setSearchValue(globalFilter)
   }, [globalFilter])
 
   return (

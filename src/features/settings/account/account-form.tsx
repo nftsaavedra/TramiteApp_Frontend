@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { z } from 'zod'
+import { type AxiosError } from 'axios'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
@@ -58,11 +59,13 @@ export function AccountForm() {
 
       toast.success('Contraseña actualizada correctamente')
       form.reset()
-    } catch (error: any) {
-      console.error(error)
+    } catch (error: unknown) {
+      // eslint-disable-next-line no-console
+      if (import.meta.env.DEV) console.error(error)
       // Manejamos el mensaje de error del backend si existe
       const message =
-        error.response?.data?.message || 'Error al actualizar la contraseña'
+        (error as AxiosError<{ message?: string }>).response?.data?.message ||
+        'Error al actualizar la contraseña'
       toast.error(message)
     } finally {
       setLoading(false)

@@ -7,7 +7,6 @@ import {
   StickyNote,
   AlertTriangle,
   History as HistoryIcon,
-  FileText,
   Calendar,
   Send,
   CheckCircle2,

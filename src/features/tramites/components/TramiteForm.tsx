@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { type AxiosError } from 'axios'
 import { format } from 'date-fns'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -128,8 +129,9 @@ export function TramiteForm() {
         search: { page: 1, limit: 10 },
       })
     },
-    onError: (err: any) => {
-      console.error(err)
+    onError: (err: AxiosError<{ message?: string }>) => {
+      // eslint-disable-next-line no-console
+      if (import.meta.env.DEV) console.error(err)
       toast.error(err.response?.data?.message || 'Error al crear trámite')
     },
   })
@@ -144,7 +146,7 @@ export function TramiteForm() {
     searchLabel,
     disabled,
   }: {
-    options: any[]
+    options: { id: string; nombre: string; siglas?: string }[]
     value?: string
     onChange: (val: string) => void
     placeholder: string

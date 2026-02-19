@@ -3,8 +3,8 @@
 'use client'
 
 import { DotsHorizontalIcon } from '@radix-ui/react-icons'
-import { ColumnDef } from '@tanstack/react-table'
-import { TipoDocumento } from '@/routes/_authenticated/admin/tipos-documento'
+import { type ColumnDef } from '@tanstack/react-table'
+import { type TipoDocumento } from '@/routes/_authenticated/admin/tipos-documento'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,

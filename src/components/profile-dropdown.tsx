@@ -4,7 +4,7 @@ import { LogOut, Settings, User } from 'lucide-react'
 // 1. Iconos actualizados
 import { useAuth } from '@/context/AuthContext'
 // 2. Importa nuestro hook de autenticación
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -68,6 +68,5 @@ export function ProfileDropdown() {
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-    // 8. El SignOutDialog y su lógica han sido eliminados.
   )
 }

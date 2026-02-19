@@ -5,9 +5,9 @@
 import * as React from 'react'
 import { PlusCircledIcon } from '@radix-ui/react-icons'
 import {
-  ColumnDef,
-  ColumnFiltersState,
-  SortingState,
+  type ColumnDef,
+  type ColumnFiltersState,
+  type SortingState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
@@ -15,7 +15,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import { TipoDocumento } from '@/routes/_authenticated/admin/tipos-documento'
+import { type TipoDocumento } from '@/routes/_authenticated/admin/tipos-documento'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {

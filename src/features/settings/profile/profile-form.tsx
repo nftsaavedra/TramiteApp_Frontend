@@ -63,7 +63,8 @@ export function ProfileForm() {
         await login(token)
       }
     } catch (error) {
-      console.error(error)
+      // eslint-disable-next-line no-console
+      if (import.meta.env.DEV) console.error(error)
       toast.error('Error al actualizar el perfil')
     } finally {
       setLoading(false)

@@ -1,6 +1,7 @@
 // En: src/features/tramites/components/RegistrarMovimientoForm.tsx
 import { useState, useEffect } from 'react'
 import * as z from 'zod'
+import { type AxiosError } from 'axios'
 import { format } from 'date-fns'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -102,6 +103,7 @@ const fetchTiposDocumento = async (): Promise<TipoDocumento[]> =>
 
 interface RegistrarMovimientoFormProps {
   tramiteId: string
+  oficinaActualNombre?: string
   open: boolean
   onOpenChange: (open: boolean) => void
 }
@@ -167,8 +169,9 @@ export function RegistrarMovimientoForm({
       onOpenChange(false)
       form.reset()
     },
-    onError: (error: any) => {
-      console.error('Error al registrar el movimiento:', error)
+    onError: (error: AxiosError<{ message?: string }>) => {
+      if (import.meta.env.DEV)
+        console.error('Error al registrar el movimiento:', error) // eslint-disable-line no-console
       toast.error(
         error.response?.data?.message ||
           'Hubo un error al registrar el movimiento.'
@@ -189,7 +192,7 @@ export function RegistrarMovimientoForm({
     searchLabel,
     disabled,
   }: {
-    options: any[]
+    options: { id: string; nombre: string; siglas?: string }[]
     value?: string
     onChange: (val: string) => void
     placeholder: string

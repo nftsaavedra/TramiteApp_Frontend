@@ -8,7 +8,7 @@ import {
   // Nuevo icono para salida
   ArrowDownLeft, // Nuevo icono para entrada
 } from 'lucide-react'
-import { TramiteCompleto, Movimiento } from '../types'
+import { type TramiteCompleto, type Movimiento } from '../types'
 
 /**
  * Determina la ubicación actual del trámite basándose en la trazabilidad.

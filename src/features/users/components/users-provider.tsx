@@ -1,15 +1,16 @@
 // En: src/features/users/components/users-provider.tsx
 import React from 'react'
+import { type AxiosError, type AxiosResponse } from 'axios'
 import {
   useQuery,
   useMutation,
   useQueryClient,
-  UseQueryResult,
-  UseMutationResult,
+  type UseQueryResult,
+  type UseMutationResult,
 } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import api from '@/lib/api'
-import { UserFormValues } from '../data/schema'
+import { type UserFormValues } from '../data/schema'
 
 // --- Tipos de Datos Centralizados para el Módulo ---
 export type User = {
@@ -46,14 +47,19 @@ type UsersContextType = {
   oficinasQuery: UseQueryResult<Oficina[], Error>
 
   // Mutaciones de React Query
-  createMutation: UseMutationResult<any, Error, UserFormValues, unknown>
+  createMutation: UseMutationResult<
+    AxiosResponse,
+    Error,
+    UserFormValues,
+    unknown
+  >
   updateMutation: UseMutationResult<
-    any,
+    AxiosResponse,
     Error,
     { id: string } & Partial<UserFormValues>,
     unknown
   >
-  deleteMutation: UseMutationResult<any, Error, string, unknown>
+  deleteMutation: UseMutationResult<AxiosResponse, Error, string, unknown>
 }
 
 const UsersContext = React.createContext<UsersContextType | null>(null)
@@ -99,7 +105,7 @@ export function UsersProvider({ children }: { children: React.ReactNode }) {
       setOpenDialog(null)
       setSelectedUser(null)
     },
-    onError: (error: any) => {
+    onError: (error: AxiosError<{ message?: string }>) => {
       toast.error(
         `Error: ${error.response?.data?.message || 'No se pudo realizar la operación.'}`
       )

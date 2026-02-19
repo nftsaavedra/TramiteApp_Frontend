@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Oficina } from './columns'
+import { type Oficina } from './columns'
 
 // En: src/features/admin/oficinas/components/oficinas-row-actions.tsx
 

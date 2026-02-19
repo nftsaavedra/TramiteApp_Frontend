@@ -3,7 +3,7 @@ import {
   useState,
   useContext,
   useEffect,
-  ReactNode,
+  type ReactNode,
 } from 'react'
 // Eliminamos jwt-decode de la lógica principal de rehidratación
 // para confiar en la respuesta real del servidor, aunque puedes mantenerlo si necesitas leer datos antes.
@@ -49,7 +49,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const { data } = await api.get<UserProfile>('/auth/profile')
         setUser(data)
       } catch (error) {
-        console.error('Error al rehidratar sesión:', error)
+        if (import.meta.env.DEV)
+          console.error('Error al rehidratar sesión:', error) // eslint-disable-line no-console
         // Si el backend rechaza el token (401), limpiamos todo
         logout()
       } finally {
@@ -69,7 +70,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const { data } = await api.get<UserProfile>('/auth/profile')
       setUser(data)
     } catch (error) {
-      console.error('Error obteniendo perfil tras login', error)
+      if (import.meta.env.DEV)
+        console.error('Error obteniendo perfil tras login', error) // eslint-disable-line no-console
     }
   }
 

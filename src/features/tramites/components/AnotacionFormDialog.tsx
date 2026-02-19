@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import * as z from 'zod'
+import { type AxiosError } from 'axios'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -61,7 +62,7 @@ export function AnotacionFormDialog({
       form.reset()
       setOpen(false)
     },
-    onError: (error: any) => {
+    onError: (error: AxiosError<{ message?: string }>) => {
       toast.error(
         error.response?.data?.message || 'Error al añadir la anotación.'
       )

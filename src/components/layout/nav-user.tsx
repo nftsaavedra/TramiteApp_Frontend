@@ -84,7 +84,7 @@ export function NavUser({ user }: NavUserProps) {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link to='/settings/notifications'>
+                <Link to='/settings'>
                   <Bell />
                   Notificaciones
                 </Link>
@@ -100,6 +100,5 @@ export function NavUser({ user }: NavUserProps) {
         </DropdownMenu>
       </SidebarMenuItem>
     </SidebarMenu>
-    // 4. El componente SignOutDialog se ha eliminado
   )
 }

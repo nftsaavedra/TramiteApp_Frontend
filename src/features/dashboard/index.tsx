@@ -23,9 +23,9 @@ import { VolumenChart } from './components/ResumenMensual'
 import { StatCard } from './components/StatCard'
 import {
   dashboardService,
-  DashboardStats,
-  VolumeStat,
-  RecentActivity,
+  type DashboardStats,
+  type VolumeStat,
+  type RecentActivity,
 } from './services/dashboard.service'
 
 type TimeUnit = 'week' | 'month' | 'year'
@@ -77,7 +77,8 @@ export function Dashboard() {
         setVolumeData(volData)
         setRecentActivity(activityData)
       } catch (error) {
-        console.error('Error fetching dashboard data:', error)
+        if (import.meta.env.DEV)
+          console.error('Error fetching dashboard data:', error) // eslint-disable-line no-console
       } finally {
         setLoading(false)
       }

@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { UserFormValues } from '../data/schema'
+import { type UserFormValues } from '../data/schema'
 import { UserForm } from './user-form'
 import { useUsers } from './users-provider'
 

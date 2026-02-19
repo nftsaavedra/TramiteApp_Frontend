@@ -1,7 +1,7 @@
 'use client'
 
 import { Link } from '@tanstack/react-router'
-import { ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@tanstack/react-table'
 import {
   AlertCircle,
   Clock,
@@ -10,6 +10,7 @@ import {
   Archive,
   FileText,
   Eye,
+  type LucideIcon,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
@@ -78,7 +79,7 @@ const prioridadConfig: Record<
   {
     label: string
     color: 'default' | 'secondary' | 'destructive' | 'outline'
-    icon?: any
+    icon?: LucideIcon
   }
 > = {
   URGENTE: { label: 'Urgente', color: 'destructive', icon: AlertCircle },
@@ -89,7 +90,7 @@ const prioridadConfig: Record<
 
 const estadoConfig: Record<
   string,
-  { label: string; className: string; icon: any }
+  { label: string; className: string; icon: LucideIcon }
 > = {
   EN_PROCESO: {
     label: 'En Curso',

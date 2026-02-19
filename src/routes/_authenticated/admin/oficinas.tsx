@@ -1,8 +1,9 @@
 // En: src/routes/_authenticated/admin/oficinas.tsx
 import * as React from 'react'
+import { type AxiosError } from 'axios'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
-import { ColumnFiltersState } from '@tanstack/react-table'
+import { type ColumnFiltersState } from '@tanstack/react-table'
 import { toast } from 'sonner'
 import api from '@/lib/api'
 import {
@@ -21,10 +22,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { columns, Oficina } from '@/features/admin/oficinas/components/columns'
+import {
+  columns,
+  type Oficina,
+} from '@/features/admin/oficinas/components/columns'
 import { OficinaForm } from '@/features/admin/oficinas/components/oficina-form'
 import { OficinasDataTable } from '@/features/admin/oficinas/components/oficinas-table'
-import { OficinaFormValues } from '@/features/admin/oficinas/data/schema'
+import { type OficinaFormValues } from '@/features/admin/oficinas/data/schema'
 
 export const Route = createFileRoute('/_authenticated/admin/oficinas')({
   component: AdminOficinas,
@@ -81,7 +85,7 @@ function AdminOficinas() {
       queryClient.invalidateQueries({ queryKey: ['oficinas'] })
       closeDialogs()
     },
-    onError: (error: any) => {
+    onError: (error: AxiosError<{ message?: string }>) => {
       toast.error(
         `Error: ${error.response?.data?.message || 'No se pudo realizar la operación.'}`
       )
