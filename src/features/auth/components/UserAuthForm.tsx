@@ -185,6 +185,7 @@ export function UserAuthForm() {
                       className='absolute top-0 right-0 h-11 w-11 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 disabled:opacity-50 disabled:cursor-not-allowed'
                       disabled={!isConnected}
                       onClick={() => setShowPassword(!showPassword)}
+                      aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                     >
                       {showPassword ? (
                         <EyeOff className='h-4 w-4' />

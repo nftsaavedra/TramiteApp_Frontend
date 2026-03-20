@@ -26,7 +26,11 @@ export function LearnMore({
         {...triggerProps}
         className={cn('size-5 rounded-full', triggerProps?.className)}
       >
-        <Button variant='outline' size='icon'>
+        <Button 
+          variant='outline' 
+          size='icon'
+          aria-label="Más información"
+        >
           <span className='sr-only'>Learn more</span>
           <CircleQuestionMark className='size-4 [&>circle]:hidden' />
         </Button>
