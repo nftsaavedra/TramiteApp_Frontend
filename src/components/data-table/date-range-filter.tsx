@@ -38,7 +38,7 @@ export function DateRangeFilter({
         value={type}
         onValueChange={(val) => onTypeChange(val as 'documento' | 'registro')}
       >
-        <SelectTrigger className='h-8 w-[150px] text-xs'>
+        <SelectTrigger className='h-8 w-[120px] sm:w-[150px] text-xs'>
           <SelectValue placeholder='Tipo de fecha' />
         </SelectTrigger>
         <SelectContent>
@@ -55,7 +55,7 @@ export function DateRangeFilter({
             variant={'outline'}
             size='sm'
             className={cn(
-              'h-8 w-[230px] justify-start text-left font-normal',
+              'h-8 w-full sm:w-[230px] justify-start text-left font-normal',
               !date && 'text-muted-foreground'
             )}
           >

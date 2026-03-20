@@ -52,7 +52,7 @@ export function AccountForm() {
   async function onSubmit(data: AccountFormValues) {
     setLoading(true)
     try {
-      await api.patch('/auth/change-password', {
+      await api.patch('/api/auth/change-password', {
         currentPassword: data.currentPassword,
         newPassword: data.newPassword,
       })

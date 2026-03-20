@@ -108,7 +108,7 @@ export function ConnectionStatusIndicator() {
         <TooltipContent 
           side="bottom" 
           align="end"
-          className="p-4 min-w-[250px]"
+          className="p-4 min-w-[200px] sm:min-w-[250px]"
         >
           <div className="space-y-2">
             <div className="flex items-center justify-between">

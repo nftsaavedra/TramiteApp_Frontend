@@ -75,13 +75,13 @@ const fetchOficinas = async (): Promise<Oficina[]> => {
   return Array.isArray(data) ? data : []
 }
 
-const createUser = (newData: UserFormValues) => api.post('/users', newData)
+const createUser = (newData: UserFormValues) => api.post('/api/users', newData)
 const updateUser = ({
   id,
   ...updateData
 }: { id: string } & Partial<UserFormValues>) =>
-  api.patch(`/users/${id}`, updateData)
-const deleteUser = (id: string) => api.delete(`/users/${id}`)
+  api.patch(`/api/users/${id}`, updateData)
+const deleteUser = (id: string) => api.delete(`/api/users/${id}`)
 
 // --- El Componente Provider ---
 export function UsersProvider({ children }: { children: React.ReactNode }) {

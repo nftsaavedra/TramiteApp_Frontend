@@ -28,9 +28,24 @@ export function DataTableToolbar<TData>({
 }: DataTableToolbarProps<TData>) {
   const isFiltered =
     table.getState().columnFilters.length > 0 || table.getState().globalFilter
+  const filteredCount = table.getFilteredRowModel().rows.length
+  const totalCount = table.getRowCount()
 
   return (
-    <div className='flex items-center justify-between'>
+    <>
+      {/* ARIA Live Region para screen readers */}
+      <div 
+        role="status" 
+        aria-live="polite" 
+        aria-atomic="true" 
+        className="sr-only"
+      >
+        {isFiltered 
+          ? `${filteredCount} de ${totalCount} resultados mostrados` 
+          : `${totalCount} resultados mostrados`}
+      </div>
+
+      <div className='flex items-center justify-between'>
       <div className='flex flex-1 flex-col-reverse items-start gap-y-2 sm:flex-row sm:items-center sm:space-x-2'>
         {searchKey ? (
           <Input
@@ -41,14 +56,14 @@ export function DataTableToolbar<TData>({
             onChange={(event) =>
               table.getColumn(searchKey)?.setFilterValue(event.target.value)
             }
-            className='h-8 w-[150px] lg:w-[250px]'
+            className='h-8 w-full sm:w-[150px] lg:w-[250px]'
           />
         ) : (
           <Input
             placeholder={searchPlaceholder}
             value={table.getState().globalFilter ?? ''}
             onChange={(event) => table.setGlobalFilter(event.target.value)}
-            className='h-8 w-[150px] lg:w-[250px]'
+            className='h-8 w-full sm:w-[150px] lg:w-[250px]'
           />
         )}
         <div className='flex gap-x-2'>
@@ -81,5 +96,6 @@ export function DataTableToolbar<TData>({
       </div>
       <DataTableViewOptions table={table} />
     </div>
+    </>
   )
 }

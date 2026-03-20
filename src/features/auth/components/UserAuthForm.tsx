@@ -32,7 +32,7 @@ export function UserAuthForm() {
   const [showPassword, setShowPassword] = useState(false)
   
   // Hook de estado de conexión WebSocket
-  const { status, isConnected } = useWebSocketStatus({
+  const { isConnected } = useWebSocketStatus({
     autoReconnect: true,
     reconnectInterval: 3000,
     maxReconnectAttempts: 10,
@@ -47,45 +47,49 @@ export function UserAuthForm() {
   // Limpiar formulario cuando se reconecta
   useEffect(() => {
     if (isConnected && authError) {
-      setAuthError(null)
-      form.reset()
+      const timer = setTimeout(() => {
+        setAuthError(null)
+        form.reset()
+      }, 0)
+      return () => clearTimeout(timer)
     }
-  }, [isConnected])
+  }, [isConnected, authError, form])
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setAuthError(null)
     try {
       const response = await api.post('/api/auth/login', values)
-      const { access_token, message } = response.data
+      const { access_token } = response.data
       if (access_token) {
         login(access_token)
         navigate({ to: '/' })
       }
-    } catch (error: any) {
-      if (import.meta.env.DEV) console.error('Error de autenticación:', error) // eslint-disable-line no-console
+    } catch (error: unknown) {
+      const err = error as { code?: string; response?: { status?: number; data?: { code?: string; message?: string } } }
+      if (import.meta.env.DEV) console.error('Error de autenticación:', err) // eslint-disable-line no-console
       
       // Manejo diferenciado de errores
       let errorMessage = 'Error al intentar ingresar. Por favor, inténtelo nuevamente.'
       
-      if (error.code === 'ERR_NETWORK') {
+      if (err.code === 'ERR_NETWORK') {
         // Error de conexión con el servidor
         errorMessage = 'No se pudo conectar con el servidor. Verifique su conexión a internet.'
-      } else if (error.response?.status === 0) {
+      } else if (err.response?.status === 0) {
         // Servidor no responde
         errorMessage = 'El servidor no está disponible. Intente más tarde.'
-      } else if (error.response?.status === 503) {
+      } else if (err.response?.status === 503) {
         // Servicio no disponible
         errorMessage = 'Servicio temporalmente no disponible. Intente en unos minutos.'
-      } else if (error.response?.data?.code === 'INVALID_CREDENTIALS') {
+      } else if (err.response?.data?.code === 'INVALID_CREDENTIALS') {
         // Credenciales inválidas específicas
         errorMessage = 'Correo electrónico o contraseña incorrectos.'
-      } else if (error.response?.data?.message) {
+      } else if (err.response?.data?.message) {
         // Mensaje específico del backend
-        errorMessage = error.response.data.message
-      } else if (error.response?.status === 401) {
+        errorMessage = err.response.data.message
+      } else if (err.response?.status === 401) {
         // No autorizado genérico
         errorMessage = 'Credenciales incorrectas. Verifique sus datos.'
-      } else if (error.response?.status === 500) {
+      } else if (err.response?.status === 500) {
         // Error interno del servidor
         errorMessage = 'Error interno del servidor. Por favor, inténtelo más tarde.'
       }

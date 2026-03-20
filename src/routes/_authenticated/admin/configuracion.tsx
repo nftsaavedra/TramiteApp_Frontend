@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import { createFileRoute } from '@tanstack/react-router'
 import api from '@/lib/api'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
@@ -12,6 +13,10 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Loader2, Building2, Key, UserCheck, RefreshCw } from 'lucide-react'
+
+export const Route = createFileRoute('/_authenticated/admin/configuracion')({
+  component: ConfiguracionSistema,
+})
 
 const systemConfigSchema = z.object({
   rootOfficeName: z.string().min(5, 'El nombre debe tener al menos 5 caracteres'),
@@ -38,9 +43,10 @@ export function ConfiguracionSistema() {
       try {
         const response = await api.get('/api/system-config')
         return response.data
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const err = error as { response?: { status?: number; data?: { message?: string } } }
         // Si el error es que no está inicializado, retornar null
-        if (error.response?.status === 500 || error.response?.data?.message?.includes('no inicializado')) {
+        if (err.response?.status === 500 || err.response?.data?.message?.includes('no inicializado')) {
           return null
         }
         throw error
@@ -80,8 +86,9 @@ export function ConfiguracionSistema() {
       queryClient.invalidateQueries({ queryKey: ['system-config'] })
       setIsInitializing(false)
     },
-    onError: (error: any) => {
-      toast.error(error.response?.data?.message || 'Error al inicializar el sistema')
+    onError: (error: unknown) => {
+      const err = error as { response?: { data?: { message?: string } } }
+      toast.error(err.response?.data?.message || 'Error al inicializar el sistema')
       setIsInitializing(false)
     },
   })
@@ -97,8 +104,9 @@ export function ConfiguracionSistema() {
       queryClient.invalidateQueries({ queryKey: ['system-config'] })
       setIsUpdating(false)
     },
-    onError: (error: any) => {
-      toast.error(error.response?.data?.message || 'Error al actualizar la configuración')
+    onError: (error: unknown) => {
+      const err = error as { response?: { data?: { message?: string } } }
+      toast.error(err.response?.data?.message || 'Error al actualizar la configuración')
       setIsUpdating(false)
     },
   })
@@ -323,7 +331,7 @@ export function ConfiguracionSistema() {
 
                 {config.isInitialized && (
                   <p className="text-xs text-muted-foreground">
-                    Última actualización: {new Date(configData?.data?.isInitialized ? Date.now() : 0).toLocaleString()}
+                    Última actualización: {new Date().toLocaleString()}
                   </p>
                 )}
               </div>

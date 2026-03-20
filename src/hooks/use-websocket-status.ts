@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
-import { io, Socket } from 'socket.io-client';
+import { useEffect, useRef, useState, useCallback } from 'react'
+import { io, type Socket } from 'socket.io-client'
 
 export type ConnectionStatus = 'online' | 'offline' | 'connecting' | 'degraded';
 
@@ -49,19 +49,15 @@ export function useWebSocketStatus(options: UseWebSocketStatusOptions = {}) {
     });
 
     socket.on('connect', () => {
-      setStatus('online');
-      reconnectAttemptsRef.current = 0;
-      console.log('✅ WebSocket conectado');
-    });
+      setStatus('online')
+      reconnectAttemptsRef.current = 0
+    })
 
-    socket.on('disconnect', (reason) => {
-      console.log('❌ WebSocket desconectado:', reason);
-      
+    socket.on('disconnect', (_reason) => {
       if (autoReconnect && reconnectAttemptsRef.current < maxReconnectAttempts) {
         setStatus('connecting');
-        reconnectAttemptsRef.current += 1;
-        console.log(`🔄 Intento de reconexión ${reconnectAttemptsRef.current}/${maxReconnectAttempts} en ${reconnectInterval}ms`);
-        
+        reconnectAttemptsRef.current += 1
+                
         if (reconnectTimeoutRef.current) {
           clearTimeout(reconnectTimeoutRef.current);
         }
@@ -70,18 +66,13 @@ export function useWebSocketStatus(options: UseWebSocketStatusOptions = {}) {
           connect();
         }, reconnectInterval);
       } else if (reconnectAttemptsRef.current >= maxReconnectAttempts) {
-        setStatus('offline');
-        console.error('⚠️ Máximo número de reconexiones alcanzado');
+        setStatus('offline')
       } else {
-        setStatus('offline');
+        setStatus('offline')
       }
-    });
+    })
 
-    socket.on('connect_error', (error) => {
-      console.error('🔴 Error de conexión WebSocket:', error.message);
-      setStatus('offline');
-      
-      // Intentar reconectar incluso en caso de error
+    socket.on('connect_error', (_error) => {
       if (autoReconnect && reconnectAttemptsRef.current < maxReconnectAttempts) {
         reconnectAttemptsRef.current += 1;
         
@@ -96,13 +87,12 @@ export function useWebSocketStatus(options: UseWebSocketStatusOptions = {}) {
     });
 
     socket.on('status-update', (data: StatusData) => {
-      setStatusData(data);
+      setStatusData(data)
       // Solo actualizar status si es diferente para evitar ciclos
       if (data.status !== status) {
-        setStatus(data.status);
+        setStatus(data.status)
       }
-      console.log('📡 Actualización de estado:', data);
-    });
+    })
 
     socket.on('pong', (data: { timestamp: number }) => {
       const calculatedLatency = Date.now() - data.timestamp;
@@ -120,8 +110,6 @@ export function useWebSocketStatus(options: UseWebSocketStatusOptions = {}) {
   }, [url, autoReconnect, reconnectInterval, maxReconnectAttempts]); // ← ELIMINAR 'status' de las dependencias
 
   const disconnect = useCallback(() => {
-    console.log('🔌 Desconectando WebSocket...');
-    
     if (reconnectTimeoutRef.current) {
       clearTimeout(reconnectTimeoutRef.current);
       reconnectTimeoutRef.current = null;
@@ -130,9 +118,8 @@ export function useWebSocketStatus(options: UseWebSocketStatusOptions = {}) {
     if (socketRef.current) {
       // Remover todos los listeners antes de desconectar
       socketRef.current.removeAllListeners();
-      socketRef.current.disconnect();
-      socketRef.current = null;
-      console.log('✅ WebSocket desconectado correctamente');
+      socketRef.current.disconnect()
+      socketRef.current = null
     }
 
     setStatus('offline');

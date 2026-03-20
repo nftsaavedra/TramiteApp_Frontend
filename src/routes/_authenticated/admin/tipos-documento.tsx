@@ -46,13 +46,13 @@ const fetchTiposDocumento = async (): Promise<TipoDocumento[]> => {
   return Array.isArray(data) ? data : []
 }
 const createTipoDocumento = (newData: TipoDocumentoFormValues) =>
-  api.post('/tipos-documento', newData)
+  api.post('/api/tipos-documento', newData)
 const updateTipoDocumento = ({
   id,
   ...updateData
 }: { id: string } & TipoDocumentoFormValues) =>
-  api.patch(`/tipos-documento/${id}`, updateData)
-const deleteTipoDocumento = (id: string) => api.delete(`/tipos-documento/${id}`)
+  api.patch(`/api/tipos-documento/${id}`, updateData)
+const deleteTipoDocumento = (id: string) => api.delete(`/api/tipos-documento/${id}`)
 
 function AdminTiposDocumento() {
   const queryClient = useQueryClient()

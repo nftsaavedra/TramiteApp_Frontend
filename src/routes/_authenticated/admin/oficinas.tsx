@@ -51,13 +51,13 @@ const fetchOficinas = async (
 }
 
 const createOficina = (newData: OficinaFormValues) =>
-  api.post('/oficinas', newData)
+  api.post('/api/oficinas', newData)
 const updateOficina = ({
   id,
   ...updateData
 }: { id: string } & OficinaFormValues) =>
-  api.patch(`/oficinas/${id}`, updateData)
-const deleteOficina = (id: string) => api.delete(`/oficinas/${id}`)
+  api.patch(`/api/oficinas/${id}`, updateData)
+const deleteOficina = (id: string) => api.delete(`/api/oficinas/${id}`)
 
 function AdminOficinas() {
   const queryClient = useQueryClient()

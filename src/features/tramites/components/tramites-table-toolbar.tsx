@@ -81,7 +81,7 @@ export function TramitesTableToolbar<TData>({
                 setSearchValue(event.target.value)
                 // ELIMINADO: onGlobalFilterChange inmediato
               }}
-              className='h-8 w-[250px] pl-8 lg:w-[350px]'
+              className='h-8 w-full sm:w-[250px] lg:w-[350px]'
             />
           </div>
 

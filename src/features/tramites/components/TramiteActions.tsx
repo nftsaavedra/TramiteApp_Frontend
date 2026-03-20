@@ -52,7 +52,7 @@ export function TramiteActions({ tramite }: TramiteActionsProps) {
   // Mutación para Finalizar
   const finalizarMutation = useMutation({
     mutationFn: (data: { contenido: string }) =>
-      api.patch(`/tramites/${tramite.id}/finalizar`, data),
+      api.patch(`/api/tramites/${tramite.id}/finalizar`, data),
     onSuccess: () => {
       toast.success('Trámite finalizado correctamente')
       setOpenFinalizar(false)
@@ -68,7 +68,7 @@ export function TramiteActions({ tramite }: TramiteActionsProps) {
   // Mutación para Archivar
   const archivarMutation = useMutation({
     mutationFn: (data: { contenido: string }) =>
-      api.patch(`/tramites/${tramite.id}/archivar`, data),
+      api.patch(`/api/tramites/${tramite.id}/archivar`, data),
     onSuccess: () => {
       toast.info('Trámite archivado')
       setOpenArchivar(false)

@@ -27,6 +27,7 @@ import { Route as AuthenticatedSettingsAccountRouteImport } from './routes/_auth
 import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authenticated/admin/usuarios'
 import { Route as AuthenticatedAdminTiposDocumentoRouteImport } from './routes/_authenticated/admin/tipos-documento'
 import { Route as AuthenticatedAdminOficinasRouteImport } from './routes/_authenticated/admin/oficinas'
+import { Route as AuthenticatedAdminConfiguracionRouteImport } from './routes/_authenticated/admin/configuracion'
 import { Route as AuthenticatedAdminLayoutRouteImport } from './routes/_authenticated/admin/_layout'
 
 const AuthenticatedAdminRouteImport = createFileRoute('/_authenticated/admin')()
@@ -125,6 +126,12 @@ const AuthenticatedAdminOficinasRoute =
     path: '/oficinas',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminConfiguracionRoute =
+  AuthenticatedAdminConfiguracionRouteImport.update({
+    id: '/configuracion',
+    path: '/configuracion',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminLayoutRoute =
   AuthenticatedAdminLayoutRouteImport.update({
     id: '/_layout',
@@ -138,6 +145,7 @@ export interface FileRoutesByFullPath {
   '/otp': typeof authOtpRoute
   '/': typeof AuthenticatedIndexRoute
   '/admin': typeof AuthenticatedAdminLayoutRoute
+  '/admin/configuracion': typeof AuthenticatedAdminConfiguracionRoute
   '/admin/oficinas': typeof AuthenticatedAdminOficinasRoute
   '/admin/tipos-documento': typeof AuthenticatedAdminTiposDocumentoRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
@@ -155,6 +163,7 @@ export interface FileRoutesByTo {
   '/otp': typeof authOtpRoute
   '/': typeof AuthenticatedIndexRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
+  '/admin/configuracion': typeof AuthenticatedAdminConfiguracionRoute
   '/admin/oficinas': typeof AuthenticatedAdminOficinasRoute
   '/admin/tipos-documento': typeof AuthenticatedAdminTiposDocumentoRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
@@ -175,6 +184,7 @@ export interface FileRoutesById {
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/admin/_layout': typeof AuthenticatedAdminLayoutRoute
+  '/_authenticated/admin/configuracion': typeof AuthenticatedAdminConfiguracionRoute
   '/_authenticated/admin/oficinas': typeof AuthenticatedAdminOficinasRoute
   '/_authenticated/admin/tipos-documento': typeof AuthenticatedAdminTiposDocumentoRoute
   '/_authenticated/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
@@ -195,6 +205,7 @@ export interface FileRouteTypes {
     | '/otp'
     | '/'
     | '/admin'
+    | '/admin/configuracion'
     | '/admin/oficinas'
     | '/admin/tipos-documento'
     | '/admin/usuarios'
@@ -212,6 +223,7 @@ export interface FileRouteTypes {
     | '/otp'
     | '/'
     | '/admin'
+    | '/admin/configuracion'
     | '/admin/oficinas'
     | '/admin/tipos-documento'
     | '/admin/usuarios'
@@ -231,6 +243,7 @@ export interface FileRouteTypes {
     | '/_authenticated/'
     | '/_authenticated/admin'
     | '/_authenticated/admin/_layout'
+    | '/_authenticated/admin/configuracion'
     | '/_authenticated/admin/oficinas'
     | '/_authenticated/admin/tipos-documento'
     | '/_authenticated/admin/usuarios'
@@ -371,6 +384,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminOficinasRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/configuracion': {
+      id: '/_authenticated/admin/configuracion'
+      path: '/configuracion'
+      fullPath: '/admin/configuracion'
+      preLoaderRoute: typeof AuthenticatedAdminConfiguracionRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/_layout': {
       id: '/_authenticated/admin/_layout'
       path: '/admin'
@@ -401,6 +421,7 @@ const AuthenticatedSettingsRouteRouteWithChildren =
 
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminLayoutRoute: typeof AuthenticatedAdminLayoutRoute
+  AuthenticatedAdminConfiguracionRoute: typeof AuthenticatedAdminConfiguracionRoute
   AuthenticatedAdminOficinasRoute: typeof AuthenticatedAdminOficinasRoute
   AuthenticatedAdminTiposDocumentoRoute: typeof AuthenticatedAdminTiposDocumentoRoute
   AuthenticatedAdminUsuariosRoute: typeof AuthenticatedAdminUsuariosRoute
@@ -409,6 +430,7 @@ interface AuthenticatedAdminRouteChildren {
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminLayoutRoute: AuthenticatedAdminLayoutRoute,
+  AuthenticatedAdminConfiguracionRoute: AuthenticatedAdminConfiguracionRoute,
   AuthenticatedAdminOficinasRoute: AuthenticatedAdminOficinasRoute,
   AuthenticatedAdminTiposDocumentoRoute: AuthenticatedAdminTiposDocumentoRoute,
   AuthenticatedAdminUsuariosRoute: AuthenticatedAdminUsuariosRoute,

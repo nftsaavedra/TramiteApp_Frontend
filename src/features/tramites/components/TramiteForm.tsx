@@ -120,7 +120,7 @@ export function TramiteForm() {
   }, [tipoRegistro, form])
 
   const createMutation = useMutation({
-    mutationFn: (data: TramiteFormValues) => api.post('/tramites', data),
+    mutationFn: (data: TramiteFormValues) => api.post('/api/tramites', data),
     onSuccess: () => {
       toast.success('Trámite registrado correctamente')
       queryClient.invalidateQueries({ queryKey: ['tramites'] })
@@ -179,7 +179,7 @@ export function TramiteForm() {
             </Button>
           </FormControl>
         </PopoverTrigger>
-        <PopoverContent className='w-[300px] p-0' align='start'>
+        <PopoverContent className='w-[250px] sm:w-[300px] p-0' align='start'>
           <Command>
             <CommandInput placeholder={searchLabel} />
             <CommandList>

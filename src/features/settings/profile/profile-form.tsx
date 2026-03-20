@@ -53,7 +53,7 @@ export function ProfileForm() {
   async function onSubmit(data: ProfileFormValues) {
     setLoading(true)
     try {
-      await api.patch('/auth/profile', data)
+      await api.patch('/api/auth/profile', data)
       toast.success('Perfil actualizado correctamente')
 
       // Actualizamos el contexto de usuario re-invocando login con el mismo token
