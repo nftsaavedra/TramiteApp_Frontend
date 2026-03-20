@@ -66,7 +66,7 @@ const UsersContext = React.createContext<UsersContextType | null>(null)
 
 // --- Funciones de API Aisladas ---
 const fetchUsers = async (): Promise<User[]> => {
-  const { data } = await api.get('/users')
+  const { data } = await api.get('/api/users')
   return Array.isArray(data) ? data : []
 }
 

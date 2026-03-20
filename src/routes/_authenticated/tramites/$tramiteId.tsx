@@ -13,7 +13,7 @@ import { type TramiteCompleto } from '@/features/tramites/types'
 const fetchTramiteById = async (
   tramiteId: string
 ): Promise<TramiteCompleto> => {
-  const { data } = await api.get(`/tramites/${tramiteId}`)
+  const { data } = await api.get(`/api/tramites/${tramiteId}`)
   return data
 }
 

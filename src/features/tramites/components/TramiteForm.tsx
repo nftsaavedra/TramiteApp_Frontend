@@ -64,10 +64,10 @@ type TipoDocumento = { id: string; nombre: string }
 
 // Fetchers
 const fetchTiposDocumento = async (): Promise<TipoDocumento[]> =>
-  (await api.get('/tipos-documento')).data
+  (await api.get('/api/tipos-documento')).data
 
 const fetchOficinas = async (): Promise<Oficina[]> =>
-  (await api.get('/oficinas')).data
+  (await api.get('/api/oficinas')).data
 
 export function TramiteForm() {
   const navigate = useNavigate()

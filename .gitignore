@@ -26,3 +26,5 @@ dist-ssr
 *.sw?
 .tanstack/*
 .tanstack
+*storybook.log
+storybook-static

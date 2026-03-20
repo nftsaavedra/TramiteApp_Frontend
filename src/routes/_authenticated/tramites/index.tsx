@@ -32,8 +32,8 @@ export const Route = createFileRoute('/_authenticated/tramites/')({
 })
 
 // --- Fetchers ---
-const fetchOficinas = async () => (await api.get('/oficinas')).data
-const fetchTipos = async () => (await api.get('/tipos-documento')).data
+const fetchOficinas = async () => (await api.get('/api/oficinas')).data
+const fetchTipos = async () => (await api.get('/api/tipos-documento')).data
 
 const fetchTramites = async (params: TramitesSearchParams) => {
   const query = new URLSearchParams()
@@ -65,7 +65,7 @@ const fetchTramites = async (params: TramitesSearchParams) => {
   // Ordenamiento
   if (params.sortBy) query.set('sortBy', params.sortBy)
 
-  const { data } = await api.get(`/tramites?${query.toString()}`)
+  const { data } = await api.get(`/api/tramites?${query.toString()}`)
   return data
 }
 

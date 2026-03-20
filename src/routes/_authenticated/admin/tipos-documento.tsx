@@ -42,7 +42,7 @@ export type TipoDocumento = {
 
 // --- FUNCIONES DE API ---
 const fetchTiposDocumento = async (): Promise<TipoDocumento[]> => {
-  const { data } = await api.get('/tipos-documento')
+  const { data } = await api.get('/api/tipos-documento')
   return Array.isArray(data) ? data : []
 }
 const createTipoDocumento = (newData: TipoDocumentoFormValues) =>

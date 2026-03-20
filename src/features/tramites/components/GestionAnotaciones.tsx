@@ -45,7 +45,7 @@ export function GestionAnotaciones({ tramite }: GestionAnotacionesProps) {
 
   const addAnotacionMutation = useMutation({
     mutationFn: (newAnotacion: { contenido: string; tramiteId: string }) =>
-      api.post('/anotaciones', newAnotacion),
+      api.post('/api/anotaciones', newAnotacion),
     onSuccess: () => {
       toast.success('Anotación añadida exitosamente.')
       // Invalida la query del trámite para refrescar la lista de anotaciones

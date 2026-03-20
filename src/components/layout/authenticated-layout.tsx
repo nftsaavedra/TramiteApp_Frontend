@@ -14,6 +14,7 @@ import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Search } from '@/components/search'
 import { SkipToMain } from '@/components/skip-to-main'
 import { ThemeSwitch } from '@/components/theme-switch'
+import { ConnectionStatusIndicator } from '@/components/connection-status-indicator'
 
 // 2. Constante de datos eliminada
 // const topNav = [...]
@@ -42,6 +43,7 @@ export function AuthenticatedLayout() {
             <Header>
               {/* 3. Componente TopNav eliminado */}
               <div className='ms-auto flex items-center space-x-4'>
+                <ConnectionStatusIndicator />
                 <Search />
                 <ThemeSwitch />
                 <ConfigDrawer />

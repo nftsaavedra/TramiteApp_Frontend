@@ -32,7 +32,8 @@ const queryClient = new QueryClient({
         )
       },
       refetchOnWindowFocus: import.meta.env.PROD,
-      staleTime: 10 * 1000, // 10s
+      staleTime: 1000 * 60 * 5, // Optimización: 5 minutos (reduce refetches innecesarios)
+      gcTime: 1000 * 60 * 30, // Optimización: 30 minutos en cache
     },
     mutations: {
       onError: (error) => {
@@ -48,9 +49,11 @@ const queryClient = new QueryClient({
   queryCache: new QueryCache({
     onError: (error) => {
       if (error instanceof AxiosError) {
-        // 2. Lógica para 401 eliminada. Es manejada por el interceptor de Axios y el AuthenticatedLayout.
-
-        // 3. Lógica para 500 actualizada para mostrar un toast en lugar de redirigir.
+        // Optimización: Manejo de errores más específico
+        if (error.response?.status === 401) {
+          // Manejado por AuthProvider
+          return
+        }
         if (error.response?.status === 500) {
           toast.error(
             'Error interno del servidor. Por favor, intente más tarde.'

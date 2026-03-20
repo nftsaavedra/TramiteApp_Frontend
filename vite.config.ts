@@ -17,6 +17,8 @@ export default defineConfig(({ mode }) => {
       tanstackRouter({
         target: 'react',
         autoCodeSplitting: true,
+        // Optimización: Code splitting agresivo
+        routesDirectory: './src/routes',
       }),
       react(),
       tailwindcss(),
@@ -29,30 +31,56 @@ export default defineConfig(({ mode }) => {
         },
       },
     ],
+    // Optimización: Build más rápido
     build: {
-      sourcemap: false,
-      chunkSizeWarningLimit: 600,
+      sourcemap: false, // Reducir tamaño de build
+      chunkSizeWarningLimit: 500, // Alerta más estricta
+      minify: 'esbuild', // Más rápido que terser
+      target: 'esnext', // Moderno para mejor tree-shaking
       rollupOptions: {
         output: {
           manualChunks: {
-            'vendor-react': ['react', 'react-dom'],
-            'vendor-radix': [
+            // Optimización: Separar vendor crítico
+            'vendor-core': ['react', 'react-dom'],
+            'vendor-ui': [
               '@radix-ui/react-dialog',
               '@radix-ui/react-dropdown-menu',
               '@radix-ui/react-popover',
               '@radix-ui/react-select',
               '@radix-ui/react-tabs',
               '@radix-ui/react-tooltip',
+              'lucide-react',
             ],
-            'vendor-tanstack': [
+            'vendor-data': [
               '@tanstack/react-query',
               '@tanstack/react-router',
               '@tanstack/react-table',
             ],
             'vendor-charts': ['recharts'],
+            'vendor-utils': [
+              'date-fns',
+              'zod',
+              'axios',
+              'zustand',
+            ],
           },
+          // Optimización: Nombres cortos para producción
+          entryFileNames: `assets/[name].[hash].js`,
+          chunkFileNames: `chunks/[name].[hash].js`,
+          assetFileNames: `assets/[name].[hash].[ext]`,
         },
       },
+    },
+    // Optimización: Pre-bundle dependencies
+    optimizeDeps: {
+      include: [
+        'react',
+        'react-dom',
+        '@tanstack/react-query',
+        '@tanstack/react-router',
+        'axios',
+        'zod',
+      ],
     },
   }
 })

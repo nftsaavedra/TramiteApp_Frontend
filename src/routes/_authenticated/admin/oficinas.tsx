@@ -46,7 +46,7 @@ const fetchOficinas = async (
       params.append(filter.id, filter.value as string)
     }
   })
-  const { data } = await api.get('/oficinas', { params })
+  const { data } = await api.get('/api/oficinas', { params })
   return Array.isArray(data) ? data : []
 }
 

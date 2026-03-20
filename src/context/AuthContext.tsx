@@ -46,7 +46,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       try {
         // Llamamos al backend para verificar si el token sigue vivo y obtener datos frescos
-        const { data } = await api.get<UserProfile>('/auth/profile')
+        const { data } = await api.get<UserProfile>('/api/auth/profile')
         setUser(data)
       } catch (error) {
         if (import.meta.env.DEV)
@@ -67,7 +67,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       // Al hacer login, también pedimos los datos completos al perfil
       // para asegurar consistencia inmediata
-      const { data } = await api.get<UserProfile>('/auth/profile')
+      const { data } = await api.get<UserProfile>('/api/auth/profile')
       setUser(data)
     } catch (error) {
       if (import.meta.env.DEV)

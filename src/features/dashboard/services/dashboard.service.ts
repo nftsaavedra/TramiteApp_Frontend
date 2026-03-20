@@ -24,7 +24,7 @@ export interface RecentActivity {
 
 export const dashboardService = {
   getStats: async (): Promise<DashboardStats> => {
-    const { data } = await api.get('/dashboard/stats')
+    const { data } = await api.get('/api/dashboard/stats')
     return data
   },
 
@@ -32,14 +32,14 @@ export const dashboardService = {
     groupBy: 'hour' | 'day' | 'week' | 'month' | 'year' = 'month',
     limit: number = 6
   ): Promise<VolumeStat[]> => {
-    const { data } = await api.get('/dashboard/volume-stats', {
+    const { data } = await api.get('/api/dashboard/volume-stats', {
       params: { groupBy, limit },
     })
     return data
   },
 
   getRecentActivity: async (): Promise<RecentActivity[]> => {
-    const { data } = await api.get('/dashboard/recent-activity')
+    const { data } = await api.get('/api/dashboard/recent-activity')
     return data
   },
 }

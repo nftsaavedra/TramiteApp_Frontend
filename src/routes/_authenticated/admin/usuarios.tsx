@@ -55,7 +55,7 @@ const fetchUsers = async (params: UsersSearchParams) => {
   // Ordenamiento
   if (params.sortBy) query.set('sortBy', params.sortBy)
 
-  const { data } = await api.get(`/users?${query.toString()}`)
+  const { data } = await api.get(`/api/users?${query.toString()}`)
   return data
 }
 

@@ -55,7 +55,7 @@ export function AnotacionFormDialog({
       contenido: string
       tramiteId: string
       movimientoId?: string
-    }) => api.post('/anotaciones', newAnotacion),
+    }) => api.post('/api/anotaciones', newAnotacion),
     onSuccess: () => {
       toast.success('Anotación añadida exitosamente.')
       queryClient.invalidateQueries({ queryKey: ['tramite', tramiteId] })

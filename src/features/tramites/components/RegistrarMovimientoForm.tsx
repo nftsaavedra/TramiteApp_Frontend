@@ -97,9 +97,9 @@ const formSchema = z
   )
 
 const fetchOficinas = async (): Promise<Oficina[]> =>
-  (await api.get('/oficinas')).data
+  (await api.get('/api/oficinas')).data
 const fetchTiposDocumento = async (): Promise<TipoDocumento[]> =>
-  (await api.get('/tipos-documento')).data
+  (await api.get('/api/tipos-documento')).data
 
 interface RegistrarMovimientoFormProps {
   tramiteId: string

@@ -1,5 +1,5 @@
 // En: src/components/layout/app-sidebar.tsx
-import { LayoutDashboard, Files, Lock, Settings } from 'lucide-react'
+import { LayoutDashboard, Files, Lock, Settings, Building2 } from 'lucide-react'
 import { Logo } from '@/assets/logo'
 // 1. Ruta de importación del Logo correcta
 import { useAuth } from '@/context/AuthContext'
@@ -55,6 +55,11 @@ export function AppSidebar() {
                 url: '/admin/tipos-documento', // <-- 2. CORRECCIÓN FINAL: de 'to' a 'url'
                 title: 'Tipos de Documento',
                 icon: Lock,
+              },
+              {
+                url: '/admin/configuracion', // <-- Nueva ruta de configuración
+                title: 'Configuración del Sistema',
+                icon: Building2,
               },
             ],
           },
