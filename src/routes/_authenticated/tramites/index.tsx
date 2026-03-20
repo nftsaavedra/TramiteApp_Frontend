@@ -16,6 +16,7 @@ import {
 import { type DateRange } from 'react-day-picker'
 import api from '@/lib/api'
 import { Button } from '@/components/ui/button'
+import { Container } from '@/components/ui/container'
 import { columns } from '@/features/tramites/components/columns'
 import { TramitesDataTable } from '@/features/tramites/components/tramites-table'
 import { TramitesTableToolbar } from '@/features/tramites/components/tramites-table-toolbar'
@@ -288,44 +289,45 @@ function TramitesPage() {
   })
 
   return (
-    <div className='space-y-4 p-4 md:p-6'>
-      <div className='flex items-center justify-between'>
-        <div>
-          <h2 className='text-2xl font-bold tracking-tight'>
-            Registro de Trámites
-          </h2>
-          <p className='text-muted-foreground'>
-            Administración centralizada de documentos.
-          </p>
-        </div>
-        <div className='flex items-center space-x-2'>
-          <Button asChild>
-            <Link to='/tramites/nuevo'>Nuevo Trámite</Link>
-          </Button>
-        </div>
-      </div>
-
-      <div className='space-y-4'>
-        <TramitesTableToolbar
-          table={table}
-          oficinasOptions={oficinasOptions}
-          tiposDocumentoOptions={tiposOptions}
-          // CONEXIÓN CRÍTICA: Pasamos los handlers y estado al toolbar
-          globalFilter={searchParams.q || ''}
-          onGlobalFilterChange={handleGlobalSearch}
-          onDateFilterChange={handleDateFilterChange}
-          activeDateRange={activeDateRange}
-          activeDateType={activeDateType}
-        />
-
-        {isLoading ? (
-          <div className='text-muted-foreground flex h-24 items-center justify-center'>
-            Cargando datos...
+    <Container size='lg'>
+      <div className='space-y-4 py-6'>
+        <div className='flex items-center justify-between'>
+          <div>
+            <h2 className='text-2xl font-bold tracking-tight'>
+              Registro de Trámites
+            </h2>
+            <p className='text-muted-foreground'>
+              Administración centralizada de documentos.
+            </p>
           </div>
-        ) : (
-          <TramitesDataTable table={table} />
-        )}
+          <div className='flex items-center space-x-2'>
+            <Button asChild>
+              <Link to='/tramites/nuevo'>Nuevo Trámite</Link>
+            </Button>
+          </div>
+        </div>
+
+        <div className='space-y-4'>
+          <TramitesTableToolbar
+            table={table}
+            oficinasOptions={oficinasOptions}
+            tiposDocumentoOptions={tiposOptions}
+            globalFilter={searchParams.q || ''}
+            onGlobalFilterChange={handleGlobalSearch}
+            onDateFilterChange={handleDateFilterChange}
+            activeDateRange={activeDateRange}
+            activeDateType={activeDateType}
+          />
+
+          {isLoading ? (
+            <div className='text-muted-foreground flex h-24 items-center justify-center'>
+              Cargando datos...
+            </div>
+          ) : (
+            <TramitesDataTable table={table} />
+          )}
+        </div>
       </div>
-    </div>
+    </Container>
   )
 }

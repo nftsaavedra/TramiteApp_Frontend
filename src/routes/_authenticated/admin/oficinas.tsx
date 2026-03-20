@@ -6,6 +6,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { type ColumnFiltersState } from '@tanstack/react-table'
 import { toast } from 'sonner'
 import api from '@/lib/api'
+import { Container } from '@/components/ui/container'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -72,6 +73,23 @@ function AdminOficinas() {
     null
   )
 
+  // --- Fetch System Config para validar oficina raíz ---
+  const { data: systemConfigData } = useQuery({
+    queryKey: ['system-config'],
+    queryFn: async () => {
+      try {
+        const response = await api.get('/api/system-config')
+        return response.data
+      } catch {
+        return null
+      }
+    },
+    retry: false,
+    staleTime: 1000 * 60 * 5,
+  })
+
+  const config = systemConfigData?.data
+
   // --- useQuery ahora depende de 'columnFilters' para volver a cargar los datos ---
   const { data, isLoading, error } = useQuery({
     queryKey: ['oficinas', columnFilters],
@@ -126,6 +144,13 @@ function AdminOficinas() {
   }
 
   const openDeleteDialog = (oficina: Oficina) => {
+    // Verificar si es la oficina raíz
+    if (oficina.siglas === 'VPIN' || oficina.siglas === config?.rootOfficeSiglas) {
+      toast.error(
+        `No se puede eliminar la oficina raíz "${oficina.nombre}" (${oficina.siglas}). Esta oficina está protegida por ser la configuración principal del sistema.`
+      );
+      return;
+    }
     setSelectedOficina(oficina)
     setIsDeleteDialogOpen(true)
   }
@@ -153,67 +178,69 @@ function AdminOficinas() {
     )
 
   return (
-    <div className='space-y-4 p-4 md:p-6'>
-      <div>
-        <h2 className='text-2xl font-bold tracking-tight'>
-          Gestión de Oficinas
-        </h2>
-        <p className='text-muted-foreground'>
-          Cree, edite y administre las oficinas del sistema, incluyendo sus
-          filtros y jerarquías.
-        </p>
+    <Container size='lg'>
+      <div className='space-y-4 py-6'>
+        <div>
+          <h2 className='text-2xl font-bold tracking-tight'>
+            Gestión de Oficinas
+          </h2>
+          <p className='text-muted-foreground'>
+            Cree, edite y administre las oficinas del sistema, incluyendo sus
+            filtros y jerarquías.
+          </p>
+        </div>
+
+        <OficinasDataTable
+          columns={columns}
+          data={data || []}
+          onCreate={() => openForm(null)}
+          onEdit={openForm}
+          onDelete={openDeleteDialog}
+          columnFilters={columnFilters}
+          setColumnFilters={setColumnFilters}
+        />
+
+        <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+          <DialogContent className='sm:max-w-[425px]'>
+            <DialogHeader>
+              <DialogTitle>
+                {selectedOficina ? 'Editar Oficina' : 'Crear Nueva Oficina'}
+              </DialogTitle>
+            </DialogHeader>
+            <OficinaForm
+              onSubmit={handleFormSubmit}
+              defaultValues={selectedOficina || undefined}
+              oficinasList={data || []}
+            />
+          </DialogContent>
+        </Dialog>
+
+        <AlertDialog
+          open={isDeleteDialogOpen}
+          onOpenChange={setIsDeleteDialogOpen}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>¿Está absolutamente seguro?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Esta acción no se puede deshacer. Se eliminará permanentemente la
+                oficina
+                <strong> "{selectedOficina?.nombre}"</strong>.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() =>
+                  selectedOficina && deleteMutation.mutate(selectedOficina.id)
+                }
+              >
+                Continuar
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
-
-      <OficinasDataTable
-        columns={columns}
-        data={data || []}
-        onCreate={() => openForm(null)}
-        onEdit={openForm}
-        onDelete={openDeleteDialog}
-        columnFilters={columnFilters}
-        setColumnFilters={setColumnFilters}
-      />
-
-      <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-        <DialogContent className='sm:max-w-[425px]'>
-          <DialogHeader>
-            <DialogTitle>
-              {selectedOficina ? 'Editar Oficina' : 'Crear Nueva Oficina'}
-            </DialogTitle>
-          </DialogHeader>
-          <OficinaForm
-            onSubmit={handleFormSubmit}
-            defaultValues={selectedOficina || undefined}
-            oficinasList={data || []}
-          />
-        </DialogContent>
-      </Dialog>
-
-      <AlertDialog
-        open={isDeleteDialogOpen}
-        onOpenChange={setIsDeleteDialogOpen}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>¿Está absolutamente seguro?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Esta acción no se puede deshacer. Se eliminará permanentemente la
-              oficina
-              <strong> "{selectedOficina?.nombre}"</strong>.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() =>
-                selectedOficina && deleteMutation.mutate(selectedOficina.id)
-              }
-            >
-              Continuar
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>
+    </Container>
   )
 }

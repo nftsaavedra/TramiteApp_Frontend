@@ -6,6 +6,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { createFileRoute } from '@tanstack/react-router'
 import api from '@/lib/api'
+import { Container } from '@/components/ui/container'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
@@ -123,16 +124,19 @@ export function ConfiguracionSistema() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center p-8">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
+      <Container size='lg'>
+        <div className="flex items-center justify-center p-8">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </Container>
     )
   }
 
-  // Sistema no inicializado - mostrar mensaje especial
+  // Sistema no inicializado - mostrar formulario de inicialización
   if (!config || !config.isInitialized) {
     return (
-      <div className="space-y-6">
+      <Container size='lg'>
+        <div className="space-y-6 py-6">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-bold tracking-tight">Configuración Inicial del Sistema</h2>
@@ -224,22 +228,26 @@ export function ConfiguracionSistema() {
           </CardContent>
         </Card>
       </div>
+    </Container>
     )
   }
 
   // Sistema ya inicializado - mostrar formulario normal de actualización
   if (error) {
     return (
-      <Alert variant="destructive">
-        <AlertDescription>
-          Error al cargar la configuración del sistema. Verifica tu conexión o permisos.
-        </AlertDescription>
-      </Alert>
+      <Container size='lg'>
+        <Alert variant="destructive">
+          <AlertDescription>
+            Error al cargar la configuración del sistema. Verifica tu conexión o permisos.
+          </AlertDescription>
+        </Alert>
+      </Container>
     )
   }
 
   return (
-    <div className="space-y-6">
+    <Container size='lg'>
+      <div className="space-y-6 py-6">
       {/* Header con estado */}
       <div className="flex items-center justify-between">
         <div>
@@ -396,5 +404,6 @@ export function ConfiguracionSistema() {
         </Alert>
       )}
     </div>
+  </Container>
   )
 }
