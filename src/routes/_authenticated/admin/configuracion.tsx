@@ -136,7 +136,7 @@ export function ConfiguracionSistema() {
   if (!config || !config.isInitialized) {
     return (
       <Container size='lg'>
-        <div className="space-y-6 py-6">
+        <div className="space-y-[clamp(1.5rem,1.25rem+1.25vw,3rem)] py-[clamp(1.5rem,1.25rem+1.25vw,3rem)]">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-bold tracking-tight">Configuración Inicial del Sistema</h2>
@@ -247,7 +247,7 @@ export function ConfiguracionSistema() {
 
   return (
     <Container size='lg'>
-      <div className="space-y-6 py-6">
+      <div className="space-y-[clamp(1.5rem,1.25rem+1.25vw,3rem)] py-[clamp(1.5rem,1.25rem+1.25vw,3rem)]">
       {/* Header con estado */}
       <div className="flex items-center justify-between">
         <div>

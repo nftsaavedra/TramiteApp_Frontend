@@ -290,7 +290,7 @@ function TramitesPage() {
 
   return (
     <Container size='lg'>
-      <div className='space-y-4 py-6'>
+      <div className='space-y-[clamp(1rem,0.875rem+0.625vw,1.5rem)] py-[clamp(1.5rem,1.25rem+1.25vw,3rem)]'>
         <div className='flex items-center justify-between'>
           <div>
             <h2 className='text-2xl font-bold tracking-tight'>
@@ -307,7 +307,7 @@ function TramitesPage() {
           </div>
         </div>
 
-        <div className='space-y-4'>
+        <div className='space-y-[clamp(1rem,0.875rem+0.625vw,1.5rem)]'>
           <TramitesTableToolbar
             table={table}
             oficinasOptions={oficinasOptions}

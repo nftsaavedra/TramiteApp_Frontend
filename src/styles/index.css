@@ -4,28 +4,84 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ============================================
+   UX ADAPTATIVA - CLAMP() RESPONSIVE SYSTEM
+   ============================================ */
+
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
-    scrollbar-width: thin;
-    scrollbar-color: var(--border) transparent;
-  }
+  /* Root font-size responsive con clamp */
   html {
     @apply overflow-x-hidden;
+    font-size: clamp(14px, 0.875rem + 0.2vw, 16px);
   }
+
   body {
     @apply bg-background text-foreground has-[div[data-variant='inset']]:bg-sidebar min-h-svh w-full;
   }
 
-  /* Override Radix scroll locking for sticky headers */
-  body[data-scroll-locked] {
-    overflow: unset !important;
+  /* Títulos responsivos sin breakpoints */
+  h1 {
+    font-size: clamp(1.75rem, 1.5rem + 1.5vw, 2.5rem);
+    line-height: clamp(2rem, 1.75rem + 1.5vw, 3rem);
+    font-weight: 700;
+    letter-spacing: -0.025em;
   }
 
-  /* Cursor pointer for buttons */
-  button:not(:disabled),
-  [role='button']:not(:disabled) {
-    cursor: pointer;
+  h2 {
+    font-size: clamp(1.5rem, 1.25rem + 1.25vw, 2rem);
+    line-height: clamp(1.75rem, 1.5rem + 1.25vw, 2.5rem);
+    font-weight: 600;
+    letter-spacing: -0.025em;
+  }
+
+  h3 {
+    font-size: clamp(1.25rem, 1.125rem + 0.75vw, 1.75rem);
+    line-height: clamp(1.5rem, 1.375rem + 0.75vw, 2rem);
+    font-weight: 600;
+  }
+
+  h4 {
+    font-size: clamp(1.125rem, 1rem + 0.5vw, 1.5rem);
+    line-height: clamp(1.375rem, 1.25rem + 0.5vw, 1.75rem);
+    font-weight: 600;
+  }
+
+  h5 {
+    font-size: clamp(1rem, 0.9375rem + 0.375vw, 1.25rem);
+    line-height: clamp(1.25rem, 1.1875rem + 0.375vw, 1.5rem);
+    font-weight: 600;
+  }
+
+  h6 {
+    font-size: clamp(0.875rem, 0.8125rem + 0.375vw, 1.125rem);
+    line-height: clamp(1.125rem, 1.0625rem + 0.375vw, 1.375rem);
+    font-weight: 600;
+  }
+
+  /* Párrafos y texto base */
+  p {
+    font-size: clamp(0.9375rem, 0.875rem + 0.375vw, 1.125rem);
+    line-height: clamp(1.5rem, 1.375rem + 0.625vw, 1.75rem);
+  }
+
+  /* Spacing adaptativo */
+  .section-spacing {
+    padding-block: clamp(1.5rem, 1.25rem + 1.25vw, 3rem);
+  }
+
+  .container-spacing {
+    padding-inline: clamp(1rem, 0.75rem + 1.25vw, 2rem);
+  }
+
+  /* Gap responsivo para layouts */
+  .adaptive-grid {
+    grid-template-columns: repeat(auto-fit, minmax(clamp(280px, 250px + 15vw, 400px), 1fr));
+  }
+
+  * {
+    @apply border-border outline-ring/50;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
   }
 
   /* Prevent focus zoom on mobile devices */

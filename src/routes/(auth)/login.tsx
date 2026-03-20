@@ -17,8 +17,8 @@ function LoginPage() {
   return (
     <div className='relative min-h-svh container grid items-center justify-center p-0 lg:max-w-none lg:grid-cols-2'>
       {/* Panel izquierdo - Formulario de login */}
-      <div className='flex w-full items-center justify-center p-4 lg:p-8 lg:py-12'>
-        <div className='w-full max-w-[425px] sm:max-w-[480px] space-y-6'>
+      <div className='flex w-full items-center justify-center p-[clamp(1rem,0.75rem+1.25vw,2rem)] lg:py-[clamp(1.5rem,1.25rem+1.25vw,3rem)]'>
+        <div className='w-full max-w-[clamp(26rem,24rem+10vw,30rem)] space-y-[clamp(1.5rem,1.25rem+1.25vw,3rem)]'>
           {/* Header móvil */}
           <div className='flex flex-col items-center justify-center space-y-4 text-center lg:hidden'>
             <div className='flex items-center gap-2'>

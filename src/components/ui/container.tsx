@@ -33,15 +33,16 @@ export function Container({ size = 'lg', className, children }: ContainerProps) 
   return (
     <div
       className={cn(
-        // Responsive padding mobile-first
-        'w-full px-4 sm:px-6 lg:px-8',
-        // Max widths por breakpoint
+        // UX Adaptativa: Padding con clamp() para transición suave
+        'w-full',
+        'px-[clamp(1rem,0.75rem+1.25vw,2rem)]',
+        // Max widths con clamp() para responsividad sin saltos
         {
-          'sm:max-w-screen-sm': size === 'sm',
-          'md:max-w-screen-md': size === 'md',
-          'lg:max-w-screen-lg': size === 'lg',
-          'xl:max-w-screen-xl': size === 'xl',
-          '2xl:max-w-screen-2xl': size === '2xl',
+          'max-w-[clamp(24rem,20rem+20vw,40rem)]': size === 'sm',
+          'max-w-[clamp(40rem,35rem+25vw,48rem)]': size === 'md',
+          'max-w-[clamp(48rem,40rem+30vw,64rem)]': size === 'lg',
+          'max-w-[clamp(64rem,55rem+35vw,80rem)]': size === 'xl',
+          'max-w-[clamp(80rem,70rem+40vw,96rem)]': size === '2xl',
           'max-w-none': size === 'full',
         },
         // Centrado automático
