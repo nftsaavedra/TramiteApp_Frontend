@@ -80,9 +80,9 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible={collapsible} variant={variant}>
       <SidebarHeader>
-        <div className='flex items-center gap-2'>
-          <Logo className='h-6 w-6' />
-          <span className='text-lg font-semibold'>
+        <div className='flex items-center gap-2 px-2 py-4'>
+          <Logo className='h-6 w-6 flex-shrink-0' />
+          <span className='text-lg font-semibold line-clamp-1'>
             {import.meta.env.VITE_APP_NAME}
           </span>
         </div>
