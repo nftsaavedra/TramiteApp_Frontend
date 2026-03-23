@@ -37,29 +37,35 @@ function TramiteDetallePage() {
 
   if (isLoading) {
     return (
-      <Main>
-        <p>Cargando información del trámite...</p>
+      <Main fluid className='w-full'>
+        <div className='flex items-center justify-center p-8'>
+          <p>Cargando información del trámite...</p>
+        </div>
       </Main>
     )
   }
   if (error) {
     return (
-      <Main>
-        <p>Error al cargar el trámite. Es posible que no exista.</p>
+      <Main fluid className='w-full'>
+        <div className='flex items-center justify-center p-8'>
+          <p>Error al cargar el trámite. Es posible que no exista.</p>
+        </div>
       </Main>
     )
   }
   if (!tramite) {
     return (
-      <Main>
-        <p>No se encontró el trámite.</p>
+      <Main fluid className='w-full'>
+        <div className='flex items-center justify-center p-8'>
+          <p>No se encontró el trámite.</p>
+        </div>
       </Main>
     )
   }
 
   return (
-    <Main>
-      <div className='mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
+    <Main fluid className='w-full'>
+      <div className='w-full space-y-6 p-6'>
         <div className='space-y-1'>
           <div className='flex items-center gap-2'>
             <Button
@@ -71,8 +77,11 @@ function TramiteDetallePage() {
             >
               <ArrowLeft className='h-4 w-4' />
             </Button>
-            <h1 className='text-3xl font-bold tracking-tight'>Detalle</h1>
+            <h1 className='text-3xl font-bold tracking-tight'>Detalle del Trámite</h1>
           </div>
+          <p className='text-muted-foreground'>
+            Visualice el historial, movimientos y anotaciones del documento.
+          </p>
         </div>
 
         <div className='flex items-center gap-2 sm:self-start'>

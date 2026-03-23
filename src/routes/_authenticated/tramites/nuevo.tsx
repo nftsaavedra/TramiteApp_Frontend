@@ -9,14 +9,16 @@ export const Route = createFileRoute('/_authenticated/tramites/nuevo')({
 
 function NuevoTramitePage() {
   return (
-    <Main>
-      <div className='mb-4'>
-        <h1 className='text-3xl font-bold tracking-tight'>Nuevo Trámite</h1>
-        <p className='text-muted-foreground'>
-          Rellene los campos para registrar un nuevo documento en el sistema.
-        </p>
+    <Main fluid className='w-full'>
+      <div className='w-full space-y-6 p-6'>
+        <div>
+          <h1 className='text-3xl font-bold tracking-tight'>Nuevo Trámite</h1>
+          <p className='text-muted-foreground'>
+            Rellene los campos para registrar un nuevo documento en el sistema.
+          </p>
+        </div>
+        <TramiteForm />
       </div>
-      <TramiteForm />
     </Main>
   )
 }

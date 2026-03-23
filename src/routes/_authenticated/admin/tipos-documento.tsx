@@ -149,7 +149,7 @@ function AdminTiposDocumento() {
     )
 
   return (
-    <div className='space-y-4 p-4 md:p-6'>
+    <div className='w-full space-y-6 p-6'>
       <div>
         <h2 className='text-2xl font-bold tracking-tight'>
           Gestión de Tipos de Documento
