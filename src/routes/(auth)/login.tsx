@@ -97,7 +97,7 @@ function LoginPage() {
         <div className='absolute inset-0 bg-gradient-to-t from-zinc-900/80 via-transparent to-transparent' />
 
         {/* Contenido */}
-        <div className='relative z-10 flex w-full max-w-lg flex-col items-center justify-center p-8 text-center'>
+        <div className='relative z-10 flex w-full max-w-[clamp(32rem,28rem+20vw,42rem)] flex-col items-center justify-center p-8 text-center'>
           <NewsFeed />
           
           {/* Features */}

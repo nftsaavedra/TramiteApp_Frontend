@@ -44,7 +44,7 @@ export function UsersActionDialog() {
 
   return (
     <Dialog open={isOpen} onOpenChange={() => setOpenDialog(null)}>
-      <DialogContent className='sm:max-w-lg'>
+      <DialogContent className='sm:max-w-[clamp(32rem,28rem+20vw,42rem)]'>
         <DialogHeader className='text-start'>
           <DialogTitle>
             {isEditing ? 'Editar Usuario' : 'Añadir Nuevo Usuario'}

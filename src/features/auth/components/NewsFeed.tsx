@@ -62,7 +62,7 @@ export function NewsFeed() {
   if (isLoading) {
     return (
       <div className='flex h-full w-full items-center justify-center p-8'>
-        <div className='flex w-full max-w-sm flex-col gap-4'>
+        <div className='flex w-full max-w-[clamp(24rem,20rem+20vw,24rem)] flex-col gap-4'>
           <Skeleton className='aspect-square w-full rounded-xl bg-zinc-800' />
           <div className='space-y-2'>
             <Skeleton className='h-4 w-3/4 bg-zinc-800' />
@@ -83,7 +83,7 @@ export function NewsFeed() {
   }
 
   return (
-    <div className='flex w-full max-w-sm flex-col justify-center'>
+    <div className='flex w-full max-w-[clamp(24rem,20rem+20vw,24rem)] flex-col justify-center'>
       <Carousel
         setApi={setApi}
         plugins={[

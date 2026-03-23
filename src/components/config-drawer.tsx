@@ -180,7 +180,7 @@ function ThemeConfig() {
       <Radio
         value={theme}
         onValueChange={setTheme}
-        className='grid w-full max-w-md grid-cols-3 gap-4'
+        className='grid w-full max-w-[clamp(28rem,24rem+20vw,36rem)] grid-cols-3 gap-4'
         aria-label='Select theme preference'
         aria-describedby='theme-description'
       >
@@ -223,7 +223,7 @@ function SidebarConfig() {
       <Radio
         value={variant}
         onValueChange={setVariant}
-        className='grid w-full max-w-md grid-cols-3 gap-4'
+        className='grid w-full max-w-[clamp(28rem,24rem+20vw,36rem)] grid-cols-3 gap-4'
         aria-label='Select sidebar style'
         aria-describedby='sidebar-description'
       >
@@ -280,7 +280,7 @@ function LayoutConfig() {
           setOpen(false)
           setCollapsible(v as Collapsible)
         }}
-        className='grid w-full max-w-md grid-cols-3 gap-4'
+        className='grid w-full max-w-[clamp(28rem,24rem+20vw,36rem)] grid-cols-3 gap-4'
         aria-label='Select layout style'
         aria-describedby='layout-description'
       >
@@ -323,7 +323,7 @@ function DirConfig() {
       <Radio
         value={dir}
         onValueChange={setDir}
-        className='grid w-full max-w-md grid-cols-3 gap-4'
+        className='grid w-full max-w-[clamp(28rem,24rem+20vw,36rem)] grid-cols-3 gap-4'
         aria-label='Select site direction'
         aria-describedby='direction-description'
       >

@@ -177,7 +177,7 @@ function ActionDialog({
           {triggerLabel}
         </Button>
       </DialogTrigger>
-      <DialogContent className='sm:max-w-md'>
+      <DialogContent className='sm:max-w-[clamp(28rem,24rem+20vw,36rem)]'>
         <DialogHeader>
           <DialogTitle className='flex items-center gap-2'>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
