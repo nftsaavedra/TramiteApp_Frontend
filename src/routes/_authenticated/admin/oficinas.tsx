@@ -6,7 +6,6 @@ import { createFileRoute } from '@tanstack/react-router'
 import { type ColumnFiltersState } from '@tanstack/react-table'
 import { toast } from 'sonner'
 import api from '@/lib/api'
-import { Container } from '@/components/ui/container'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -178,29 +177,28 @@ function AdminOficinas() {
     )
 
   return (
-    <Container size='lg'>
-      <div className='space-y-[clamp(1rem,0.875rem+0.625vw,1.5rem)] py-[clamp(1.5rem,1.25rem+1.25vw,3rem)]'>
-        <div>
-          <h2 className='text-2xl font-bold tracking-tight'>
-            Gestión de Oficinas
-          </h2>
-          <p className='text-muted-foreground'>
-            Cree, edite y administre las oficinas del sistema, incluyendo sus
-            filtros y jerarquías.
-          </p>
-        </div>
+    <div className='w-full space-y-6 p-6'>
+      <div>
+        <h2 className='text-2xl font-bold tracking-tight'>
+          Gestión de Oficinas
+        </h2>
+        <p className='text-muted-foreground'>
+          Cree, edite y administre las oficinas del sistema, incluyendo sus
+          filtros y jerarquías.
+        </p>
+      </div>
 
-        <OficinasDataTable
-          columns={columns}
-          data={data || []}
-          onCreate={() => openForm(null)}
-          onEdit={openForm}
-          onDelete={openDeleteDialog}
-          columnFilters={columnFilters}
-          setColumnFilters={setColumnFilters}
-        />
+      <OficinasDataTable
+        columns={columns}
+        data={data || []}
+        onCreate={() => openForm(null)}
+        onEdit={openForm}
+        onDelete={openDeleteDialog}
+        columnFilters={columnFilters}
+        setColumnFilters={setColumnFilters}
+      />
 
-        <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+      <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
           <DialogContent className='sm:max-w-[425px]'>
             <DialogHeader>
               <DialogTitle>
@@ -240,7 +238,6 @@ function AdminOficinas() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-      </div>
-    </Container>
+    </div>
   )
 }

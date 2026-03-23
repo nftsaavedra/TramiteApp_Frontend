@@ -87,7 +87,6 @@ export function Dashboard() {
     fetchData()
   }, [selectedUnit, selectedRange])
 
-  // ... (statCards array remains same) ...
   const statCards = [
     {
       title: 'Trámites Pendientes',
@@ -158,78 +157,85 @@ export function Dashboard() {
   }
 
   return (
-    <Main>
-      <div className='mb-4 flex items-center justify-between space-y-2'>
-        <h1 className='text-3xl font-bold tracking-tight'>Inicio</h1>
-        <div className='flex items-center space-x-2'>
-          <Button asChild>
-            <Link to='/tramites/nuevo'>Nuevo Trámite</Link>
-          </Button>
+    <Main fluid className='w-full'>
+      <div className='w-full space-y-6'>
+        <div className='flex items-center justify-between'>
+          <div>
+            <h1 className='text-3xl font-bold tracking-tight'>Inicio</h1>
+            <p className='text-muted-foreground'>
+              Panel de control del sistema de trámites.
+            </p>
+          </div>
+          <div className='flex items-center space-x-2'>
+            <Button asChild>
+              <Link to='/tramites/nuevo'>Nuevo Trámite</Link>
+            </Button>
+          </div>
         </div>
-      </div>
 
-      {/* Fila de Tarjetas de Estadísticas */}
-      <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-4'>
-        {statCards.map((stat) => (
-          <StatCard key={stat.title} {...stat} />
-        ))}
-      </div>
+        {/* Fila de Tarjetas de Estadísticas */}
+        <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-4'>
+          {statCards.map((stat) => (
+            <StatCard key={stat.title} {...stat} />
+          ))}
+        </div>
 
-      {/* Fila de Gráficas y Actividad */}
-      <div className='mt-8 grid grid-cols-1 gap-4 lg:grid-cols-7'>
-        <Card className='col-span-1 lg:col-span-4'>
-          <CardHeader className='flex flex-col space-y-2 pb-2 sm:flex-row sm:items-center sm:justify-between sm:space-y-0'>
-            <CardTitle className='text-base font-medium'>
-              Volumen de Trámites
-            </CardTitle>
-            <div className='flex items-center gap-2'>
-              <Tabs
-                value={selectedUnit}
-                onValueChange={(val) => {
-                  setSelectedUnit(val as TimeUnit)
-                  setSelectedRange('1') // Reset range on unit change
-                }}
-              >
-                <TabsList className='h-8'>
-                  <TabsTrigger value='week' className='h-7 text-xs'>
-                    Semanas
-                  </TabsTrigger>
-                  <TabsTrigger value='month' className='h-7 text-xs'>
-                    Meses
-                  </TabsTrigger>
-                  <TabsTrigger value='year' className='h-7 text-xs'>
-                    Años
-                  </TabsTrigger>
-                </TabsList>
-              </Tabs>
+        {/* Fila de Gráficas y Actividad */}
+        <div className='mt-8 grid grid-cols-1 gap-4 lg:grid-cols-7'>
+          <Card className='col-span-1 lg:col-span-4'>
+            <CardHeader className='flex flex-col space-y-2 pb-2 sm:flex-row sm:items-center sm:justify-between sm:space-y-0'>
+              <CardTitle className='text-base font-medium'>
+                Volumen de Trámites
+              </CardTitle>
+              <div className='flex items-center gap-2'>
+                <Tabs
+                  value={selectedUnit}
+                  onValueChange={(val) => {
+                    setSelectedUnit(val as TimeUnit)
+                    setSelectedRange('1') // Reset range on unit change
+                  }}
+                >
+                  <TabsList className='h-8'>
+                    <TabsTrigger value='week' className='h-7 text-xs'>
+                      Semanas
+                    </TabsTrigger>
+                    <TabsTrigger value='month' className='h-7 text-xs'>
+                      Meses
+                    </TabsTrigger>
+                    <TabsTrigger value='year' className='h-7 text-xs'>
+                      Años
+                    </TabsTrigger>
+                  </TabsList>
+                </Tabs>
 
-              <Select value={selectedRange} onValueChange={setSelectedRange}>
-                <SelectTrigger className='h-8 w-[140px] text-xs'>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent align='end'>
-                  <SelectItem value='1'>{getRangeLabel('1')}</SelectItem>
-                  <SelectItem value='2'>{getRangeLabel('2')}</SelectItem>
-                  <SelectItem value='3'>{getRangeLabel('3')}</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </CardHeader>
-          <CardContent className='ps-2 pt-4'>
-            <VolumenChart data={volumeData} />
-          </CardContent>
-        </Card>
-        <Card className='col-span-1 lg:col-span-3'>
-          <CardHeader>
-            <CardTitle>Actividad Reciente</CardTitle>
-            <CardDescription>
-              Últimos movimientos en el sistema.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ActividadReciente data={recentActivity} />
-          </CardContent>
-        </Card>
+                <Select value={selectedRange} onValueChange={setSelectedRange}>
+                  <SelectTrigger className='h-8 w-[140px] text-xs'>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent align='end'>
+                    <SelectItem value='1'>{getRangeLabel('1')}</SelectItem>
+                    <SelectItem value='2'>{getRangeLabel('2')}</SelectItem>
+                    <SelectItem value='3'>{getRangeLabel('3')}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardHeader>
+            <CardContent className='ps-2 pt-4'>
+              <VolumenChart data={volumeData} />
+            </CardContent>
+          </Card>
+          <Card className='col-span-1 lg:col-span-3'>
+            <CardHeader>
+              <CardTitle>Actividad Reciente</CardTitle>
+              <CardDescription>
+                Últimos movimientos en el sistema.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ActividadReciente data={recentActivity} />
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </Main>
   )
