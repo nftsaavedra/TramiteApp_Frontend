@@ -100,33 +100,6 @@ function LoginPage() {
         <div className='relative z-10 flex w-full max-w-[clamp(32rem,28rem+20vw,42rem)] flex-col items-center justify-center p-8 text-center'>
           <NewsFeed />
           
-          {/* Features */}
-          <div className='mt-12 space-y-6'>
-            <div className='grid gap-4 sm:grid-cols-2'>
-              <div className='flex items-start gap-3 rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm'>
-                <div className='rounded-lg bg-primary/20 p-2'>
-                  <Shield className='h-5 w-5 text-primary-foreground' />
-                </div>
-                <div className='text-left'>
-                  <h3 className='text-sm font-semibold'>Autenticación Segura</h3>
-                  <p className='text-xs text-muted-foreground'>
-                    JWT con encriptación de última generación
-                  </p>
-                </div>
-              </div>
-              <div className='flex items-start gap-3 rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm'>
-                <div className='rounded-lg bg-primary/20 p-2'>
-                  <Zap className='h-5 w-5 text-primary-foreground' />
-                </div>
-                <div className='text-left'>
-                  <h3 className='text-sm font-semibold'>Tiempo Real</h3>
-                  <p className='text-xs text-muted-foreground'>
-                    Monitoreo constante del estado del servidor
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Decorative elements */}

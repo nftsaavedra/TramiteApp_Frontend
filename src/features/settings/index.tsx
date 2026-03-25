@@ -1,6 +1,5 @@
 import { Outlet } from '@tanstack/react-router'
 import { Palette, Lock, UserCog } from 'lucide-react'
-import { Separator } from '@/components/ui/separator'
 import { Main } from '@/components/layout/main'
 import { SidebarNav } from './components/sidebar-nav'
 
@@ -24,28 +23,29 @@ const sidebarNavItems = [
 
 export function Settings() {
   return (
-    <>
-      {/* ===== Top Heading ===== */}
-
-      <Main fixed>
-        <div className='space-y-0.5'>
-          <h1 className='text-2xl font-bold tracking-tight md:text-3xl'>
-            Configuración
-          </h1>
+    <Main fluid className='w-full'>
+      <div className='w-full space-y-6 p-6'>
+        {/* Header con contexto */}
+        <div>
+          <h1 className='text-3xl font-bold tracking-tight'>Configuración</h1>
           <p className='text-muted-foreground'>
             Administra tu configuración de cuenta y preferencias.
           </p>
         </div>
-        <Separator className='my-4 lg:my-6' />
-        <div className='flex flex-1 flex-col space-y-2 overflow-hidden md:space-y-2 lg:flex-row lg:space-y-0 lg:space-x-12'>
-          <aside className='top-0 lg:sticky lg:w-1/5'>
+
+        {/* Layout de dos columnas: Sidebar + Contenido */}
+        <div className='flex flex-col gap-6 lg:flex-row'>
+          {/* Sidebar de navegación */}
+          <aside className='lg:w-64 flex-shrink-0'>
             <SidebarNav items={sidebarNavItems} />
           </aside>
-          <div className='flex w-full overflow-y-hidden p-1'>
+
+          {/* Área de contenido principal */}
+          <div className='flex-1'>
             <Outlet />
           </div>
         </div>
-      </Main>
-    </>
+      </div>
+    </Main>
   )
 }
