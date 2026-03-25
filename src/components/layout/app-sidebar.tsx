@@ -1,7 +1,6 @@
 // En: src/components/layout/app-sidebar.tsx
-import { LayoutDashboard, Files, Lock, Settings, Building2 } from 'lucide-react'
+import { LayoutDashboard, Files, Building2, Users, Building, FileText, UserCog } from 'lucide-react'
 import { Logo } from '@/assets/logo'
-// 1. Ruta de importación del Logo correcta
 import { useAuth } from '@/context/AuthContext'
 import { useLayout } from '@/context/layout-provider'
 import {
@@ -18,18 +17,18 @@ export function AppSidebar() {
   const { collapsible, variant } = useLayout()
   const { user } = useAuth()
 
-  // Define la estructura de navegación con las propiedades CORRECTAS: 'url' y 'title'
+  // Define la estructura de navegación
   const navGroups = [
     {
       title: 'Menú',
       items: [
         {
-          url: '/', // <-- 2. CORRECCIÓN FINAL: de 'to' a 'url'
+          url: '/',
           title: 'Inicio',
           icon: LayoutDashboard,
         },
         {
-          url: '/tramites', // <-- 2. CORRECCIÓN FINAL: de 'to' a 'url'
+          url: '/tramites',
           title: 'Trámites',
           icon: Files,
         },
@@ -42,22 +41,22 @@ export function AppSidebar() {
             title: 'Administración',
             items: [
               {
-                url: '/admin/usuarios', // <-- 2. CORRECCIÓN FINAL: de 'to' a 'url'
+                url: '/admin/usuarios',
                 title: 'Usuarios',
-                icon: Lock,
+                icon: Users,
               },
               {
-                url: '/admin/oficinas', // <-- 2. CORRECCIÓN FINAL: de 'to' a 'url'
+                url: '/admin/oficinas',
                 title: 'Oficinas',
-                icon: Lock,
+                icon: Building,
               },
               {
-                url: '/admin/tipos-documento', // <-- 2. CORRECCIÓN FINAL: de 'to' a 'url'
+                url: '/admin/tipos-documento',
                 title: 'Tipos de Documento',
-                icon: Lock,
+                icon: FileText,
               },
               {
-                url: '/admin/configuracion', // <-- Nueva ruta de configuración
+                url: '/admin/configuracion',
                 title: 'Configuración del Sistema',
                 icon: Building2,
               },
@@ -69,9 +68,9 @@ export function AppSidebar() {
       title: 'Cuenta',
       items: [
         {
-          url: '/settings', // <-- 2. CORRECCIÓN FINAL: de 'to' a 'url'
-          title: 'Configuración',
-          icon: Settings,
+          url: '/settings',
+          title: 'Preferencias',
+          icon: UserCog,
         },
       ],
     },
@@ -93,7 +92,6 @@ export function AppSidebar() {
         ))}
       </SidebarContent>
       <SidebarFooter>
-        {/* 3. Se mantiene la propiedad 'avatar' para cumplir con el tipo */}
         {user && (
           <NavUser user={{ name: user.name, email: user.email, avatar: '' }} />
         )}

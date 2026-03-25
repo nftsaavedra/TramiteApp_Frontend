@@ -70,7 +70,6 @@ function SidebarMenuLink({ item, href }: { item: NavLink; href: string }) {
         tooltip={item.title}
       >
         <Link to={item.url} onClick={() => setOpenMobile(false)}>
-          {/* --- MEJORA: Añadimos el tamaño del icono --- */}
           {item.icon && <item.icon size={18} />}
           <span>{item.title}</span>
           {item.badge && <NavBadge>{item.badge}</NavBadge>}
@@ -97,7 +96,6 @@ function SidebarMenuCollapsible({
       <SidebarMenuItem>
         <CollapsibleTrigger asChild>
           <SidebarMenuButton tooltip={item.title}>
-            {/* --- MEJORA: Añadimos el tamaño del icono --- */}
             {item.icon && <item.icon size={18} />}
             <span>{item.title}</span>
             {item.badge && <NavBadge>{item.badge}</NavBadge>}
@@ -113,7 +111,6 @@ function SidebarMenuCollapsible({
                   isActive={checkIsActive(href, subItem)}
                 >
                   <Link to={subItem.url} onClick={() => setOpenMobile(false)}>
-                    {/* --- MEJORA: Añadimos el tamaño del icono --- */}
                     {subItem.icon && <subItem.icon size={18} />}
                     <span>{subItem.title}</span>
                     {subItem.badge && <NavBadge>{subItem.badge}</NavBadge>}
@@ -143,7 +140,6 @@ function SidebarMenuCollapsedDropdown({
             tooltip={item.title}
             isActive={checkIsActive(href, item)}
           >
-            {/* --- MEJORA: Añadimos el tamaño del icono --- */}
             {item.icon && <item.icon size={18} />}
             <span>{item.title}</span>
             {item.badge && <NavBadge>{item.badge}</NavBadge>}
@@ -161,7 +157,6 @@ function SidebarMenuCollapsedDropdown({
                 to={sub.url}
                 className={`${checkIsActive(href, sub) ? 'bg-secondary' : ''}`}
               >
-                {/* --- MEJORA: Añadimos el tamaño del icono --- */}
                 {sub.icon && <sub.icon size={18} />}
                 <span className='max-w-52 text-wrap'>{sub.title}</span>
                 {sub.badge && (
