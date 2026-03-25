@@ -22,7 +22,7 @@ Se realizó una auditoría completa de **TODAS las vistas** en el directorio `ro
 
 ---
 
-## ✅ Rutas Ya Optimizadas (5 archivos)
+## ✅ **Rutas Ya Optimizadas (5 archivos)**
 
 Estas rutas fueron optimizadas en iteraciones anteriores y **NO requirieron cambios**:
 
@@ -31,10 +31,11 @@ Estas rutas fueron optimizadas en iteraciones anteriores y **NO requirieron camb
 3. ✅ `routes/_authenticated/admin/oficinas.tsx` - Single container
 4. ✅ `routes/_authenticated/tramites/index.tsx` - Full width
 5. ✅ `routes/_authenticated/admin/configuracion.tsx` - Optimizado
+6. ✅ `features/settings/index.tsx` - OPTIMIZADO POSTERIORMENTE (settings pages)
 
 ---
 
-## 🔧 Rutas Corregidas en Esta Iteración (5 archivos)
+## 🔧 **Rutas Corregidas en Esta Iteración (5 archivos)**
 
 ### 1. **admin/tipos-documento.tsx** ⚠️ → ✅
 
@@ -385,6 +386,74 @@ function NuevaVista() {
   )
 }
 ```
+
+---
+
+### 6. **features/settings/index.tsx** ⚠️ → ✅ (BONUS - Página Settings)
+
+**Problema Identificado:**
+```tsx
+// Layout antiguo con Main fixed y Separator
+export function Settings() {
+  return (
+    <Main fixed>  // ❌ Fixed width
+      <div className='space-y-0.5'>  // ❌ Espaciado inconsistente
+        <h1>Configuración</h1>
+      </div>
+      <Separator className='my-4 lg:my-6' />  // ❌ Separador manual
+      <div className='flex flex-col space-y-2 overflow-hidden'>  // ❌ Overflow issues
+        <aside>SidebarNav</aside>
+        <div className='overflow-y-hidden p-1'>  // ❌ Contenido limitado
+          <Outlet />
+        </div>
+      </div>
+    </Main>
+  )
+}
+```
+
+**Solución Aplicada:**
+```tsx
+// Layout moderno fluido optimizado
+export function Settings() {
+  return (
+    <Main fluid className='w-full'>  // ✅ Full width
+      <div className='w-full space-y-6 p-6'>  // ✅ Spacing estándar
+        {/* Header con contexto */}
+        <div>
+          <h1 className='text-3xl font-bold tracking-tight'>Configuración</h1>
+          <p className='text-muted-foreground'>
+            Administra tu configuración de cuenta y preferencias.
+          </p>
+        </div>
+
+        {/* Layout dos columnas: Sidebar + Contenido */}
+        <div className='flex flex-col gap-6 lg:flex-row'>
+          {/* Sidebar fijo */}
+          <aside className='lg:w-64 flex-shrink-0'>
+            <SidebarNav items={sidebarNavItems} />
+          </aside>
+          
+          {/* Contenido flexible ocupa TODO el espacio restante */}
+          <div className='flex-1'>
+            <Outlet />
+          </div>
+        </div>
+      </div>
+    </Main>
+  )
+}
+```
+
+**Cambios:**
+- ✅ `Main fixed` → `Main fluid className='w-full'`
+- ✅ Eliminado Separator manual, usando spacing pattern moderno
+- ✅ Header con título + descripción contextual
+- ✅ Two-column layout responsive: Sidebar (64px) + Content (flex-1)
+- ✅ Eliminado overflow-hidden que causaba problemas de scroll
+- ✅ Gap consistente entre sidebar y contenido
+
+**Impacto:** Forms de settings ahora usan TODO el ancho disponible en lugar de estar limitados.
 
 ---
 
