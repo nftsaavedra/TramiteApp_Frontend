@@ -7,7 +7,7 @@ import {
 } from '@/components/ui/card'
 import { NewsFeed } from '@/features/auth/components/NewsFeed'
 import { UserAuthForm } from '@/features/auth/components/UserAuthForm'
-import { Building2, Shield, Zap } from 'lucide-react'
+import { Building2 } from 'lucide-react'
 
 export const Route = createFileRoute('/(auth)/login')({
   component: LoginPage,
@@ -47,42 +47,6 @@ function LoginPage() {
             </CardHeader>
             <CardContent className='space-y-4'>
               <UserAuthForm />
-              
-              {/* Características destacadas */}
-              <div className='grid gap-3 pt-4 sm:grid-cols-3'>
-                <div className='flex flex-col items-center justify-center space-y-2 rounded-lg border bg-muted/50 p-3 text-center'>
-                  <Shield className='h-6 w-6 text-primary' />
-                  <span className='text-xs font-medium'>Seguro</span>
-                </div>
-                <div className='flex flex-col items-center justify-center space-y-2 rounded-lg border bg-muted/50 p-3 text-center'>
-                  <Zap className='h-6 w-6 text-primary' />
-                  <span className='text-xs font-medium'>Rápido</span>
-                </div>
-                <div className='flex flex-col items-center justify-center space-y-2 rounded-lg border bg-muted/50 p-3 text-center'>
-                  <Building2 className='h-6 w-6 text-primary' />
-                  <span className='text-xs font-medium'>Confiable</span>
-                </div>
-              </div>
-
-              <div className='text-muted-foreground mt-6 text-center text-xs'>
-                <p>
-                  Al continuar, aceptas nuestros{' '}
-                  <a
-                    href='#'
-                    className='hover:text-primary underline underline-offset-4 transition-colors'
-                  >
-                    Términos de servicio
-                  </a>{' '}
-                  y{' '}
-                  <a
-                    href='#'
-                    className='hover:text-primary underline underline-offset-4 transition-colors'
-                  >
-                    Política de privacidad
-                  </a>
-                  .
-                </p>
-              </div>
             </CardContent>
           </Card>
         </div>
