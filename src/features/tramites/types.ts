@@ -5,8 +5,6 @@ export type TramiteEstado = 'EN_PROCESO' | 'FINALIZADO' | 'ARCHIVADO'
 export type TramitePrioridad = 'BAJA' | 'NORMAL' | 'ALTA' | 'URGENTE'
 export type MovimientoTipoAccion = 'ENVIO' | 'RECEPCION'
 
-// CAMBIO: Eliminados tipos MovimientoDestinoEstado y MovimientoTipoDestino porque ya no existen en DB
-
 export type PlazoEstado = 'VENCIDO' | 'POR_VENCER' | 'A_TIEMPO' | 'NO_APLICA'
 export type OficinaTipo =
   | 'ORGANO_ALTA_DIRECCION'
@@ -52,17 +50,15 @@ export interface PlazoInfo {
 
 // --- MOVIMIENTOS ---
 
-// CAMBIO: Eliminada la interfaz MovimientoDestino (tabla intermedia borrada)
-
 export interface Movimiento {
   id: string
   tipoAccion: MovimientoTipoAccion
 
   // Identidad del documento
   numeroDocumento: string | null
-  nombreDocumentoCompleto: string | null // CAMBIO: Renombrado
+  nombreDocumentoCompleto: string | null
   fechaRecepcion: string | null // ISO Date String
-  fechaMovimiento?: string // NUEVO: Fecha Real (Regularización)
+  fechaMovimiento?: string // Fecha Real (Regularización)
 
   // Contenido y Trazabilidad
   asunto: string | null // NUEVO: Trazabilidad específica del paso
@@ -87,10 +83,8 @@ export interface Movimiento {
   // Relaciones (Objetos Anidados)
   usuarioCreador?: UsuarioSimple
   oficinaOrigen: Oficina
-  oficinaDestino?: Oficina | null // NUEVO: Objeto destino directo
+  oficinaDestino?: Oficina | null // Destino directo (opcional en cierres)
   tipoDocumento?: TipoDocumento | null
-
-  // CAMBIO: Eliminado 'destinos' (array)
 
   anotaciones?: Anotacion[]
 }
@@ -101,7 +95,7 @@ export interface TramiteCompleto {
 
   // Identificación
   numeroDocumento: string
-  nombreDocumentoCompleto: string // CAMBIO: Renombrado
+  nombreDocumentoCompleto: string
   asunto: string
 
   // Estado y Clasificación
@@ -115,7 +109,6 @@ export interface TramiteCompleto {
   createdAt: string
   updatedAt: string
 
-  // CAMBIO: Eliminado 'notas' (ahora usamos anotaciones o notas en movimientos)
   observaciones: string | null
 
   // Relaciones (Foreign Keys)

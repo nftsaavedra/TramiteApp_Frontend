@@ -296,8 +296,7 @@ export function TramiteForm() {
                           <FormItem>
                             <FormLabel>Oficina Remitente (Origen)</FormLabel>
                             <Combobox
-                              // FILTRO MEJORADO:
-                              // Excluye mi propia oficina y la oficina VPIN (ROOT) de los remitentes posibles
+                              // Excluye oficina del usuario y VPIN (ROOT) de remitentes posibles
                               options={
                                 oficinas?.filter(
                                   (o) =>

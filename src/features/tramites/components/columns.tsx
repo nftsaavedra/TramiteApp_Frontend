@@ -180,7 +180,6 @@ export const columns: ColumnDef<Tramite>[] = [
       <DataTableColumnHeader column={column} title='Documento' />
     ),
     cell: ({ row }) => (
-      // FIX: Envolvemos en un div o fragmento para que TS no confunda el tipo de retorno del Link
       <div className='flex'>
         <Link
           to='/tramites/$tramiteId'

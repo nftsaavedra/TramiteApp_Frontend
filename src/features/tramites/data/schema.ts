@@ -6,7 +6,6 @@ export const tiposRegistro = ['RECEPCION', 'ENVIO'] as const
 // Esquema de validación principal
 export const tramiteFormSchema = z
   .object({
-    // CORRECCIÓN: Usar 'message' según la definición de tipos
     tipoRegistro: z.enum(tiposRegistro, {
       error: () => ({ message: 'Seleccione el tipo de registro.' }),
     }),
@@ -15,7 +14,6 @@ export const tramiteFormSchema = z
     oficinaRemitenteId: z.string().optional(),
     oficinaDestinoId: z.string().optional(),
 
-    // CORRECCIÓN: 'message' para errores requeridos
     tipoDocumentoId: z
       .string({ message: 'Seleccione un tipo de documento.' })
       .min(1, 'Seleccione un tipo de documento.'),
@@ -24,7 +22,6 @@ export const tramiteFormSchema = z
       .string({ message: 'El número de documento es obligatorio.' })
       .min(1, 'El número de documento es obligatorio.'),
 
-    // CAMBIO: Renombrado de fechaDocumento a fechaRecepcion
     fechaRecepcion: z.date({
       message: 'La fecha de recepción es obligatoria.',
     }),
@@ -33,8 +30,6 @@ export const tramiteFormSchema = z
       .string({ message: 'El asunto es obligatorio.' })
       .min(5, 'El asunto debe ser descriptivo (mínimo 5 caracteres).')
       .max(500, 'El asunto es demasiado largo.'),
-
-    // CAMBIO: Eliminado el campo 'notas'
 
     observaciones: z.string().optional(),
 

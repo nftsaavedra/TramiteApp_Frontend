@@ -153,7 +153,6 @@ export function RegistrarMovimientoForm({
   const createMovimientoMutation = useMutation({
     mutationFn: (values: z.infer<typeof formSchema>) => {
       // Preparamos el payload
-      // CAMBIO: Mapeamos modo a tipoAccion (ENVIO o RECEPCION)
       const { modo, tipoAccion, ...payload } = values
       const actionToSend = modo // 'ENVIO' | 'RECEPCION'
 
