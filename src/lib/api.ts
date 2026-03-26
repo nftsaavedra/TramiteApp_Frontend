@@ -1,6 +1,7 @@
 // En: src/lib/api.ts
 import axios from 'axios'
 import axiosRetry from 'axios-retry'
+import { toast } from 'sonner'
 
 // 1. Crear una instancia de Axios con la URL base de tu API
 const api = axios.create({
@@ -47,13 +48,75 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Si recibimos un error 401 (No autorizado), significa que el token es inválido o expiró
-    if (error.response?.status === 401) {
-      // Limpiamos el token del storage
-      localStorage.removeItem('accessToken')
-      // Redirigimos al usuario a la página de login
-      window.location.href = '/login'
+    const status = error.response?.status
+    const message = error.response?.data?.message || error.message
+
+    // Manejo específico por código de estado HTTP
+    switch (status) {
+      case 401:
+        // No autorizado - Token inválido o expirado
+        localStorage.removeItem('accessToken')
+        window.location.href = '/login'
+        break
+
+      case 403:
+        // Prohibido - Sin permisos suficientes
+        toast.error('Acceso denegado: No tienes permisos para realizar esta acción')
+        break
+
+      case 404:
+        // No encontrado - Recurso no existe
+        toast.error('Recurso no encontrado. La solicitud puede ser inválida.')
+        break
+
+      case 409:
+        // Conflicto - Recurso ya existe o conflicto de datos
+        toast.error(`Conflicto: ${message}`)
+        break
+
+      case 422:
+        // Error de validación
+        const errors = error.response?.data?.errors || []
+        if (Array.isArray(errors) && errors.length > 0) {
+          toast.error(`Error de validación: ${errors.join(', ')}`)
+        } else {
+          toast.error(`Datos inválidos: ${message}`)
+        }
+        break
+
+      case 500:
+        // Error interno del servidor
+        toast.error('Error interno del servidor. Por favor intenta más tarde.')
+        console.error('[API Error 500]', {
+          url: error.config?.url,
+          method: error.config?.method,
+          message,
+        })
+        break
+
+      case 502:
+        // Bad Gateway - Servidor temporalmente caído
+        toast.error('Servidor temporalmente no disponible. Reintentando...')
+        break
+
+      case 503:
+        // Service Unavailable - Mantenimiento o sobrecarga
+        toast.error('Servicio temporalmente no disponible. Por favor intenta en unos minutos.')
+        break
+
+      default:
+        // Error genérico
+        if (error.code === 'ECONNABORTED' || error.code === 'ERR_CANCELED') {
+          toast.warning('La solicitud ha sido cancelada o ha excedido el tiempo de espera.')
+        } else if (!error.response) {
+          // Error de red (sin respuesta del servidor)
+          toast.error('Error de conexión. Verifica tu conexión a internet.')
+        } else {
+          // Otros errores HTTP
+          toast.error(message || 'Ocurrió un error inesperado. Por favor intenta nuevamente.')
+        }
     }
+
     return Promise.reject(error)
   }
 )
