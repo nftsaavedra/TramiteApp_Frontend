@@ -18,8 +18,8 @@ import {
 import { Input } from '@/components/ui/input'
 
 const formSchema = z.object({
-  email: z.email({
-    error: (iss) => (iss.input === '' ? 'Please enter your email' : undefined),
+  email: z.string().email({
+    message: 'Ingresa un correo electrónico válido',
   }),
 })
 
@@ -40,13 +40,13 @@ export function ForgotPasswordForm({
     setIsLoading(true)
 
     toast.promise(sleep(2000), {
-      loading: 'Sending email...',
+      loading: 'Enviando correo...',
       success: () => {
         setIsLoading(false)
         setIsSubmitted(true)
-        return `Email sent to ${data.email}`
+        return `Correo enviado a ${data.email}`
       },
-      error: 'Error',
+      error: 'Error al enviar el correo',
     })
   }
 
@@ -102,7 +102,7 @@ export function ForgotPasswordForm({
           )}
         />
         <Button className='mt-2' disabled={isLoading}>
-          Continue
+          Continuar
           {isLoading ? <Loader2 className='animate-spin' /> : <ArrowRight />}
         </Button>
       </form>
