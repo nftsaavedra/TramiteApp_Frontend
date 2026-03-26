@@ -9,6 +9,10 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: './src/tests/setup.ts',
     include: ['**/*.{test,spec}.{ts,tsx}'],
+    exclude: [
+      '**/e2e/**',
+      '**/node_modules/**',
+    ],
     coverage: {
       reporter: ['text', 'json', 'html'],
       exclude: [
@@ -17,6 +21,7 @@ export default defineConfig({
         '**/*.d.ts',
         '**/*.config.*',
         '**/mocks/**',
+        '**/e2e/**',
       ],
     },
   },

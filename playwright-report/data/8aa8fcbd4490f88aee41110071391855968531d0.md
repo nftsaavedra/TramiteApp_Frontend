@@ -1,0 +1,47 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e2]:
+  - generic [ref=e7]:
+    - generic [ref=e8]:
+      - generic [ref=e9]:
+        - img [ref=e10]
+        - heading "Trámite App" [level=1] [ref=e14]
+      - paragraph [ref=e15]: Sistema de Gestión Documental
+    - generic [ref=e19]:
+      - button [ref=e21]:
+        - img [ref=e25]
+      - generic [ref=e29]:
+        - generic [ref=e30]:
+          - generic [ref=e31]: Correo Electrónico
+          - generic [ref=e32]:
+            - img [ref=e33]
+            - textbox "nombre@ejemplo.com" [ref=e36]
+        - generic [ref=e37]:
+          - generic [ref=e38]:
+            - generic [ref=e39]: Contraseña
+            - link "¿Olvidaste tu contraseña?" [ref=e40] [cursor=pointer]:
+              - /url: /forgot-password
+          - generic [ref=e41]:
+            - img [ref=e42]
+            - textbox "••••••••" [ref=e45]
+            - button "Mostrar contraseña" [ref=e46]:
+              - img
+              - generic [ref=e47]: Ver contraseña
+      - button "Ingresar al sistema" [ref=e48]:
+        - img
+        - text: Ingresar al sistema
+  - region "Notifications alt+T"
+  - generic [ref=e49]:
+    - img [ref=e51]
+    - button "Open Tanstack query devtools" [ref=e99] [cursor=pointer]:
+      - img [ref=e100]
+  - generic:
+    - contentinfo:
+      - button "Open TanStack Router Devtools" [ref=e148] [cursor=pointer]:
+        - generic [ref=e149]:
+          - img [ref=e151]
+          - img [ref=e186]
+        - generic [ref=e220]: "-"
+        - generic [ref=e221]: TanStack Router
+```
