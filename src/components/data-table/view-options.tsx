@@ -24,8 +24,10 @@ export function DataTableViewOptions<TData>({
           variant='outline'
           size='sm'
           className='ms-auto hidden h-8 lg:flex'
+          aria-label='Mostrar/Ocultar columnas'
         >
-          <MixerHorizontalIcon className='size-4' />
+          <MixerHorizontalIcon className='size-4' aria-hidden='true' />
+          <span className='sr-only'>Toggle columns</span>
           View
         </Button>
       </DropdownMenuTrigger>
