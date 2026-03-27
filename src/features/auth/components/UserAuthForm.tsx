@@ -18,7 +18,6 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { ConnectionStatusIndicator } from '@/components/connection-status-indicator'
-import { useWebSocketStatus } from '@/hooks/use-websocket-status'
 
 const formSchema = z.object({
   email: z.string().email('Ingresa un correo electrónico válido.'),
@@ -30,13 +29,7 @@ export function UserAuthForm() {
   const { login } = useAuth()
   const [authError, setAuthError] = useState<string | null>(null)
   const [showPassword, setShowPassword] = useState(false)
-  
-  // Hook de estado de conexión WebSocket
-  const { isConnected } = useWebSocketStatus({
-    autoReconnect: true,
-    reconnectInterval: 3000,
-    maxReconnectAttempts: 10,
-  })
+  const [isServerOnline, setIsServerOnline] = useState(true)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -44,34 +37,44 @@ export function UserAuthForm() {
     defaultValues: { email: '', password: '' },
   })
 
-  // Limpiar formulario cuando se reconecta
+  // Limpiar error cuando haya conexión exitosa
   useEffect(() => {
-    if (isConnected && authError) {
+    if (isServerOnline && authError) {
       const timer = setTimeout(() => {
         setAuthError(null)
         form.reset()
       }, 0)
       return () => clearTimeout(timer)
     }
-  }, [isConnected, authError, form])
+  }, [isServerOnline, authError, form])
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setAuthError(null)
     try {
-      const response = await api.post('/api/auth/login', values)
+      const response = await api.post('/api/auth/login', values, {
+        timeout: 10000, // 10 segundos timeout
+      })
       const { access_token } = response.data
       if (access_token) {
         login(access_token)
         navigate({ to: '/' })
       }
+      setIsServerOnline(true) // Marcar servidor como online tras éxito
     } catch (error: unknown) {
       const err = error as { code?: string; response?: { status?: number; data?: { code?: string; message?: string } } }
       if (import.meta.env.DEV) console.error('Error de autenticación:', err) // eslint-disable-line no-console
       
+      // Detectar si es error de conexión
+      const isConnectionError = err.code === 'ERR_NETWORK' || err.code === 'ECONNREFUSED' || !err.response
+      
+      if (isConnectionError) {
+        setIsServerOnline(false)
+      }
+      
       // Manejo diferenciado de errores
       let errorMessage = 'Error al intentar ingresar. Por favor, inténtelo nuevamente.'
       
-      if (err.code === 'ERR_NETWORK') {
+      if (isConnectionError) {
         // Error de conexión con el servidor
         errorMessage = 'No se pudo conectar con el servidor. Verifique su conexión a internet.'
       } else if (err.response?.status === 0) {
@@ -107,7 +110,7 @@ export function UserAuthForm() {
         </div>
 
         {/* Alerta de offline */}
-        {!isConnected && (
+        {!isServerOnline && (
           <Alert variant='destructive' className='animate-in fade-in-50 slide-in-from-top-2'>
             <Wifi className='h-4 w-4' />
             <AlertTitle>Servidor no disponible</AlertTitle>
@@ -142,7 +145,7 @@ export function UserAuthForm() {
                     <Input
                       placeholder='nombre@ejemplo.com'
                       className='h-11 pl-10'
-                      disabled={!isConnected || form.formState.isSubmitting}
+                      disabled={!isServerOnline || form.formState.isSubmitting}
                       {...field}
                     />
                   </div>
@@ -162,7 +165,7 @@ export function UserAuthForm() {
                   <Link
                     to='/forgot-password'
                     className={`text-xs font-medium underline-offset-4 hover:underline ${
-                      !isConnected ? 'pointer-events-none opacity-50' : ''
+                      !isServerOnline ? 'pointer-events-none opacity-50' : ''
                     }`}
                   >
                     ¿Olvidaste tu contraseña?
@@ -175,7 +178,7 @@ export function UserAuthForm() {
                       type={showPassword ? 'text' : 'password'}
                       placeholder='••••••••'
                       className='h-11 pl-10 pr-10'
-                      disabled={!isConnected || form.formState.isSubmitting}
+                      disabled={!isServerOnline || form.formState.isSubmitting}
                       {...field}
                     />
                     <Button
@@ -183,7 +186,7 @@ export function UserAuthForm() {
                       variant='ghost'
                       size='icon'
                       className='absolute top-0 right-0 h-11 w-11 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 disabled:opacity-50 disabled:cursor-not-allowed'
-                      disabled={!isConnected}
+                      disabled={!isServerOnline}
                       onClick={() => setShowPassword(!showPassword)}
                       aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                     >
@@ -207,9 +210,9 @@ export function UserAuthForm() {
         <Button
           type='submit'
           className='h-12 w-full font-semibold text-base shadow-lg hover:shadow-xl transition-all duration-300'
-          disabled={!isConnected || form.formState.isSubmitting}
+          disabled={!isServerOnline || form.formState.isSubmitting}
         >
-          {!isConnected ? (
+          {!isServerOnline ? (
             <>
               <Wifi className='mr-2 h-5 w-5 animate-pulse' />
               Sin conexión...

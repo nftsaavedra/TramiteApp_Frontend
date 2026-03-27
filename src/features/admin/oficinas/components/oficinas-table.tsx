@@ -40,6 +40,8 @@ interface DataTableProps {
   onDelete: (oficina: Oficina) => void
   columnFilters: ColumnFiltersState
   setColumnFilters: React.Dispatch<React.SetStateAction<ColumnFiltersState>>
+  sorting?: SortingState
+  setSorting?: React.Dispatch<React.SetStateAction<SortingState>>
 }
 
 export function OficinasDataTable({
@@ -50,11 +52,12 @@ export function OficinasDataTable({
   onDelete,
   columnFilters, // Se reciben los props
   setColumnFilters, // Se reciben los props
+  sorting = [],
+  setSorting,
 }: DataTableProps) {
   const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({})
-  const [sorting, setSorting] = React.useState<SortingState>([])
 
   const table = useReactTable({
     data,

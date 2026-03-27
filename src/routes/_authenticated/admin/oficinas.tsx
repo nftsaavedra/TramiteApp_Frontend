@@ -1,9 +1,10 @@
 // En: src/routes/_authenticated/admin/oficinas.tsx
 import * as React from 'react'
+import { useMemo } from 'react'
 import { type AxiosError } from 'axios'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
-import { type ColumnFiltersState } from '@tanstack/react-table'
+import { type ColumnFiltersState, type SortingState } from '@tanstack/react-table'
 import { toast } from 'sonner'
 import api from '@/lib/api'
 import {
@@ -29,23 +30,38 @@ import {
 import { OficinaForm } from '@/features/admin/oficinas/components/oficina-form'
 import { OficinasDataTable } from '@/features/admin/oficinas/components/oficinas-table'
 import { type OficinaFormValues } from '@/features/admin/oficinas/data/schema'
+import {
+  useOficinasSearch,
+  oficinasFilterSchema,
+} from '@/features/admin/oficinas/hooks/use-oficinas-search'
 
 export const Route = createFileRoute('/_authenticated/admin/oficinas')({
   component: AdminOficinas,
+  validateSearch: oficinasFilterSchema,
 })
 
 // --- FUNCIONES DE API ---
-// La función de fetching ahora acepta los filtros para enviarlos al backend
+// La función de fetching ahora acepta los filtros desde URL params
 const fetchOficinas = async (
-  filters: ColumnFiltersState
+  searchParams: ReturnType<typeof useOficinasSearch>
 ): Promise<Oficina[]> => {
   const params = new URLSearchParams()
-  filters.forEach((filter) => {
-    // Solo se envían filtros que tienen un valor asignado
-    if (filter.value && String(filter.value).length > 0) {
-      params.append(filter.id, filter.value as string)
-    }
-  })
+  
+  // Búsqueda global (q)
+  if (searchParams.q) {
+    params.set('q', searchParams.q)
+  }
+  
+  // Filtros de columna
+  if (searchParams.tipo?.length) {
+    params.set('tipo', searchParams.tipo.join(','))
+  }
+  
+  // Ordenamiento
+  if (searchParams.sortBy) {
+    params.set('sortBy', searchParams.sortBy)
+  }
+  
   const { data } = await api.get('/api/oficinas', { params })
   return Array.isArray(data) ? data : []
 }
@@ -61,11 +77,11 @@ const deleteOficina = (id: string) => api.delete(`/api/oficinas/${id}`)
 
 function AdminOficinas() {
   const queryClient = useQueryClient()
+  const searchParams = useOficinasSearch()
 
   // --- ESTADO PARA GESTIONAR DIÁLOGOS, FILTROS Y DATOS SELECCIONADOS ---
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  )
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
+  const [sorting, setSorting] = React.useState<SortingState>([])
   const [isFormOpen, setIsFormOpen] = React.useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false)
   const [selectedOficina, setSelectedOficina] = React.useState<Oficina | null>(
@@ -89,11 +105,25 @@ function AdminOficinas() {
 
   const config = systemConfigData?.data
 
-  // --- useQuery ahora depende de 'columnFilters' para volver a cargar los datos ---
+  // --- useQuery ahora depende de 'searchParams' (URL) para volver a cargar los datos ---
   const { data, isLoading, error } = useQuery({
-    queryKey: ['oficinas', columnFilters],
-    queryFn: () => fetchOficinas(columnFilters),
+    queryKey: ['oficinas', searchParams],
+    queryFn: () => fetchOficinas(searchParams),
   })
+  
+  // --- Sincronización URL -> Tabla (Filtros de Columnas) ---
+  const urlColumnFilters = useMemo<ColumnFiltersState>(() => {
+    const filters = []
+    if (searchParams.tipo) {
+      filters.push({ id: 'tipo', value: searchParams.tipo })
+    }
+    return filters
+  }, [searchParams])
+  
+  // Sincronizar estado local con URL
+  React.useEffect(() => {
+    setColumnFilters(urlColumnFilters)
+  }, [urlColumnFilters])
 
   // --- MUTACIONES (CREATE, UPDATE, DELETE) ---
   const handleMutation = {
@@ -196,6 +226,8 @@ function AdminOficinas() {
         onDelete={openDeleteDialog}
         columnFilters={columnFilters}
         setColumnFilters={setColumnFilters}
+        sorting={sorting}
+        setSorting={setSorting}
       />
 
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>

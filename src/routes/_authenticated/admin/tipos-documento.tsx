@@ -1,8 +1,10 @@
 // En: src/routes/_authenticated/admin/tipos-documento.tsx
 import * as React from 'react'
+import { useMemo } from 'react'
 import { type AxiosError } from 'axios'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
+import { type ColumnFiltersState, type SortingState } from '@tanstack/react-table'
 import { toast } from 'sonner'
 import api from '@/lib/api'
 import {
@@ -27,9 +29,14 @@ import { createTiposDocumentoColumns } from '@/features/admin/tipos-documento/co
 import { TipoDocumentoForm } from '@/features/admin/tipos-documento/components/tipo-documento-form'
 import { TiposDocumentoDataTable } from '@/features/admin/tipos-documento/components/tipos-documento-table'
 import { type TipoDocumentoFormValues } from '@/features/admin/tipos-documento/data/schema'
+import {
+  useTiposDocumentoSearch,
+  tiposDocumentoFilterSchema,
+} from '@/features/admin/tipos-documento/hooks/use-tipos-documento-search'
 
 export const Route = createFileRoute('/_authenticated/admin/tipos-documento')({
   component: AdminTiposDocumento,
+  validateSearch: tiposDocumentoFilterSchema,
 })
 
 // Definimos el tipo aquí para usarlo en todo el archivo
@@ -41,8 +48,22 @@ export type TipoDocumento = {
 }
 
 // --- FUNCIONES DE API ---
-const fetchTiposDocumento = async (): Promise<TipoDocumento[]> => {
-  const { data } = await api.get('/api/tipos-documento')
+const fetchTiposDocumento = async (
+  searchParams: ReturnType<typeof useTiposDocumentoSearch>
+): Promise<TipoDocumento[]> => {
+  const params = new URLSearchParams()
+  
+  // Búsqueda global (q)
+  if (searchParams.q) {
+    params.set('q', searchParams.q)
+  }
+  
+  // Ordenamiento
+  if (searchParams.sortBy) {
+    params.set('sortBy', searchParams.sortBy)
+  }
+  
+  const { data } = await api.get('/api/tipos-documento', { params })
   return Array.isArray(data) ? data : []
 }
 const createTipoDocumento = (newData: TipoDocumentoFormValues) =>
@@ -56,16 +77,31 @@ const deleteTipoDocumento = (id: string) => api.delete(`/api/tipos-documento/${i
 
 function AdminTiposDocumento() {
   const queryClient = useQueryClient()
+  const searchParams = useTiposDocumentoSearch()
 
   // --- ESTADO PARA GESTIONAR DIÁLOGOS Y DATOS SELECCIONADOS ---
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
+  const [sorting, setSorting] = React.useState<SortingState>([])
   const [isFormOpen, setIsFormOpen] = React.useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false)
   const [selected, setSelected] = React.useState<TipoDocumento | null>(null)
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['tipos-documento'],
-    queryFn: fetchTiposDocumento,
+    queryKey: ['tipos-documento', searchParams],
+    queryFn: () => fetchTiposDocumento(searchParams),
   })
+  
+  // --- Sincronización URL -> Tabla (Filtros de Columnas) ---
+  const urlColumnFilters = useMemo<ColumnFiltersState>(() => {
+    const filters: ColumnFiltersState = []
+    // Aquí irían filtros específicos si los hubiera en el futuro
+    return filters
+  }, [searchParams])
+  
+  // Sincronizar estado local con URL
+  React.useEffect(() => {
+    setColumnFilters(urlColumnFilters)
+  }, [urlColumnFilters])
 
   // --- MUTACIONES (CREATE, UPDATE, DELETE) ---
   const handleMutation = {
@@ -163,6 +199,10 @@ function AdminTiposDocumento() {
         columns={columns}
         data={data || []}
         onCreate={() => openForm(null)}
+        columnFilters={columnFilters}
+        setColumnFilters={setColumnFilters}
+        sorting={sorting}
+        setSorting={setSorting}
       />
 
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>

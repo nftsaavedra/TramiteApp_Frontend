@@ -1,4 +1,4 @@
-// En: src/features/admin/oficinas/components/oficinas-table-toolbar.tsx
+// En: src/features/admin/tipos-documento/components/tipos-documento-table-toolbar.tsx
 
 'use client'
 
@@ -9,11 +9,7 @@ import { type Table } from '@tanstack/react-table'
 import { useDebounce } from '@/hooks/use-debounce'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { DataTableFacetedFilter } from '@/components/data-table/faceted-filter'
 import { DataTableViewOptions } from '@/components/data-table/view-options'
-import { tiposOficina } from '../data/schema'
-
-// En: src/features/admin/oficinas/components/oficinas-table-toolbar.tsx
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>
@@ -32,42 +28,18 @@ export function DataTableToolbar<TData>({
   )
   const debouncedNombreFilter = useDebounce(nombreFilter, 500)
   
-  // Estado local para búsqueda por siglas (con debounce)
-  const [siglasFilter, setSiglasFilter] = useState(
-    (table.getColumn('siglas')?.getFilterValue() as string) ?? ''
-  )
-  const debouncedSiglasFilter = useDebounce(siglasFilter, 500)
-  
-  // Sincronizar filtros después del debounce
+  // Sincronizar filtro después del debounce
   useEffect(() => {
     table.getColumn('nombre')?.setFilterValue(debouncedNombreFilter)
   }, [debouncedNombreFilter])
   
-  useEffect(() => {
-    table.getColumn('siglas')?.setFilterValue(debouncedSiglasFilter)
-  }, [debouncedSiglasFilter])
-  
-  // Sincronizar estados locales si los filtros cambian externamente
+  // Sincronizar estado local si el filtro cambia externamente
   useEffect(() => {
     const currentNombre = (table.getColumn('nombre')?.getFilterValue() as string) ?? ''
     if (currentNombre !== nombreFilter) {
       setNombreFilter(currentNombre)
     }
   }, [table.getColumn('nombre')?.getFilterValue(), nombreFilter])
-  
-  useEffect(() => {
-    const currentSiglas = (table.getColumn('siglas')?.getFilterValue() as string) ?? ''
-    if (currentSiglas !== siglasFilter) {
-      setSiglasFilter(currentSiglas)
-    }
-  }, [table.getColumn('siglas')?.getFilterValue(), siglasFilter])
-
-  const tipoOptions = tiposOficina.map((tipo) => ({
-    label:
-      tipo.replace(/_/g, ' ').charAt(0).toUpperCase() +
-      tipo.replace(/_/g, ' ').slice(1).toLowerCase(),
-    value: tipo,
-  }))
 
   return (
     <div className='flex flex-col gap-4'>
@@ -83,28 +55,10 @@ export function DataTableToolbar<TData>({
               placeholder='Filtrar por nombre...'
               value={nombreFilter}
               onChange={(event) => setNombreFilter(event.target.value)}
-              aria-label='Filtrar oficinas por nombre'
+              aria-label='Filtrar tipos de documento por nombre'
               className='h-8 w-full pl-8 sm:w-[200px] lg:w-[250px]'
             />
           </div>
-          
-          {/* 2. Búsqueda por siglas (con debounce) */}
-          <div className='relative w-full sm:w-auto'>
-            <Input
-              placeholder='Filtrar por siglas...'
-              value={siglasFilter}
-              onChange={(event) => setSiglasFilter(event.target.value)}
-              aria-label='Filtrar oficinas por siglas'
-              className='h-8 w-full sm:w-[120px] lg:w-[150px]'
-            />
-          </div>
-          {table.getColumn('tipo') && (
-            <DataTableFacetedFilter
-              column={table.getColumn('tipo')}
-              title='Tipo'
-              options={tipoOptions}
-            />
-          )}
           
           {isFiltered && (
             <Button
@@ -112,7 +66,6 @@ export function DataTableToolbar<TData>({
               onClick={() => {
                 table.resetColumnFilters()
                 setNombreFilter('')
-                setSiglasFilter('')
               }}
               className='h-8 px-2 lg:px-3'
               aria-label='Limpiar todos los filtros'
@@ -126,7 +79,7 @@ export function DataTableToolbar<TData>({
         <div className='flex flex-wrap items-center gap-2'>
           <Button onClick={onCreate} size='sm' className='h-8'>
             <PlusCircledIcon className='mr-2 h-4 w-4' />
-            Añadir Oficina
+            Añadir Tipo
           </Button>
           <DataTableViewOptions table={table} />
         </div>

@@ -3,7 +3,6 @@
 'use client'
 
 import * as React from 'react'
-import { PlusCircledIcon } from '@radix-ui/react-icons'
 import {
   type ColumnDef,
   type ColumnFiltersState,
@@ -16,8 +15,8 @@ import {
   useReactTable,
 } from '@tanstack/react-table'
 import { type TipoDocumento } from '@/routes/_authenticated/admin/tipos-documento'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { DataTablePagination } from '@/components/data-table/pagination'
+import { DataTableToolbar } from './tipos-documento-table-toolbar'
 import {
   Table,
   TableBody,
@@ -26,7 +25,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { DataTablePagination } from '@/components/data-table/pagination'
 
 // En: src/features/admin/tipos-documento/components/tipos-documento-table.tsx
 
@@ -34,24 +32,32 @@ interface DataTableProps {
   columns: ColumnDef<TipoDocumento>[]
   data: TipoDocumento[]
   onCreate: () => void
+  columnFilters?: ColumnFiltersState
+  setColumnFilters?: React.Dispatch<React.SetStateAction<ColumnFiltersState>>
+  sorting?: SortingState
+  setSorting?: React.Dispatch<React.SetStateAction<SortingState>>
 }
 
 export function TiposDocumentoDataTable({
   columns,
   data,
   onCreate,
+  columnFilters = [],
+  setColumnFilters,
+  sorting = [],
+  setSorting,
 }: DataTableProps) {
-  const [sorting, setSorting] = React.useState<SortingState>([])
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  )
+  const [rowSelection, setRowSelection] = React.useState({})
+  const [columnVisibility, setColumnVisibility] = React.useState({})
 
   const table = useReactTable({
     data,
     columns,
-    state: { sorting, columnFilters },
+    state: { sorting, columnVisibility, rowSelection, columnFilters },
+    onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
+    onColumnVisibilityChange: setColumnVisibility,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -60,20 +66,7 @@ export function TiposDocumentoDataTable({
 
   return (
     <div className='space-y-4'>
-      <div className='flex items-center justify-between'>
-        <Input
-          placeholder='Filtrar por nombre...'
-          value={(table.getColumn('nombre')?.getFilterValue() as string) ?? ''}
-          onChange={(e) =>
-            table.getColumn('nombre')?.setFilterValue(e.target.value)
-          }
-          className='h-8 max-w-sm'
-        />
-        <Button onClick={onCreate} size='sm' className='h-8'>
-          <PlusCircledIcon className='mr-2 h-4 w-4' />
-          Añadir Tipo
-        </Button>
-      </div>
+      <DataTableToolbar table={table} onCreate={onCreate} />
       <div className='rounded-md border'>
         <Table>
           <TableHeader>
