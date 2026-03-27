@@ -2,11 +2,17 @@
 
 import { useState, useEffect } from 'react'
 import { type Table } from '@tanstack/react-table'
-import { X, Search, Shield, Activity } from 'lucide-react'
+import { X, Search, Loader2, Shield, Activity } from 'lucide-react'
 import { useDebounce } from '@/hooks/use-debounce'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { DataTableFacetedFilter } from '@/components/data-table/faceted-filter'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 
 // Opciones basadas en tu Schema Prisma (Role enum)
 const rolesOptions = [
@@ -36,6 +42,7 @@ export function UsersTableToolbar<TData>({
   
   // Estado local para input (evita lentitud al escribir)
   const [searchValue, setSearchValue] = useState(globalFilter)
+  const [isSearching, setIsSearching] = useState(false)
   
   // Debounce del valor de búsqueda: solo actualiza después de 500ms
   const debouncedSearchValue = useDebounce(searchValue, 500)
@@ -43,7 +50,9 @@ export function UsersTableToolbar<TData>({
   // Sincronizar filtro global cuando cambia el valor debounced
   useEffect(() => {
     if (debouncedSearchValue !== globalFilter) {
+      setIsSearching(true)
       onGlobalFilterChange(debouncedSearchValue)
+      setTimeout(() => setIsSearching(false), 300)
     }
   }, [debouncedSearchValue, onGlobalFilterChange, globalFilter])
   
@@ -57,11 +66,20 @@ export function UsersTableToolbar<TData>({
       <div className='flex flex-wrap items-center justify-between gap-2'>
         <div className='flex flex-1 flex-wrap items-center gap-2'>
           {/* 1. Búsqueda Inteligente (con debounce) */}
-          <div className='relative w-full sm:w-auto'>
-            <Search 
-              className='text-muted-foreground absolute top-2.5 left-2 h-4 w-4' 
-              aria-hidden='true'
-            />
+          <div className='relative flex items-center w-full sm:w-auto'>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Search 
+                    className='text-muted-foreground absolute top-2.5 left-2 h-4 w-4' 
+                    aria-hidden='true'
+                  />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Buscar por nombre, email o rol</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
             <Input
               placeholder='Buscar usuarios...'
               value={searchValue}
@@ -70,8 +88,26 @@ export function UsersTableToolbar<TData>({
                 // No actualizar inmediatamente - usar debounce
               }}
               aria-label='Buscar usuarios por nombre, email o rol'
-              className='h-8 w-full pl-8 sm:w-[250px] lg:w-[300px]'
+              className='h-8 w-full pl-8 pr-8 sm:w-[250px] lg:w-[300px]'
             />
+            {isSearching && (
+              <Loader2 className='absolute right-2 top-2.5 h-4 w-4 animate-spin text-muted-foreground' aria-hidden='true' />
+            )}
+            {searchValue && !isSearching && (
+              <Button
+                variant='ghost'
+                size='icon'
+                className='absolute right-0 top-0 h-8 w-8 hover:bg-transparent'
+                onClick={() => {
+                  setSearchValue('')
+                  onGlobalFilterChange('')
+                }}
+                aria-label='Limpiar búsqueda'
+                type='button'
+              >
+                <X className='h-4 w-4 text-muted-foreground' />
+              </Button>
+            )}
           </div>
 
           {/* 2. Filtro de Roles */}

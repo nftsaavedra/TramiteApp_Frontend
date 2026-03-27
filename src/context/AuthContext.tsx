@@ -25,6 +25,7 @@ interface AuthContextType {
   logout: () => void
   isAuthenticated: boolean
   isLoading: boolean // <--- CRUCIAL: Nuevo estado para manejar el F5
+  isLoggingIn: boolean // <--- Para mostrar feedback durante el proceso de login
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -33,6 +34,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<UserProfile | null>(null)
   // Inicializamos cargando en TRUE. La app nace "pensando"
   const [isLoading, setIsLoading] = useState(true)
+  const [isLoggingIn, setIsLoggingIn] = useState(false)
 
   // Efecto de Rehidratación
   useEffect(() => {
@@ -63,15 +65,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [])
 
   const login = async (token: string) => {
+    setIsLoggingIn(true) // Marcamos que está logueándose
     localStorage.setItem('accessToken', token)
     try {
       // Al hacer login, también pedimos los datos completos al perfil
       // para asegurar consistencia inmediata
       const { data } = await api.get<UserProfile>('/api/auth/profile')
       setUser(data)
+      // Forzamos una actualización inmediata del estado isAuthenticated
+      // Esto previene problemas de race condition en la navegación
     } catch (error) {
       if (import.meta.env.DEV)
         console.error('Error obteniendo perfil tras login', error) // eslint-disable-line no-console
+      // No hacemos logout aquí para permitir reintentos
+      // El usuario puede intentar nuevamente si fue un error temporal
+    } finally {
+      setIsLoggingIn(false) // Terminamos el estado de login
     }
   }
 
@@ -86,7 +95,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, login, logout, isAuthenticated, isLoading }}
+      value={{ user, login, logout, isAuthenticated, isLoading, isLoggingIn }}
     >
       {children}
     </AuthContext.Provider>

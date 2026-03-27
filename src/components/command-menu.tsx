@@ -50,7 +50,7 @@ export function CommandMenu() {
               { url: '/admin/oficinas', title: 'Oficinas', icon: Lock },
               {
                 url: '/admin/tipos-documento',
-                title: 'Tipos de Documento',
+                title: 'Tipos Doc.',
                 icon: Lock,
               },
             ],

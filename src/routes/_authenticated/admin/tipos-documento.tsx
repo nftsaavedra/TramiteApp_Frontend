@@ -188,7 +188,7 @@ function AdminTiposDocumento() {
     <div className='w-full space-y-6 p-6'>
       <div>
         <h2 className='text-2xl font-bold tracking-tight'>
-          Gestión de Tipos de Documento
+          Gestión de Tipos Doc.
         </h2>
         <p className='text-muted-foreground'>
           Cree, edite y administre los tipos de documento del sistema.

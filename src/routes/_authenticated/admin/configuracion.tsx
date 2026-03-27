@@ -135,7 +135,7 @@ export function ConfiguracionSistema() {
       <div className="w-full space-y-6 p-6">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold tracking-tight">Configuración Inicial del Sistema</h2>
+            <h2 className="text-2xl font-bold tracking-tight">Configuración Inicial</h2>
             <p className="text-muted-foreground">
               Primer arranque detectado. Configura la oficina raíz para comenzar.
             </p>
@@ -243,7 +243,7 @@ export function ConfiguracionSistema() {
       {/* Header con estado */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Configuración del Sistema</h2>
+          <h2 className="text-2xl font-bold tracking-tight">Configuración</h2>
           <p className="text-muted-foreground">
             Gestiona la configuración global de la oficina raíz y parámetros del sistema
           </p>

@@ -26,7 +26,7 @@ const formSchema = z.object({
 
 export function UserAuthForm() {
   const navigate = useNavigate()
-  const { login } = useAuth()
+  const { login, isLoggingIn } = useAuth()
   const [authError, setAuthError] = useState<string | null>(null)
   const [showPassword, setShowPassword] = useState(false)
   const [isServerOnline, setIsServerOnline] = useState(true)
@@ -56,8 +56,12 @@ export function UserAuthForm() {
       })
       const { access_token } = response.data
       if (access_token) {
-        login(access_token)
-        navigate({ to: '/' })
+        // Esperamos a que el login se complete completamente antes de navegar
+        await login(access_token)
+        // Pequeño delay para asegurar que el estado se propagó
+        await new Promise(resolve => setTimeout(resolve, 100))
+        // Navegamos con reemplazo de historial para evitar volver al login con back button
+        navigate({ to: '/', replace: true })
       }
       setIsServerOnline(true) // Marcar servidor como online tras éxito
     } catch (error: unknown) {
@@ -210,14 +214,14 @@ export function UserAuthForm() {
         <Button
           type='submit'
           className='h-12 w-full font-semibold text-base shadow-lg hover:shadow-xl transition-all duration-300'
-          disabled={!isServerOnline || form.formState.isSubmitting}
+          disabled={!isServerOnline || form.formState.isSubmitting || isLoggingIn}
         >
           {!isServerOnline ? (
             <>
               <Wifi className='mr-2 h-5 w-5 animate-pulse' />
               Sin conexión...
             </>
-          ) : form.formState.isSubmitting ? (
+          ) : form.formState.isSubmitting || isLoggingIn ? (
             <>
               <Loader2 className='mr-2 h-5 w-5 animate-spin' />
               Ingresando...

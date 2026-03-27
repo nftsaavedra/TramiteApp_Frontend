@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { type Table } from '@tanstack/react-table'
-import { X, Search } from 'lucide-react'
+import { X, Search, Loader2 } from 'lucide-react'
 import { type DateRange } from 'react-day-picker'
 import { useDebounce } from '@/hooks/use-debounce'
 import { Button } from '@/components/ui/button'
@@ -10,6 +10,12 @@ import { Input } from '@/components/ui/input'
 import { DateRangeFilter } from '@/components/data-table/date-range-filter'
 import { DataTableFacetedFilter } from '@/components/data-table/faceted-filter'
 import { estados, prioridades } from '../data/data'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 
 export interface FilterOption {
   label: string
@@ -51,6 +57,7 @@ export function TramitesTableToolbar<TData>({
 
   // Estado local para input (evita lentitud al escribir)
   const [searchValue, setSearchValue] = useState(globalFilter)
+  const [isSearching, setIsSearching] = useState(false)
 
   // Debounce del valor de búsqueda: solo actualiza el filtro global después de 500ms
   const debouncedSearchValue = useDebounce(searchValue, 500)
@@ -58,7 +65,10 @@ export function TramitesTableToolbar<TData>({
   // Sincronizar filtro global cuando cambia el valor debounced
   useEffect(() => {
     if (debouncedSearchValue !== globalFilter) {
+      setIsSearching(true)
       onGlobalFilterChange(debouncedSearchValue)
+      // Simular fin de búsqueda después de 300ms
+      setTimeout(() => setIsSearching(false), 300)
     }
   }, [debouncedSearchValue, onGlobalFilterChange, globalFilter])
 
@@ -72,17 +82,44 @@ export function TramitesTableToolbar<TData>({
       <div className='flex flex-wrap items-center justify-between gap-2'>
         <div className='flex flex-1 flex-wrap items-center gap-2'>
           {/* 1. INPUT DE BÚSQUEDA GLOBAL (Conectado a 'q') */}
-          <div className='relative'>
-            <Search className='text-muted-foreground absolute top-2.5 left-2 h-4 w-4' />
+          <div className='relative flex items-center'>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Search className='text-muted-foreground absolute top-2.5 left-2 h-4 w-4' aria-hidden='true' />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Buscar por asunto, oficina o documento</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
             <Input
               placeholder='Buscar (Asunto, Oficina, Doc...)'
               value={searchValue}
               onChange={(event) => {
                 setSearchValue(event.target.value)
-                // ELIMINADO: onGlobalFilterChange inmediato
               }}
-              className='h-8 w-full sm:w-[250px] lg:w-[350px]'
+              className='h-8 w-full pl-8 pr-8 sm:w-[250px] lg:w-[350px]'
+              aria-label='Buscar trámites'
             />
+            {isSearching && (
+              <Loader2 className='absolute right-2 top-2.5 h-4 w-4 animate-spin text-muted-foreground' aria-hidden='true' />
+            )}
+            {searchValue && !isSearching && (
+              <Button
+                variant='ghost'
+                size='icon'
+                className='absolute right-0 top-0 h-8 w-8 hover:bg-transparent'
+                onClick={() => {
+                  setSearchValue('')
+                  onGlobalFilterChange('')
+                }}
+                aria-label='Limpiar búsqueda'
+                type='button'
+              >
+                <X className='h-4 w-4 text-muted-foreground' />
+              </Button>
+            )}
           </div>
 
           {/* 2. FILTRO DE FECHAS (Conectado a params de fecha) */}

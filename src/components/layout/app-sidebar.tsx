@@ -52,12 +52,12 @@ export function AppSidebar() {
               },
               {
                 url: '/admin/tipos-documento',
-                title: 'Tipos de Documento',
+                title: 'Tipos Doc.',
                 icon: FileText,
               },
               {
                 url: '/admin/configuracion',
-                title: 'Configuración del Sistema',
+                title: 'Configuración',
                 icon: Building2,
               },
             ],
