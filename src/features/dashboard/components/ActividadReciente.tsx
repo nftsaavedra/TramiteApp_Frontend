@@ -3,10 +3,12 @@ import { es } from 'date-fns/locale'
 import { FileText, Send, CheckCircle, Archive, AlertCircle } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { Skeleton } from '@/components/ui/skeleton'
 import { type RecentActivity } from '../services/dashboard.service'
 
 interface ActividadRecienteProps {
   data?: RecentActivity[]
+  isLoading?: boolean
 }
 
 const getActivityConfig = (action: string) => {
@@ -51,7 +53,31 @@ const getActivityConfig = (action: string) => {
   }
 }
 
-export function ActividadReciente({ data = [] }: ActividadRecienteProps) {
+export function ActividadReciente({ data = [], isLoading = false }: ActividadRecienteProps) {
+  if (isLoading) {
+    return (
+      <div className='space-y-3 pl-1'>
+        {Array.from({ length: 5 }).map((_, index) => (
+          <div
+            key={index}
+            className='flex items-start gap-3 rounded-lg border p-3'
+          >
+            <Skeleton className='h-8 w-8 rounded-full' />
+            <div className='flex min-w-0 flex-1 flex-col gap-2'>
+              <div className='flex items-center justify-between gap-2'>
+                <Skeleton className='h-4 w-32' />
+                <Skeleton className='h-3 w-16' />
+              </div>
+              <Skeleton className='h-3 w-full' />
+              <Skeleton className='h-3 w-5/6' />
+              <Skeleton className='h-5 w-20' />
+            </div>
+          </div>
+        ))}
+      </div>
+    )
+  }
+
   if (data.length === 0) {
     return (
       <div className='text-muted-foreground py-8 text-center text-sm'>

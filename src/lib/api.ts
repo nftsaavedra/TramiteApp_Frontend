@@ -28,6 +28,15 @@ axiosRetry(api, {
 // 3. Crear un "interceptor" que se ejecuta ANTES de cada petición
 api.interceptors.request.use(
   (config) => {
+    // Normalizar URL: eliminar /api inicial duplicado si baseURL ya lo incluye
+    if (config.url && config.url.startsWith('/api/')) {
+      // Si baseURL termina con /api o está vacío, quitar /api de la url
+      const baseURL = import.meta.env.VITE_API_BASE_URL || ''
+      if (baseURL.endsWith('/api') || baseURL === '' || baseURL === '/api') {
+        config.url = config.url.substring(1) // Quitar el primer /
+      }
+    }
+    
     // Obtener el token del localStorage
     const token = localStorage.getItem('accessToken')
 

@@ -8,13 +8,38 @@ import {
   YAxis,
   LabelList,
 } from 'recharts'
+import { Skeleton } from '@/components/ui/skeleton'
 import { type VolumeStat } from '../services/dashboard.service'
 
 interface VolumenChartProps {
   data?: VolumeStat[]
+  isLoading?: boolean
 }
 
-export function VolumenChart({ data = [] }: VolumenChartProps) {
+export function VolumenChart({ data = [], isLoading = false }: VolumenChartProps) {
+  if (isLoading) {
+    return (
+      <div className='space-y-4'>
+        {/* Skeleton para ejes y barras */}
+        <div className='flex h-[300px] items-end justify-between gap-2 px-4'>
+          {Array.from({ length: 7 }).map((_, i) => (
+            <Skeleton
+              key={i}
+              className='w-full'
+              style={{ height: `${Math.random() * 60 + 20}%` }}
+            />
+          ))}
+        </div>
+        {/* Skeleton para labels del eje X */}
+        <div className='flex justify-between px-4'>
+          {Array.from({ length: 7 }).map((_, i) => (
+            <Skeleton key={i} className='h-3 w-12' />
+          ))}
+        </div>
+      </div>
+    )
+  }
+
   return (
     <ResponsiveContainer width='100%' height={350}>
       <BarChart data={data}>

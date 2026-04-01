@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Main } from '@/components/layout/main'
 import { ActividadReciente } from './components/ActividadReciente'
 import { VolumenChart } from './components/ResumenMensual'
@@ -122,12 +123,47 @@ export function Dashboard() {
     },
   ]
 
+  // Eliminar loader full screen y mostrar skeletons en su lugar
   if (loading && !stats) {
-    // Solo mostrar loader full screen la primera vez
     return (
-      <Main>
-        <div className='flex h-[50vh] w-full items-center justify-center'>
-          <div className='bg-primary h-8 w-8 animate-spin rounded-full border-4 border-solid border-t-transparent'></div>
+      <Main fluid className='w-full'>
+        <div className='w-full space-y-6'>
+          {/* Header skeleton */}
+          <div className='flex items-center justify-between'>
+            <div className='space-y-2'>
+              <Skeleton className='h-9 w-48' />
+              <Skeleton className='h-4 w-64' />
+            </div>
+            <Skeleton className='h-10 w-32' />
+          </div>
+
+          {/* Stat cards skeleton */}
+          <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-4'>
+            {Array.from({ length: 4 }).map((_, i) => (
+              <StatCard key={i} {...statCards[i]} isLoading={true} />
+            ))}
+          </div>
+
+          {/* Charts skeleton */}
+          <div className='mt-8 grid grid-cols-1 gap-4 lg:grid-cols-7'>
+            <Card className='col-span-1 lg:col-span-4'>
+              <CardHeader>
+                <Skeleton className='h-6 w-40' />
+              </CardHeader>
+              <CardContent>
+                <VolumenChart isLoading={true} />
+              </CardContent>
+            </Card>
+            <Card className='col-span-1 lg:col-span-3'>
+              <CardHeader>
+                <Skeleton className='h-6 w-48' />
+                <Skeleton className='h-4 w-32' />
+              </CardHeader>
+              <CardContent>
+                <ActividadReciente isLoading={true} />
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </Main>
     )
@@ -176,7 +212,7 @@ export function Dashboard() {
         {/* Fila de Tarjetas de Estadísticas */}
         <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-4'>
           {statCards.map((stat) => (
-            <StatCard key={stat.title} {...stat} />
+            <StatCard key={stat.title} {...stat} isLoading={loading} />
           ))}
         </div>
 
@@ -221,7 +257,7 @@ export function Dashboard() {
               </div>
             </CardHeader>
             <CardContent className='ps-2 pt-4'>
-              <VolumenChart data={volumeData} />
+              <VolumenChart data={volumeData} isLoading={loading && volumeData.length === 0} />
             </CardContent>
           </Card>
           <Card className='col-span-1 lg:col-span-3'>
@@ -232,7 +268,7 @@ export function Dashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <ActividadReciente data={recentActivity} />
+              <ActividadReciente data={recentActivity} isLoading={loading && recentActivity.length === 0} />
             </CardContent>
           </Card>
         </div>

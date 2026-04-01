@@ -4,6 +4,7 @@ import react from '@vitejs/plugin-react-swc'
 import tailwindcss from '@tailwindcss/vite'
 import { tanstackRouter } from '@tanstack/router-plugin/vite'
 import tsconfigPaths from 'vite-tsconfig-paths'
+import path from 'path'
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
@@ -31,12 +32,19 @@ export default defineConfig(({ mode }) => {
         },
       },
     ],
+    resolve: {
+      alias: {
+        '@': path.resolve(__dirname, './src'),
+      },
+    },
     // Optimización: Build más rápido
     build: {
-      sourcemap: false, // Reducir tamaño de build
-      chunkSizeWarningLimit: 500, // Alerta más estricta
-      minify: 'esbuild', // Más rápido que terser
-      target: 'esnext', // Moderno para mejor tree-shaking
+      outDir: '../tramite_backend/public',  // ← Output en backend para serve estático
+      emptyOutDir: true,                     // ← Limpiar directorio antes de cada build
+      sourcemap: false,                      // Reducir tamaño de build
+      chunkSizeWarningLimit: 500,            // Alerta más estricta
+      minify: 'esbuild',                     // Más rápido que terser
+      target: 'esnext',                      // Moderno para mejor tree-shaking
       rollupOptions: {
         output: {
           manualChunks: {

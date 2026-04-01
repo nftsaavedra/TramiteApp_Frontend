@@ -18,7 +18,7 @@ interface UseWebSocketStatusOptions {
 
 export function useWebSocketStatus(options: UseWebSocketStatusOptions = {}) {
   const {
-    url = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000',
+    url = import.meta.env.VITE_WS_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000',
     autoReconnect = true,
     reconnectInterval = 3000,
     maxReconnectAttempts = 10,
@@ -30,6 +30,7 @@ export function useWebSocketStatus(options: UseWebSocketStatusOptions = {}) {
   const [latency, setLatency] = useState<number | null>(null);
   const reconnectAttemptsRef = useRef(0);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const connectionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const connect = useCallback(() => {
     // Limpiar socket existente si lo hay
@@ -37,6 +38,12 @@ export function useWebSocketStatus(options: UseWebSocketStatusOptions = {}) {
       socketRef.current.removeAllListeners();
       socketRef.current.disconnect();
       socketRef.current = null;
+    }
+
+    // Limpiar timeouts previos
+    if (connectionTimeoutRef.current) {
+      clearTimeout(connectionTimeoutRef.current);
+      connectionTimeoutRef.current = null;
     }
 
     setStatus('connecting');
@@ -48,12 +55,32 @@ export function useWebSocketStatus(options: UseWebSocketStatusOptions = {}) {
       forceNew: true,
     });
 
+    // Timeout de conexión inicial - si no conecta en 5 segundos, marcar como offline
+    connectionTimeoutRef.current = setTimeout(() => {
+      if (socket && !socket.connected) {
+        console.warn('[WebSocket] Timeout de conexión inicial (5s) - marcando como offline');
+        setStatus('offline');
+        socket.disconnect();
+      }
+    }, 5000);
+
     socket.on('connect', () => {
       setStatus('online')
       reconnectAttemptsRef.current = 0
+      // Limpiar timeout de conexión exitosa
+      if (connectionTimeoutRef.current) {
+        clearTimeout(connectionTimeoutRef.current);
+        connectionTimeoutRef.current = null;
+      }
     })
 
     socket.on('disconnect', (_reason) => {
+      // Limpiar timeout de conexión
+      if (connectionTimeoutRef.current) {
+        clearTimeout(connectionTimeoutRef.current);
+        connectionTimeoutRef.current = null;
+      }
+      
       if (autoReconnect && reconnectAttemptsRef.current < maxReconnectAttempts) {
         setStatus('connecting');
         reconnectAttemptsRef.current += 1
@@ -73,6 +100,16 @@ export function useWebSocketStatus(options: UseWebSocketStatusOptions = {}) {
     })
 
     socket.on('connect_error', (_error) => {
+      // Limpiar timeout de conexión
+      if (connectionTimeoutRef.current) {
+        clearTimeout(connectionTimeoutRef.current);
+        connectionTimeoutRef.current = null;
+      }
+      
+      if (import.meta.env.DEV) {
+        console.warn('[WebSocket] Error de conexión:', _error);
+      }
+      
       if (autoReconnect && reconnectAttemptsRef.current < maxReconnectAttempts) {
         reconnectAttemptsRef.current += 1;
         
@@ -83,6 +120,8 @@ export function useWebSocketStatus(options: UseWebSocketStatusOptions = {}) {
         reconnectTimeoutRef.current = setTimeout(() => {
           connect();
         }, reconnectInterval);
+      } else {
+        setStatus('offline');
       }
     });
 
@@ -110,9 +149,15 @@ export function useWebSocketStatus(options: UseWebSocketStatusOptions = {}) {
   }, [url, autoReconnect, reconnectInterval, maxReconnectAttempts]); // ← ELIMINAR 'status' de las dependencias
 
   const disconnect = useCallback(() => {
+    // Limpiar todos los timeouts
     if (reconnectTimeoutRef.current) {
       clearTimeout(reconnectTimeoutRef.current);
       reconnectTimeoutRef.current = null;
+    }
+    
+    if (connectionTimeoutRef.current) {
+      clearTimeout(connectionTimeoutRef.current);
+      connectionTimeoutRef.current = null;
     }
 
     if (socketRef.current) {
@@ -134,14 +179,15 @@ export function useWebSocketStatus(options: UseWebSocketStatusOptions = {}) {
     return false;
   }, []);
 
-  // Auto-conectar al montar
+  // Auto-conectar al montar - sin dependencias para evitar ciclos
   useEffect(() => {
     connect();
 
     return () => {
       disconnect();
     };
-  }, [connect, disconnect]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // ← Array vacío - solo se ejecuta al montar y desmontar
 
   // Ping periódico para monitoreo de latencia
   useEffect(() => {
