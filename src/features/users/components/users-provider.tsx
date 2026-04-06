@@ -71,7 +71,7 @@ const fetchUsers = async (): Promise<User[]> => {
 }
 
 const fetchOficinas = async (): Promise<Oficina[]> => {
-  const { data } = await api.get('/oficinas')
+  const { data } = await api.get('/api/oficinas')
   return Array.isArray(data) ? data : []
 }
 
