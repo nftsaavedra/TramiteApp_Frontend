@@ -58,7 +58,9 @@ export function useWebSocketStatus(options: UseWebSocketStatusOptions = {}) {
     // Timeout de conexión inicial - si no conecta en 5 segundos, marcar como offline
     connectionTimeoutRef.current = setTimeout(() => {
       if (socket && !socket.connected) {
-        console.warn('[WebSocket] Timeout de conexión inicial (5s) - marcando como offline');
+        if (import.meta.env.DEV) {
+          console.warn('[WebSocket] Timeout de conexión inicial (5s) - marcando como offline');
+        }
         setStatus('offline');
         socket.disconnect();
       }

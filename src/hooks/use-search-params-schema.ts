@@ -9,8 +9,10 @@ export function useSearchParamsSchema<T extends z.ZodType>(schema: T) {
   const params = useMemo(() => {
     const result = schema.safeParse(search)
     if (!result.success) {
-      // eslint-disable-next-line no-console
-      console.warn('⚠️ Error validando params URL:', result.error)
+      // Log solo en desarrollo para debugging de rutas
+      if (import.meta.env.DEV) {
+        console.warn('⚠️ Error validando params URL:', result.error)
+      }
       return {} as z.infer<T>
     }
     return result.data as z.infer<T>

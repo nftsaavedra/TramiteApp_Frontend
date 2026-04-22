@@ -31,3 +31,9 @@ dist-ssr
 .tanstack
 *storybook.log
 storybook-static
+
+# Playwright E2E Tests
+test-results/
+playwright-report/
+playwright/.cache/
+*.mp4

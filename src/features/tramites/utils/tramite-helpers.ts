@@ -20,7 +20,6 @@ import { type TramiteCompleto, type Movimiento } from '../types'
  */
 export const obtenerUbicacionActual = (tramite: TramiteCompleto): string => {
   // Lógica Maestra: Si el backend informa oficinaDestino, esa es la ubicación actual.
-  // [DEBUG] Priorizamos el campo maestro.
   if (tramite.oficinaDestino) {
     return tramite.oficinaDestino.nombre
   }

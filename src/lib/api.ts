@@ -87,11 +87,14 @@ api.interceptors.response.use(
       case 500:
         // Error interno del servidor
         toast.error('Error interno del servidor. Por favor intenta más tarde.')
-        console.error('[API Error 500]', {
-          url: error.config?.url,
-          method: error.config?.method,
-          message,
-        })
+        // Log solo en desarrollo para debugging
+        if (import.meta.env.DEV) {
+          console.error('[API Error 500]', {
+            url: error.config?.url,
+            method: error.config?.method,
+            message,
+          })
+        }
         break
 
       case 502:

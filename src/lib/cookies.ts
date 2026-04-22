@@ -1,6 +1,9 @@
 /**
  * Cookie utility functions using manual document.cookie approach
  * Replaces js-cookie dependency for better consistency
+ * 
+ * NOTA: Este módulo está preparado para futura migración de localStorage a httpOnly cookies
+ * Ver: Recomendaciones de seguridad Fase 1 - Migración de tokens
  */
 
 const DEFAULT_MAX_AGE = 60 * 60 * 24 * 7 // 7 days
